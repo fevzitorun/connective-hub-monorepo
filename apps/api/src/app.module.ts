@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module'
 import { UsersModule } from './users/users.module'
 import { ListingsModule } from './listings/listings.module'
 import { SearchModule } from './search/search.module'
+import { AgencyModule } from './agency/agency.module'
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { SearchModule } from './search/search.module'
     UsersModule,
     ListingsModule,
     SearchModule,
+    AgencyModule,
   ],
 })
 export class AppModule {}
