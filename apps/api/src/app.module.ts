@@ -2,8 +2,10 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { ThrottlerModule } from '@nestjs/throttler'
 import { DatabaseModule } from './database/database.module'
+import { StorageModule } from './storage/storage.module'
 import { AuthModule } from './auth/auth.module'
 import { UsersModule } from './users/users.module'
+import { ListingsModule } from './listings/listings.module'
 
 @Module({
   imports: [
@@ -23,10 +25,10 @@ import { UsersModule } from './users/users.module'
     // Database
     DatabaseModule,
 
-    // Feature modules
+    StorageModule,
     AuthModule,
     UsersModule,
-    // ListingsModule, ← Modül 3'te
+    ListingsModule,
   ],
 })
 export class AppModule {}
