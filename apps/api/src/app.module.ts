@@ -6,6 +6,7 @@ import { StorageModule } from './storage/storage.module'
 import { AuthModule } from './auth/auth.module'
 import { UsersModule } from './users/users.module'
 import { ListingsModule } from './listings/listings.module'
+import { SearchModule } from './search/search.module'
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ListingsModule } from './listings/listings.module'
     AuthModule,
     UsersModule,
     ListingsModule,
+    SearchModule,
   ],
 })
 export class AppModule {}

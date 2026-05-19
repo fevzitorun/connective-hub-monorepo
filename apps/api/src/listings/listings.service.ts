@@ -11,6 +11,7 @@ import { WhatsappService } from '../common/services/whatsapp.service'
 import { StorageService } from '../storage/storage.service'
 import { UsersService } from '../users/users.service'
 import { UserRole } from '../users/entities/user.entity'
+import { SearchService } from '../search/search.service'
 
 const LISTING_EXPIRY_DAYS = 15
 
@@ -26,6 +27,7 @@ export class ListingsService {
     private readonly whatsappService: WhatsappService,
     private readonly storageService: StorageService,
     private readonly usersService: UsersService,
+    private readonly searchService: SearchService,
   ) {}
 
   // ─── Oluştur ─────────────────────────────────────────────────────────────
@@ -167,7 +169,12 @@ export class ListingsService {
     listing.status      = ListingStatus.ACTIVE
     listing.publishedAt = new Date()
 
-    return this.listingRepo.save(listing)
+    const published = await this.listingRepo.save(listing)
+
+    // Meilisearch'e indeksle
+    await this.searchService.indexListing(published)
+
+    return published
   }
 
   // ─── Sil ──────────────────────────────────────────────────────────────────
@@ -182,6 +189,9 @@ export class ListingsService {
     }
 
     await this.listingRepo.remove(listing)
+
+    // Meilisearch'ten kaldır
+    await this.searchService.removeListing(id)
   }
 
   // ─── Fotoğraf yükle ───────────────────────────────────────────────────────

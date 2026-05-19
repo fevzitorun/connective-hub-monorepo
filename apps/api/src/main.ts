@@ -1,9 +1,12 @@
-import { NestFactory } from '@nestjs/core'
+import { NestFactory, Reflector } from '@nestjs/core'
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify'
 import { ValidationPipe, VersioningType } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
+import multipart from '@fastify/multipart'
 import { AppModule } from './app.module'
+import { GlobalExceptionFilter } from './common/filters/http-exception.filter'
+import { ResponseInterceptor } from './common/interceptors/response.interceptor'
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -12,6 +15,13 @@ async function bootstrap() {
   )
 
   const configService = app.get(ConfigService)
+
+  // Multipart (fotoğraf upload)
+  await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } }) // 10MB
+
+  // Global filters & interceptors
+  app.useGlobalFilters(new GlobalExceptionFilter())
+  app.useGlobalInterceptors(new ResponseInterceptor())
 
   // Global validation
   app.useGlobalPipes(

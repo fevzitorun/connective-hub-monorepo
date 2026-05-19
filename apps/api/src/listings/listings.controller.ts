@@ -1,11 +1,10 @@
 import {
   Controller, Get, Post, Patch, Delete, Body, Param, Query,
-  UseGuards, UploadedFile, UseInterceptors, Res, HttpCode,
-  HttpStatus, ParseUUIDPipe, Version,
+  UseGuards, Res, HttpCode, HttpStatus, ParseUUIDPipe, Version, Req,
 } from '@nestjs/common'
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger'
 import { Throttle } from '@nestjs/throttler'
-import { Response } from 'express'
+import { FastifyRequest, FastifyReply } from 'fastify'
 import { ListingsService } from './listings.service'
 import { CsvImportService } from './csv-import.service'
 import { CreateListingDto } from './dto/create-listing.dto'
@@ -110,6 +109,29 @@ export class ListingsController {
     @CurrentUser() user: User,
   ) {
     return this.listingsService.reorderPhotos(id, user.id, body.orderedIds)
+  }
+
+  // POST /api/v1/listings/:id/photos  (multipart/form-data, field: file)
+  @Post(':id/photos')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'İlana fotoğraf yükle (maks 10MB, maks 20 adet)' })
+  async uploadPhoto(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: User,
+    @Req() req: FastifyRequest,
+  ) {
+    const file = await (req as any).file()
+    if (!file) throw new Error('Dosya bulunamadı')
+
+    const allowed = ['image/jpeg', 'image/png', 'image/webp']
+    if (!allowed.includes(file.mimetype)) {
+      throw new Error('Sadece JPEG, PNG ve WebP formatları kabul edilir')
+    }
+
+    const buffer = await file.toBuffer()
+    return this.listingsService.uploadPhoto(id, user.id, buffer, file.mimetype)
   }
 
   // DELETE /api/v1/listings/photos/:photoId

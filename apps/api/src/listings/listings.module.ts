@@ -7,11 +7,13 @@ import { ListingsController } from './listings.controller'
 import { CsvImportService } from './csv-import.service'
 import { WhatsappService } from '../common/services/whatsapp.service'
 import { UsersModule } from '../users/users.module'
+import { SearchModule } from '../search/search.module'
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Listing, ListingPhoto]),
     UsersModule,
+    SearchModule,
   ],
   controllers: [ListingsController],
   providers: [ListingsService, CsvImportService, WhatsappService],
