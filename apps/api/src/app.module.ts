@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module'
 import { ListingsModule } from './listings/listings.module'
 import { SearchModule } from './search/search.module'
 import { AgencyModule } from './agency/agency.module'
+import { FavoritesModule } from './favorites/favorites.module'
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { AgencyModule } from './agency/agency.module'
     ListingsModule,
     SearchModule,
     AgencyModule,
+    FavoritesModule,
   ],
 })
 export class AppModule {}

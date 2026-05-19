@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import type { SearchHit } from '../lib/api'
-import { formatPrice, formatArea, listingTypeLabel, categoryLabel } from '../lib/utils'
+import { formatPrice, formatArea, listingTypeLabel } from '../lib/utils'
+import { FavoriteButton } from './FavoriteButton'
 
 interface Props {
   hit: SearchHit
@@ -35,6 +36,11 @@ export function ListingCard({ hit }: Props) {
         <span className={`absolute top-3 left-3 ${badgeClass} text-xs`}>
           {badge}
         </span>
+
+        {/* Favori butonu */}
+        <div className="absolute top-3 right-3">
+          <FavoriteButton listingId={hit.id} size="sm" />
+        </div>
 
         {/* WhatsApp hint */}
         {hit.whatsappLink && (

@@ -6,7 +6,9 @@ import { Navbar } from '../../components/Navbar'
 import { Footer } from '../../components/Footer'
 import { FilterPanel } from '../../components/FilterPanel'
 import { ListingCard } from '../../components/ListingCard'
+import { SaveSearchButton } from '../../components/SaveSearchButton'
 import { useSearchStore } from '../../store/search'
+import { useHistoryStore } from '../../store/history'
 import { api } from '../../lib/api'
 
 // Mapbox sadece client-side yüklenir
@@ -26,6 +28,7 @@ export default function SearchPage() {
   const router = useRouter()
   const urlParams = useSearchParams()
   const { params, result, loading, error, mapView, setParams, setResult, setLoading, setError, toggleMapView } = useSearchStore()
+  const { push: pushHistory } = useHistoryStore()
 
   // URL → store sync (ilk yüklenme)
   useEffect(() => {
@@ -43,6 +46,10 @@ export default function SearchPage() {
     try {
       const res = await api.search(params)
       setResult(res)
+      // Arama geçmişine ekle (en az 1 kriter girilmişse)
+      if (params.city || params.q || params.listingType) {
+        pushHistory(params, '')
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Arama başarısız')
     } finally {
@@ -75,6 +82,9 @@ export default function SearchPage() {
             </div>
 
             <div className="flex items-center gap-3">
+              {/* Arama alarm */}
+              <SaveSearchButton />
+
               {/* Harita toggle */}
               <button
                 onClick={toggleMapView}

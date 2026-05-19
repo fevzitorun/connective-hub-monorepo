@@ -4,6 +4,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Navbar } from '../../../components/Navbar'
 import { Footer } from '../../../components/Footer'
+import { FavoriteButton } from '../../../components/FavoriteButton'
+import { OfferButton } from '../../../components/OfferButton'
 import { api } from '../../../lib/api'
 import { formatPrice, formatArea, listingTypeLabel, propertyTypeLabel, categoryLabel, timeAgo } from '../../../lib/utils'
 
@@ -92,6 +94,11 @@ export default async function ListingDetailPage({ params }: Props) {
                 <span className={`absolute top-4 left-4 ${listing.listingType === 'sale' ? 'badge-gold' : 'badge-teal'} text-sm px-3 py-1`}>
                   {listingTypeLabel(listing.listingType)}
                 </span>
+
+                {/* Favori butonu */}
+                <div className="absolute top-4 right-4">
+                  <FavoriteButton listingId={listing.id} size="lg" />
+                </div>
               </div>
 
               {/* Diğer fotoğraflar */}
@@ -184,6 +191,14 @@ export default async function ListingDetailPage({ params }: Props) {
                 ) : (
                   <button className="btn-primary mt-5 w-full">İletişime Geç</button>
                 )}
+
+                {/* Teklif Ver */}
+                <OfferButton
+                  whatsappLink={listing.whatsappLink}
+                  listingTitle={listing.title}
+                  listingPrice={listing.price}
+                  currency={listing.currency}
+                />
 
                 {/* QR Kodu */}
                 {listing.whatsappQrUrl && (
