@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── 7fil Design Tokens ────────────────────────────────────────────────────── */
+/* Derived from 7fil-v4.html mockup */
+:root {
+  /* Brand Colors */
+  --ink:    #1a1a2e;   /* Primary dark — headings, body text */
+  --gold:   #c9a84c;   /* Accent — CTAs, highlights, 7fil symbol */
+  --teal:   #2d6a6a;   /* Secondary — links, tags, badges */
+  --cream:  #f8f4ee;   /* Background — warm off-white */
+
+  /* Neutrals */
+  --white:  #ffffff;
+  --muted:  #6b7280;
+  --border: #e5e0d8;
+  --card:   #ffffff;
+
+  /* Status */
+  --success: #16a34a;
+  --warning: #d97706;
+  --danger:  #dc2626;
+  --info:    #2563eb;
+
+  /* FILTERRA.AI brand */
+  --filterra-primary: #2d6a6a;
+  --filterra-accent:  #c9a84c;
+
+  /* Typography */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+
+  /* Spacing */
+  --radius: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+}
+
+/* ─── Base Styles ────────────────────────────────────────────────────────────── */
+
+@layer base {
+  body {
+    @apply bg-cream text-ink font-body antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display;
+  }
+}
+
+/* ─── 7fil Component Utilities ───────────────────────────────────────────────── */
+
+@layer components {
+  .btn-primary {
+    @apply bg-gold text-white font-semibold px-6 py-3 rounded-lg
+           hover:bg-yellow-600 transition-colors duration-200
+           focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply bg-teal text-white font-semibold px-6 py-3 rounded-lg
+           hover:bg-teal/90 transition-colors duration-200;
+  }
+
+  .btn-outline {
+    @apply border-2 border-gold text-gold font-semibold px-6 py-3 rounded-lg
+           hover:bg-gold hover:text-white transition-colors duration-200;
+  }
+
+  .card {
+    @apply bg-white rounded-xl border border-border shadow-sm
+           hover:shadow-md transition-shadow duration-200;
+  }
+
+  .badge-gold {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs
+           font-medium bg-gold/10 text-gold;
+  }
+
+  .badge-teal {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs
+           font-medium bg-teal/10 text-teal;
+  }
+
+  /* FILTERRA.AI rozeti */
+  .filterra-badge {
+    @apply inline-flex items-center gap-1 text-xs text-teal/80 font-medium;
+  }
+
+  .whatsapp-btn {
+    @apply flex items-center justify-center gap-2 bg-[#25D366] text-white
+           font-semibold px-6 py-3 rounded-lg hover:bg-[#20b959]
+           transition-colors duration-200;
+  }
+
+  .input-base {
+    @apply w-full rounded-lg border border-border bg-white px-4 py-3
+           text-ink placeholder:text-muted focus:outline-none
+           focus:ring-2 focus:ring-gold/50 focus:border-gold
+           transition-colors duration-200;
+  }
+
+  .section-title {
+    @apply font-display text-2xl md:text-3xl font-bold text-ink;
+  }
+
+  .price-tag {
+    @apply font-display text-xl font-bold text-gold;
+  }
+}
