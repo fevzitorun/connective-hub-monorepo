@@ -1,0 +1,14 @@
+/* App-specific overrides only — base tokens live in @7fil/ui/globals.css */
+
+/* Mapbox GL override */
+.mapboxgl-map {
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+/* Listing gallery fade */
+.gallery-thumb {
+  @apply cursor-pointer opacity-70 hover:opacity-100 transition-opacity;
+}
+.gallery-thumb.active {
+  @apply opacity-100 ring-2 ring-gold;
+}
