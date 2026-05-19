@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common'
-import { ConfigModule, ConfigService } from '@nestjs/config'
-import { TypeOrmModule } from '@nestjs/typeorm'
+import { ConfigModule } from '@nestjs/config'
 import { ThrottlerModule } from '@nestjs/throttler'
 import { DatabaseModule } from './database/database.module'
+import { AuthModule } from './auth/auth.module'
+import { UsersModule } from './users/users.module'
 
 @Module({
   imports: [
@@ -22,10 +23,10 @@ import { DatabaseModule } from './database/database.module'
     // Database
     DatabaseModule,
 
-    // Feature modules (Modül 2'de eklenecek)
-    // AuthModule,
-    // UsersModule,
-    // ListingsModule,
+    // Feature modules
+    AuthModule,
+    UsersModule,
+    // ListingsModule, ← Modül 3'te
   ],
 })
 export class AppModule {}
