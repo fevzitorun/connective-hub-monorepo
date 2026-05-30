@@ -456,6 +456,22 @@ model Notification {
 
 // ─── PLATFORM ANALİTİK ───────────────────────────────────────────
 
+// ─── İLETİŞİM / BEKLEME LİSTESİ ─────────────────────────────────
+
+model ContactRequest {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  company     String?
+  type        String   @default("agency") // agency | investor | partner | press
+  message     String?
+  city        String?
+  country     String   @default("TR")
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
 model AgencyAnalytics {
   id             String   @id @default(cuid())
   agencyId       String
