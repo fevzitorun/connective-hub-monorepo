@@ -1,0 +1,473 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ─── KULLANICILAR ───────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  phone        String?
+  role         String   @default("buyer") // admin | agency_owner | agency_member | partner | investor | buyer
+  avatarUrl    String?
+  isActive     Boolean  @default(true)
+  isVerified   Boolean  @default(false)
+  tcKimlik     String?  // TC kimlik no (hashed)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  agency       Agency?  @relation("AgencyOwner")
+  membership   AgencyMember?
+  leads        Lead[]   @relation("LeadAssignee")
+  notifications Notification[]
+  sessions     Session[]
+  partner      Partner?
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── AJANSLAR ────────────────────────────────────────────────────
+
+model Agency {
+  id            String   @id @default(cuid())
+  name          String
+  slug          String   @unique  // acibademrealty → acibademrealty.7fil.com.tr
+  ownerId       String   @unique
+  email         String
+  phone         String?
+  website       String?
+  logoUrl       String?
+  coverUrl      String?
+  description   String?
+  address       String?
+  city          String?
+  district      String?
+  country       String   @default("TR")  // TR | UK
+  taxNumber     String?  // VKN
+  isApproved    Boolean  @default(false)
+  isActive      Boolean  @default(true)
+  approvedAt    DateTime?
+  subscriptionTier String @default("free") // free | starter | pro | agency | enterprise
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  owner         User     @relation("AgencyOwner", fields: [ownerId], references: [id])
+  members       AgencyMember[]
+  listings      Listing[]
+  leads         Lead[]
+  subscription  Subscription?
+  socialAccounts SocialAccount[]
+  emailCampaigns EmailCampaign[]
+  analytics     AgencyAnalytics[]
+}
+
+model AgencyMember {
+  id        String   @id @default(cuid())
+  agencyId  String
+  userId    String   @unique
+  role      String   @default("member") // owner | manager | member
+  joinedAt  DateTime @default(now())
+
+  agency    Agency   @relation(fields: [agencyId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+// ─── ABONELIK ────────────────────────────────────────────────────
+
+model Subscription {
+  id              String   @id @default(cuid())
+  agencyId        String   @unique
+  tier            String   // free | starter | pro | agency | enterprise
+  currency        String   @default("TRY")  // TRY | GBP
+  priceMonthly    Float
+  status          String   @default("active") // active | cancelled | past_due | trialing
+  trialEndsAt     DateTime?
+  currentPeriodEnd DateTime?
+  giftCredit      Float    @default(0)  // Eylül kampanya hediye kredisi
+  paymentProvider String?  // iyzico | stripe
+  externalSubId   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  agency          Agency   @relation(fields: [agencyId], references: [id])
+}
+
+// ─── İLANLAR ─────────────────────────────────────────────────────
+
+model Listing {
+  id              String   @id @default(cuid())
+  agencyId        String
+  title           String
+  slug            String   @unique
+  description     String?
+  listingType     String   // sale | rent | auction | new_project
+  propertyType    String   // apartment | house | villa | office | shop | warehouse | land | commercial
+  status          String   @default("draft") // draft | pending | active | rejected | sold | rented | expired
+  isFeatured      Boolean  @default(false)
+  isUrgent        Boolean  @default(false)
+
+  // Konum
+  country         String   @default("TR")
+  city            String
+  district        String?
+  neighborhood    String?
+  address         String?
+  latitude        Float?
+  longitude       Float?
+  mapaParcel      String?  // Ada/parsel
+
+  // Özellikler
+  priceAmount     Float?
+  priceCurrency   String   @default("TRY")
+  pricePerSqm     Float?
+  areaGross       Float?   // brüt m²
+  areaNet         Float?   // net m²
+  rooms           String?  // 2+1, 3+1 etc
+  bedrooms        Int?
+  bathrooms       Int?
+  floor           Int?
+  totalFloors     Int?
+  buildingAge     Int?
+  heatingType     String?
+  hasParking      Boolean  @default(false)
+  hasGarden       Boolean  @default(false)
+  hasPool         Boolean  @default(false)
+  hasSecurity     Boolean  @default(false)
+  isReadyToMove   Boolean  @default(true)
+  isFurnished     Boolean  @default(false)
+
+  // SEO
+  metaTitle       String?
+  metaDesc        String?
+  seoSlug         String?
+
+  // Cross-platform
+  sahibindenId    String?
+  rightmoveId     String?
+  zooplaId        String?
+
+  viewCount       Int      @default(0)
+  favoriteCount   Int      @default(0)
+  inquiryCount    Int      @default(0)
+
+  publishedAt     DateTime?
+  expiresAt       DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  agency          Agency   @relation(fields: [agencyId], references: [id])
+  photos          ListingPhoto[]
+  leads           Lead[]
+  auctionLot      AuctionLot?
+  valuation       ValuationReport?
+
+  @@index([city, district, listingType, status])
+  @@index([agencyId, status])
+}
+
+model ListingPhoto {
+  id        String   @id @default(cuid())
+  listingId String
+  url       String
+  thumbUrl  String?
+  alt       String?
+  order     Int      @default(0)
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+}
+
+// ─── CRM & LEADS ─────────────────────────────────────────────────
+
+model Lead {
+  id           String   @id @default(cuid())
+  agencyId     String
+  listingId    String?
+  assigneeId   String?
+  name         String
+  email        String?
+  phone        String?
+  source       String   @default("platform") // platform | website | sahibinden | rightmove | social | referral
+  status       String   @default("new")  // new | contacted | qualified | negotiating | won | lost
+  score        Int      @default(0)  // AI lead scoring 0-100
+  budget       Float?
+  notes        String?
+  tags         String?  // JSON array as string
+  nextFollowUp DateTime?
+  closedAt     DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  agency       Agency   @relation(fields: [agencyId], references: [id])
+  listing      Listing? @relation(fields: [listingId], references: [id])
+  assignee     User?    @relation("LeadAssignee", fields: [assigneeId], references: [id])
+  messages     LeadMessage[]
+  tasks        Task[]
+}
+
+model LeadMessage {
+  id        String   @id @default(cuid())
+  leadId    String
+  direction String   // inbound | outbound
+  channel   String   // email | whatsapp | phone | sms | platform
+  content   String
+  sentAt    DateTime @default(now())
+
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  leadId      String?
+  agencyId    String?
+  title       String
+  description String?
+  dueDate     DateTime?
+  isDone      Boolean  @default(false)
+  priority    String   @default("medium") // low | medium | high
+  createdAt   DateTime @default(now())
+
+  lead        Lead?    @relation(fields: [leadId], references: [id])
+}
+
+// ─── MÜZAYEDELERi ────────────────────────────────────────────────
+
+model AuctionLot {
+  id            String   @id @default(cuid())
+  listingId     String   @unique
+  startPrice    Float
+  reservePrice  Float?
+  currentBid    Float?
+  bidIncrement  Float    @default(1000)
+  auctionType   String   @default("live") // live | sealed
+  status        String   @default("upcoming") // upcoming | live | ended | cancelled
+  startsAt      DateTime
+  endsAt        DateTime
+  winnerId      String?
+  createdAt     DateTime @default(now())
+
+  listing       Listing  @relation(fields: [listingId], references: [id])
+  bids          AuctionBid[]
+}
+
+model AuctionBid {
+  id          String   @id @default(cuid())
+  lotId       String
+  bidderId    String
+  amount      Float
+  isWinning   Boolean  @default(false)
+  placedAt    DateTime @default(now())
+
+  lot         AuctionLot @relation(fields: [lotId], references: [id])
+}
+
+// ─── ORTAKLAR (Avukat / Banka / Sigorta) ─────────────────────────
+
+model Partner {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  type          String   // lawyer | bank | participation_bank | insurance | surveyor | photographer
+  companyName   String
+  licenseNo     String?
+  specialties   String?  // JSON: ["kira","tapu","ipotek"]
+  cities        String?  // JSON: ["istanbul","ankara"]
+  country       String   @default("TR")
+  isVerified    Boolean  @default(false)
+  isActive      Boolean  @default(true)
+  rating        Float    @default(0)
+  reviewCount   Int      @default(0)
+  bio           String?
+  website       String?
+  logoUrl       String?
+  createdAt     DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [id])
+  services      PartnerService[]
+}
+
+model PartnerService {
+  id          String  @id @default(cuid())
+  partnerId   String
+  name        String
+  description String?
+  priceFrom   Float?
+  priceTo     Float?
+  currency    String  @default("TRY")
+
+  partner     Partner @relation(fields: [partnerId], references: [id])
+}
+
+// ─── DEPOZİTO ────────────────────────────────────────────────────
+
+model Deposit {
+  id            String   @id @default(cuid())
+  listingId     String
+  tenantName    String
+  tenantEmail   String
+  landlordName  String
+  amount        Float
+  currency      String   @default("TRY")
+  status        String   @default("held") // held | released | disputed | partial_release
+  heldAt        DateTime @default(now())
+  releasedAt    DateTime?
+  notes         String?
+  createdAt     DateTime @default(now())
+}
+
+// ─── DEĞERLEMELERi ───────────────────────────────────────────────
+
+model ValuationReport {
+  id              String   @id @default(cuid())
+  listingId       String?  @unique
+  city            String
+  district        String?
+  neighborhood    String?
+  propertyType    String
+  areaM2          Float
+  estimatedValue  Float
+  pricePerSqm     Float
+  confidence      String   // low | medium | high
+  methodology     String?
+  reportData      String?  // JSON
+  requestedBy     String?
+  createdAt       DateTime @default(now())
+
+  listing         Listing? @relation(fields: [listingId], references: [id])
+}
+
+// ─── SEO GEO SAYFALAR ────────────────────────────────────────────
+
+model GeoPage {
+  id            String   @id @default(cuid())
+  country       String   @default("TR")
+  city          String
+  district      String?
+  neighborhood  String?
+  listingType   String?  // sale | rent | null=all
+  propertyType  String?
+  slug          String   @unique
+  title         String
+  metaDesc      String?
+  h1            String?
+  content       String?  // AI generated content
+  listingCount  Int      @default(0)
+  avgPrice      Float?
+  lastGenerated DateTime?
+  isPublished   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([country, city, district])
+}
+
+// ─── EMAIL KAMPANYALAR ────────────────────────────────────────────
+
+model EmailCampaign {
+  id          String   @id @default(cuid())
+  agencyId    String
+  name        String
+  subject     String
+  htmlContent String
+  status      String   @default("draft") // draft | scheduled | sending | sent
+  scheduledAt DateTime?
+  sentAt      DateTime?
+  recipientCount Int   @default(0)
+  openCount   Int      @default(0)
+  clickCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  agency      Agency   @relation(fields: [agencyId], references: [id])
+}
+
+// ─── SOSYAL MEDYA ────────────────────────────────────────────────
+
+model SocialAccount {
+  id          String   @id @default(cuid())
+  agencyId    String
+  platform    String   // instagram | facebook | twitter | linkedin
+  accountId   String
+  accessToken String?
+  isActive    Boolean  @default(true)
+  connectedAt DateTime @default(now())
+
+  agency      Agency   @relation(fields: [agencyId], references: [id])
+}
+
+// ─── AI AGENT ALTYAPISI ──────────────────────────────────────────
+
+model AgentJob {
+  id          String   @id @default(cuid())
+  agentType   String   // geo_content | seo_meta | listing_desc | lead_scoring | email_campaign | price_monitor | moderation | valuation
+  status      String   @default("pending") // pending | running | completed | failed | skipped
+  priority    Int      @default(5) // 1=urgent 10=low
+  payload     String?  // JSON input
+  result      String?  // JSON output
+  error       String?
+  agencyId    String?  // if agent-specific to agency
+  listingId   String?
+  retries     Int      @default(0)
+  scheduledAt DateTime @default(now())
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([status, scheduledAt])
+  @@index([agentType, status])
+}
+
+model AgentLog {
+  id          String   @id @default(cuid())
+  agentType   String
+  summary     String
+  itemsProcessed Int   @default(0)
+  duration    Int?     // ms
+  runAt       DateTime @default(now())
+}
+
+// ─── BİLDİRİMLER ─────────────────────────────────────────────────
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // new_lead | listing_approved | price_drop | auction_bid | task_due | payment
+  title     String
+  body      String?
+  link      String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── PLATFORM ANALİTİK ───────────────────────────────────────────
+
+model AgencyAnalytics {
+  id             String   @id @default(cuid())
+  agencyId       String
+  date           DateTime
+  listingViews   Int      @default(0)
+  listingInquiries Int    @default(0)
+  leadsReceived  Int      @default(0)
+  emailSent      Int      @default(0)
+  emailOpened    Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  agency         Agency   @relation(fields: [agencyId], references: [id])
+
+  @@unique([agencyId, date])
+}
