@@ -1,138 +1,181 @@
 "use client";
-import { useState } from "react";
-import Link from "next/link";
 
-const kpis = [
-  { label: "Toplam Görüntülenme", value: "24.891", sub: "↑ %18 geçen aya göre", up: true },
-  { label: "WhatsApp Tıklama",    value: "1.247",  sub: "↑ %32 geçen aya göre", up: true },
-  { label: "Aktif İlan",          value: "23",     sub: "50 hak üzerinden",      up: null },
-  { label: "Favorilenme",         value: "384",    sub: "↓ %4 geçen aya göre",  up: false },
-];
+import React, { useState } from 'react';
+import { LISTINGS, fmtTRY } from '@/lib/data';
+import {
+  IconDocument, IconFilter, IconSparkle, IconStar, IconMapPin,
+  IconEye, IconChat, IconBookmark, IconEdit, IconDocument as IconDocumentB,
+  IconChart, IconPause, IconTrash, IconKebab,
+} from '@/components/icons';
+import { Pill } from '@/components/ui';
+import { Photo } from '@/components/photos';
 
-const topListings = [
-  { title: "Beşiktaş 3+1 Deniz", price: "₺4.850.000", views: 4291, wa: 187, fav: 64,  status: "Aktif",    statusClass: "badge-green" },
-  { title: "Levent Ofis 380m²",  price: "₺65.000/ay",  views: 3105, wa: 142, fav: 41,  status: "Aktif",    statusClass: "badge-green" },
-  { title: "Maslak 2+1 Kiralık", price: "₺32.000/ay",  views: 2880, wa: 98,  fav: 29,  status: "Aktif",    statusClass: "badge-green" },
-  { title: "Sarıyer Villa 4+2",  price: "₺12.500.000", views: 1940, wa: 73,  fav: 55,  status: "Beklemede", statusClass: "badge-yellow" },
-  { title: "Kadıköy 2+1 Yeni",   price: "₺2.200.000",  views: 1720, wa: 61,  fav: 33,  status: "Pasif",    statusClass: "badge-gray" },
-];
+type PartnerListing = typeof LISTINGS[0] & {
+  status: 'featured' | 'active' | 'expiring' | 'paused';
+  views: number;
+  chats: number;
+  favs: number;
+  daysLeft: number;
+  mls: boolean;
+};
 
-const sparkHeights = [45, 55, 48, 62, 70, 65, 82, 100];
+const STATUS_MAP: Record<string, { label: string; pill: string }> = {
+  active:    { label: 'Aktif',          pill: 'success' },
+  featured:  { label: 'Öne Çıkarılmış', pill: 'gold' },
+  paused:    { label: 'Pasif',          pill: 'mute' },
+  expiring:  { label: 'Süresi Doluyor', pill: 'danger' },
+  expired:   { label: 'Süresi Doldu',   pill: 'danger' },
+};
 
-const navItems = [
-  { icon: "📊", label: "Özet",     key: "ozet" },
-  { icon: "📋", label: "İlanlarım", key: "ilanlar" },
-  { icon: "📈", label: "Analitik", key: "analitik" },
-  { icon: "🤖", label: "Atlas AI", key: "atlas", href: "/atlas" },
-  { icon: "🔨", label: "Müzayede", key: "muzayede", href: "/muzayede" },
-  { icon: "🏷", label: "Abonelik", key: "abonelik" },
-  { icon: "⚙️", label: "Profil",   key: "profil" },
-  { icon: "🎨", label: "Marka",    key: "marka" },
-];
+const Metric = ({ label, value, trend, trendUp }: { label: string; value: string; trend: string; trendUp?: boolean }) => (
+  <div className="pmcard">
+    <div className="pmcard-label">{label}</div>
+    <div className="pmcard-value">{value}</div>
+    <div className={`pmcard-trend ${trendUp ? 'up' : ''}`}>{trendUp && '↑ '}{trend}</div>
+  </div>
+);
 
-export default function PanelPage() {
-  const [active, setActive] = useState("ozet");
+const PartnerCard = ({ l }: { l: PartnerListing }) => {
+  const [mls, setMls] = useState(l.mls);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const s = STATUS_MAP[l.status];
+  const isRent = l.kind === 'kiralik';
+  const lowDays = l.daysLeft <= 3;
 
   return (
-    <div style={{ display: "flex", minHeight: "calc(100vh - 60px)" }}>
-      {/* Sidebar */}
-      <div style={{ width: 220, background: "var(--ink)", display: "flex", flexDirection: "column", flexShrink: 0 }}>
-        <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.08)", fontFamily: "Georgia,serif", fontSize: 16, fontWeight: 700, color: "#fff" }}>
-          7<span style={{ color: "var(--gold)" }}>fil</span>
-          <small style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontFamily: "system-ui", fontWeight: 400, marginLeft: 6 }}>Panel</small>
+    <div className="plisting">
+      <div className="plisting-photo">
+        <Photo scene={l.scene} palette={l.palette}/>
+        <span className={`pill pill-${s.pill}`}>
+          {l.status === 'featured' && <IconStar size={10}/>} {s.label}
+        </span>
+      </div>
+
+      <div className="plisting-body">
+        <div className="plisting-meta-row">
+          <span className={`plisting-kind ${isRent ? 'is-rent' : 'is-sale'}`}>{isRent ? 'Kiralık' : 'Satılık'}</span>
+          <span className="plisting-price">{fmtTRY(l.price)}{isRent ? ' /ay' : ''}</span>
         </div>
-        <div style={{ flex: 1, padding: "12px 8px" }}>
-          {navItems.map(item => {
-            const isActive = active === item.key;
-            if (item.href) {
-              return (
-                <Link key={item.key} href={item.href}
-                  style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 10, textDecoration: "none", marginBottom: 2, fontSize: 13, color: "rgba(255,255,255,0.5)" }}
-                  className="hover:text-white hover:bg-white/10">
-                  {item.icon} {item.label}
-                </Link>
-              );
-            }
-            return (
-              <div key={item.key} onClick={() => setActive(item.key)}
-                style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 10, cursor: "pointer", marginBottom: 2, fontSize: 13, background: isActive ? "var(--gold)" : "transparent", color: isActive ? "var(--ink)" : "rgba(255,255,255,0.5)", fontWeight: isActive ? 600 : 400 }}
-                className={!isActive ? "hover:text-white hover:bg-white/10" : ""}>
-                {item.icon} {item.label}
-              </div>
-            );
-          })}
+        <div className="plisting-title">{l.title}</div>
+        <div className="plisting-loc"><IconMapPin/> {l.city}</div>
+
+        <div className="plisting-metrics">
+          <span className="plisting-metric"><IconEye/> <strong>{l.views.toLocaleString('tr-TR')}</strong> görüntülenme</span>
+          <span className="plisting-metric"><IconChat/> <strong>{l.chats}</strong> talep</span>
+          <span className="plisting-metric"><IconBookmark/> <strong>{l.favs}</strong> favori</span>
         </div>
-        <div style={{ padding: "12px 16px", borderTop: "1px solid rgba(255,255,255,0.08)", fontSize: 11, color: "rgba(255,255,255,0.3)" }}>
-          <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 12 }}>Maslak Gayrimenkul A.Ş.</div>
-          <div style={{ marginTop: 2 }}>Pro Plan · 23 Aktif İlan</div>
+
+        <div className="plisting-bottom">
+          <div className="plisting-bottom-progress">
+            <div className="plisting-progress">
+              <div
+                className={`plisting-progress-fill ${lowDays ? 'is-danger' : ''}`}
+                style={{width: `${Math.min(100, (l.daysLeft / 30) * 100)}%`}}
+              />
+            </div>
+            <span className={`plisting-days ${lowDays ? 'is-danger' : ''}`}>
+              {l.status === 'paused' ? 'Pasif' : `${l.daysLeft} gün`}
+            </span>
+          </div>
+          <button className="btn btn-atlas btn-sm">
+            <IconSparkle size={12}/> Atlas AI ile Optimize
+          </button>
         </div>
       </div>
 
-      {/* Content */}
-      <div style={{ flex: 1, padding: 28, overflowY: "auto", background: "var(--cream)" }}>
-        <div style={{ marginBottom: 24 }}>
-          <h1 className="serif" style={{ fontSize: 22, fontWeight: 700 }}>Merhaba, Ahmet Bey 👋</h1>
-          <p style={{ color: "var(--muted)", fontSize: 13, marginTop: 4 }}>Son 30 günün performansı — Maslak Gayrimenkul A.Ş.</p>
+      <div className="plisting-side">
+        <div className="plisting-mls">
+          <span className="plisting-mls-label">MLS</span>
+          {mls && <span className="plisting-mls-share">50 / 50</span>}
+          <button
+            className="toggle"
+            aria-checked={mls}
+            onClick={() => setMls(!mls)}
+            aria-label="MLS Komisyon Paylaşımı"
+          />
+        </div>
+        <div className="kebab-wrap">
+          <button className="kebab" onClick={() => setMenuOpen(!menuOpen)} aria-label="Aksiyon menüsü">
+            <IconKebab/>
+          </button>
+          {menuOpen && (
+            <>
+              <div
+                style={{position:'fixed', inset:0, zIndex:10}}
+                onClick={() => setMenuOpen(false)}
+              />
+              <div className="kebab-menu">
+                <button><IconEdit/> Düzenle</button>
+                <button><IconDocumentB/> PDF Broşür Oluştur</button>
+                <button><IconChart/> Detaylı İstatistikler</button>
+                <div className="kebab-menu-sep"/>
+                <button><IconPause/> Pasifleştir</button>
+                <button className="danger"><IconTrash/> Sil</button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default function PartnerScreen() {
+  const items: PartnerListing[] = LISTINGS.slice(0, 5).map((l, i) => ({
+    ...l,
+    status: (['featured', 'active', 'active', 'expiring', 'paused'] as const)[i],
+    views: [1247, 842, 318, 2104, 56][i],
+    chats: [34, 21, 7, 88, 1][i],
+    favs: [12, 4, 1, 47, 0][i],
+    daysLeft: [21, 18, 12, 2, 0][i],
+    mls: [true, false, true, true, false][i],
+  }));
+
+  return (
+    <div className="partner">
+      <div className="partner-inner">
+        {/* Header */}
+        <div className="partner-head">
+          <div>
+            <span className="eyebrow partner-eyebrow">Connective Partner · Sezon 2026</span>
+            <h1>Merhaba <em style={{color:'var(--gold)', fontStyle:'italic'}}>Zeynep.</em></h1>
+            <p style={{margin:'10px 0 0', color:'rgba(255,253,248,0.6)', fontSize:15}}>
+              Bu ay 312 yeni görüntülenme, 8 sıcak teklif. Atlas AI bu hafta 3 ilanın için optimizasyon önerdi.
+            </p>
+          </div>
+          <div style={{display:'flex', gap:8}}>
+            <button className="btn btn-outline" style={{color:'var(--paper)', borderColor:'rgba(255,253,248,0.18)'}}>
+              <IconDocument size={16}/> Aylık Rapor
+            </button>
+            <button className="btn btn-primary">+ Yeni İlan</button>
+          </div>
         </div>
 
-        {/* KPIs */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14 }}>
-          {kpis.map(k => (
-            <div key={k.label} style={{ background: "#fff", borderRadius: 16, padding: 18, border: "1px solid var(--border)" }}>
-              <div style={{ fontSize: 11, color: "var(--muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em" }}>{k.label}</div>
-              <div className="serif" style={{ fontSize: 28, fontWeight: 700, marginTop: 6 }}>{k.value}</div>
-              <div style={{ fontSize: 11, marginTop: 4, color: k.up === true ? "var(--green)" : k.up === false ? "var(--red)" : "var(--muted)" }}>{k.sub}</div>
-            </div>
-          ))}
+        {/* Metrics */}
+        <div className="partner-metrics">
+          <Metric label="Aktif İlan" value="12" trend="+ 2 bu hafta" trendUp/>
+          <Metric label="Toplam Görüntülenme" value="4.617" trend="+ 312 bu ay" trendUp/>
+          <Metric label="WhatsApp Talebi" value="151" trend="+ 22 bu ay" trendUp/>
+          <Metric label="Sıcak Teklif" value="8" trend="3 bekliyor"/>
         </div>
 
-        {/* Trend chart */}
-        <div style={{ background: "#fff", borderRadius: 16, border: "1px solid var(--border)", padding: 20, marginTop: 20 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-            <div style={{ fontWeight: 700 }}>Görüntülenme Trendi (Son 8 Hafta)</div>
-            <div style={{ fontSize: 12, color: "var(--teal)", fontWeight: 600 }}>↑ 18% büyüme</div>
-          </div>
-          <div className="sparkline" style={{ height: 80 }}>
-            {sparkHeights.map((h, i) => (
-              <div key={i} className="spark-bar" style={{ height: `${h}%` }} />
-            ))}
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, fontSize: 11, color: "var(--muted)" }}>
-            {["Mar","Mar","Nis","Nis","May","May","Haz","Bu Hafta"].map(l => <span key={l}>{l}</span>)}
+        {/* Listing management */}
+        <div className="partner-section-head">
+          <h2>İlanlarım</h2>
+          <div style={{display:'flex', gap:8}}>
+            <button className="btn btn-outline btn-sm" style={{color:'var(--paper)', borderColor:'rgba(255,253,248,0.18)'}}>
+              <IconFilter size={14}/> Filtrele
+            </button>
+            <select style={{height:32, background:'var(--ink-2)', color:'var(--paper)', border:'1px solid rgba(255,253,248,0.18)', borderRadius:8, padding:'0 28px 0 12px', fontSize:13}}>
+              <option>Tümü · 12</option>
+              <option>Aktif · 8</option>
+              <option>Süresi yakın · 2</option>
+            </select>
           </div>
         </div>
 
-        {/* Top listings table */}
-        <div style={{ background: "#fff", borderRadius: 16, border: "1px solid var(--border)", overflow: "hidden", marginTop: 20 }}>
-          <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ fontWeight: 700, fontSize: 14 }}>En İyi Performanslı İlanlar</div>
-            <button style={{ background: "var(--gold)", color: "var(--ink)", border: "none", borderRadius: 10, padding: "6px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>+ Yeni İlan</button>
-          </div>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr>
-                {["İlan","Görüntülenme","WA Tıklama","Favori","Durum"].map(h => (
-                  <th key={h} style={{ textAlign: "left", padding: "10px 16px", fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.04em", background: "#f9fafb", borderBottom: "1px solid var(--border)" }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {topListings.map((l, i) => (
-                <tr key={i} className="hover:bg-gray-50">
-                  <td style={{ padding: "12px 16px", borderBottom: i < topListings.length - 1 ? "1px solid #f3f4f6" : "none" }}>
-                    <b>{l.title}</b><br />
-                    <small style={{ color: "var(--muted)" }}>{l.price}</small>
-                  </td>
-                  <td style={{ padding: "12px 16px", fontSize: 13, borderBottom: i < topListings.length - 1 ? "1px solid #f3f4f6" : "none" }}>{l.views.toLocaleString()}</td>
-                  <td style={{ padding: "12px 16px", fontSize: 13, borderBottom: i < topListings.length - 1 ? "1px solid #f3f4f6" : "none" }}>{l.wa}</td>
-                  <td style={{ padding: "12px 16px", fontSize: 13, borderBottom: i < topListings.length - 1 ? "1px solid #f3f4f6" : "none" }}>{l.fav}</td>
-                  <td style={{ padding: "12px 16px", borderBottom: i < topListings.length - 1 ? "1px solid #f3f4f6" : "none" }}>
-                    <span className={`badge ${l.statusClass}`}>{l.status}</span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div>
+          {items.map(it => <PartnerCard key={it.id} l={it}/>)}
         </div>
       </div>
     </div>

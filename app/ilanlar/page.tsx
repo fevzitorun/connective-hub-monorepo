@@ -1,108 +1,210 @@
 "use client";
-import { useState } from "react";
 
-const allListings = [
-  { bg: "linear-gradient(135deg,#667eea,#764ba2)", emoji: "🏠", badge: "Satılık", rent: false, price: "₺4,850,000", extra: "",    title: "Beşiktaş 3+1 Deniz Manzaralı", loc: "Beşiktaş, İstanbul",  meta: ["🛏 3+1","📐 250 m²"] },
-  { bg: "linear-gradient(135deg,#f093fb,#f5576c)", emoji: "🏡", badge: "Satılık", rent: false, price: "₺2,750,000", extra: "",    title: "Ataşehir Yeni Proje 3+1",       loc: "Ataşehir, İstanbul", meta: ["🛏 3+1","📐 145 m²"] },
-  { bg: "linear-gradient(135deg,#43e97b,#38f9d7)", emoji: "🏢", badge: "Kiralık", rent: true,  price: "₺28,000",    extra: "/ay", title: "Şişli 2+1 Merkezi Konum",       loc: "Şişli, İstanbul",    meta: ["🛏 2+1","📐 95 m²"] },
-  { bg: "linear-gradient(135deg,#4facfe,#00f2fe)", emoji: "🏠", badge: "Satılık", rent: false, price: "₺6,200,000", extra: "",    title: "Sarıyer Boğaz Manzaralı Villa",  loc: "Sarıyer, İstanbul",  meta: ["🛏 4+2","📐 320 m²"] },
-  { bg: "linear-gradient(135deg,#fa709a,#fee140)", emoji: "🏗", badge: "Satılık", rent: false, price: "₺1,950,000", extra: "",    title: "Kartal 2+1 Metro Yakını",        loc: "Kartal, İstanbul",   meta: ["🛏 2+1","📐 90 m²"] },
-  { bg: "linear-gradient(135deg,#a18cd1,#fbc2eb)", emoji: "🏢", badge: "Kiralık", rent: true,  price: "₺65,000",    extra: "/ay", title: "Maslak Premium Ofis Katı",       loc: "Maslak, İstanbul",   meta: ["🏢 Ticari","📐 520 m²"] },
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { LISTINGS } from '@/lib/data';
+import { IconGrid, IconMap } from '@/components/icons';
+import { ListingCard } from '@/components/ui';
+import type { Listing } from '@/lib/data';
+
+const FILTER_SECTIONS = [
+  { label: 'İlan Tipi',   keys: ['Satılık', 'Kiralık'] },
+  { label: 'Mülk Tipi',   keys: ['Konut', 'Villa', 'Ticari', 'Arsa', 'Endüstriyel'] },
+  { label: 'Oda Sayısı',  keys: ['1+0', '1+1', '2+1', '3+1', '4+1', '5+'] },
+  { label: 'Özellikler',  keys: ['Asansör', 'Otopark', 'Balkon', 'Havuz', 'Bahçe', 'Manzara'] },
 ];
 
-export default function IlanlarPage() {
-  const [chips, setChips] = useState<Record<string, boolean>>({
-    "Satılık": true, "Konut": true, "2+1": true, "3+1": true,
-  });
-
-  const toggleChip = (k: string) => setChips(prev => ({ ...prev, [k]: !prev[k] }));
+const MapView = () => {
+  const pins = [
+    {top:'24%', left:'30%', label:'Beşiktaş', price:'₺8,5M'},
+    {top:'38%', left:'52%', label:'Kadıköy', price:'₺4,2M'},
+    {top:'18%', left:'62%', label:'Sarıyer', price:'₺12M'},
+    {top:'58%', left:'40%', label:'Kartal', price:'₺2,0M'},
+    {top:'72%', left:'66%', label:'Pendik', price:'₺1,8M'},
+    {top:'46%', left:'24%', label:'Bakırköy', price:'₺6,2M'},
+  ];
 
   return (
-    <div style={{ display: "flex", minHeight: "calc(100vh - 60px)" }}>
-      {/* Filter Panel */}
-      <div style={{ width: 280, background: "#fff", borderRight: "1px solid var(--border)", padding: 20, flexShrink: 0 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 16 }}>Filtreler</div>
+    <div style={{
+      position:'relative',
+      background:'var(--paper)',
+      border:'1px solid var(--line)',
+      borderRadius:16,
+      height:640,
+      overflow:'hidden',
+    }}>
+      <svg width="100%" height="100%" viewBox="0 0 1200 640" preserveAspectRatio="xMidYMid slice" style={{position:'absolute',inset:0}}>
+        <defs>
+          <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+            <path d="M48 0H0v48" fill="none" stroke="rgba(124,116,99,0.08)"/>
+          </pattern>
+        </defs>
+        <rect width="1200" height="640" fill="var(--cream-2)"/>
+        <rect width="1200" height="640" fill="url(#grid)"/>
+        <path d="M520 0 C 500 120, 600 220, 540 320 C 480 420, 600 520, 560 640 L 700 640 C 720 520, 660 420, 720 320 C 780 220, 700 120, 740 0 z"
+              fill="#cfd8d6" opacity="0.95"/>
+        <path d="M0 0 L 520 0 C 500 120, 600 220, 540 320 C 480 420, 600 520, 560 640 L 0 640 z" fill="rgba(192,176,152,0.18)"/>
+        <path d="M740 0 L 1200 0 L 1200 640 L 560 640 C 600 520, 480 420, 540 320 C 600 220, 500 120, 740 0 z" fill="rgba(192,176,152,0.12)"/>
+        <path d="M0 220 C 200 220, 320 260, 400 200 C 500 140, 520 200, 520 300" stroke="rgba(124,116,99,0.25)" fill="none" strokeWidth="2"/>
+        <path d="M740 320 C 820 320, 900 260, 1000 280 C 1100 300, 1200 220, 1200 220" stroke="rgba(124,116,99,0.25)" fill="none" strokeWidth="2"/>
+      </svg>
 
+      {pins.map(p => (
+        <div key={p.label} style={{
+          position:'absolute', top:p.top, left:p.left,
+          transform:'translate(-50%, -100%)',
+          display:'flex', flexDirection:'column', alignItems:'center', cursor:'pointer',
+        }}>
+          <div style={{
+            background:'var(--ink)', color:'var(--paper)',
+            padding:'4px 10px', borderRadius:6, fontSize:12, fontWeight:600,
+            whiteSpace:'nowrap', boxShadow:'0 4px 14px rgba(20,20,42,0.25)'
+          }}>
+            <span style={{color:'var(--gold)'}}>{p.price}</span> · {p.label}
+          </div>
+          <svg width="14" height="8" viewBox="0 0 14 8"><path d="M0 0 L 14 0 L 7 8 z" fill="var(--ink)"/></svg>
+        </div>
+      ))}
+
+      <div style={{
+        position:'absolute', top:16, right:16,
+        background:'var(--paper)', border:'1px solid var(--line)',
+        borderRadius:12, padding:12, width:220, boxShadow:'var(--shadow-2)'
+      }}>
+        <div className="filter-label" style={{marginBottom:8}}>Harita Katmanları</div>
         {[
-          { label: "İlan Tipi",  keys: ["Satılık","Kiralık"] },
-          { label: "Mülk Tipi", keys: ["Konut","Ticari","Arsa","Endüstriyel"] },
-          { label: "Oda Sayısı",keys: ["1+0","1+1","2+1","3+1","4+1","5+"] },
-          { label: "Özellikler",keys: ["Asansör","Otopark","Balkon","Havuz","Bahçe"] },
-        ].map(section => (
-          <div key={section.label} style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>{section.label}</div>
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-              {section.keys.map(k => (
-                <button key={k} onClick={() => toggleChip(k)}
-                  style={{ padding: "5px 12px", borderRadius: 20, fontSize: 12, border: "1px solid var(--border)", cursor: "pointer", transition: ".15s", background: chips[k] ? "var(--ink)" : "#fff", color: chips[k] ? "#fff" : "var(--ink)" }}>
-                  {k}
-                </button>
+          {label:'Fiyat ısı haritası', on:true},
+          {label:'Ulaşım & metro', on:true},
+          {label:'Okul puanları', on:false},
+          {label:'Gürültü', on:false},
+          {label:'Su baskını riski', on:false},
+        ].map(it => (
+          <label key={it.label} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'5px 0',fontSize:13,cursor:'pointer'}}>
+            {it.label}
+            <span style={{
+              width:30,height:18,borderRadius:10,
+              background:it.on?'var(--teal)':'var(--line-strong)',
+              position:'relative',transition:'background .2s',
+              display:'inline-block',
+            }}>
+              <span style={{
+                position:'absolute',top:2,left:it.on?14:2,width:14,height:14,
+                background:'#fff',borderRadius:'50%',transition:'left .2s',
+                display:'inline-block',
+              }}/>
+            </span>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default function ListingsScreen() {
+  const router = useRouter();
+  const [chips, setChips] = useState<Record<string, boolean>>({ 'Satılık': true, 'Konut': true });
+  const [view, setView] = useState<'grid' | 'map'>('grid');
+  const [sort, setSort] = useState('Önerilen');
+  const toggleChip = (k: string) => setChips(s => ({ ...s, [k]: !s[k] }));
+
+  const handleOpenListing = (l: Listing) => {
+    router.push(`/ilanlar/${l.id}`);
+  };
+
+  return (
+    <div className="listings-shell">
+      {/* ── Filters ─────────────────────────────────────────── */}
+      <aside className="filters">
+        <h3>Filtreler</h3>
+        <div style={{fontSize:13, color:'var(--muted)'}}>İstanbul · 1.284 ilan</div>
+
+        {FILTER_SECTIONS.map(s => (
+          <div key={s.label} className="filter-section">
+            <div className="filter-label">{s.label}</div>
+            <div className="filter-chips">
+              {s.keys.map(k => (
+                <button
+                  key={k}
+                  className="fchip"
+                  aria-pressed={!!chips[k]}
+                  onClick={() => toggleChip(k)}
+                >{k}</button>
               ))}
             </div>
           </div>
         ))}
 
-        <div style={{ marginBottom: 20 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Fiyat Aralığı (₺)</div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <input type="text" placeholder="Min" defaultValue="500.000" style={{ flex: 1, border: "1px solid var(--border)", borderRadius: 8, padding: "6px 10px", fontSize: 12, outline: "none" }} />
-            <input type="text" placeholder="Max" defaultValue="10.000.000" style={{ flex: 1, border: "1px solid var(--border)", borderRadius: 8, padding: "6px 10px", fontSize: 12, outline: "none" }} />
+        <div className="filter-section">
+          <div className="filter-label">Fiyat (₺)</div>
+          <div className="filter-range">
+            <input defaultValue="500.000"/>
+            <span className="filter-range-sep">—</span>
+            <input defaultValue="15.000.000"/>
           </div>
         </div>
 
-        <div style={{ marginBottom: 20 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>m² Aralığı</div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <input type="text" placeholder="Min" defaultValue="80" style={{ flex: 1, border: "1px solid var(--border)", borderRadius: 8, padding: "6px 10px", fontSize: 12, outline: "none" }} />
-            <input type="text" placeholder="Max" defaultValue="500" style={{ flex: 1, border: "1px solid var(--border)", borderRadius: 8, padding: "6px 10px", fontSize: 12, outline: "none" }} />
+        <div className="filter-section">
+          <div className="filter-label">m² Aralığı</div>
+          <div className="filter-range">
+            <input defaultValue="80"/>
+            <span className="filter-range-sep">—</span>
+            <input defaultValue="500"/>
           </div>
         </div>
 
-        <button style={{ width: "100%", marginTop: 8, padding: "8px 18px", borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: "pointer", border: "none", background: "var(--gold)", color: "var(--ink)" }}>Filtreleri Uygula</button>
-        <button style={{ width: "100%", marginTop: 8, padding: "8px 18px", borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: "pointer", border: "1px solid var(--border)", background: "#fff", color: "var(--ink)" }}>Temizle</button>
-      </div>
+        <div className="filter-section">
+          <div className="filter-label">Atlas AI Filtresi</div>
+          <div style={{display:'flex', flexDirection:'column', gap:8, marginTop:4}}>
+            <label style={{display:'flex',alignItems:'center',gap:8,fontSize:13,cursor:'pointer'}}>
+              <input type="checkbox" defaultChecked/> Piyasa değerinin altında
+            </label>
+            <label style={{display:'flex',alignItems:'center',gap:8,fontSize:13,cursor:'pointer'}}>
+              <input type="checkbox"/> Avukat onaylı
+            </label>
+            <label style={{display:'flex',alignItems:'center',gap:8,fontSize:13,cursor:'pointer'}}>
+              <input type="checkbox"/> Depozito Güvence kapsamında
+            </label>
+          </div>
+        </div>
 
-      {/* Main */}
-      <div style={{ flex: 1, padding: 24, overflowY: "auto" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-          <div style={{ fontSize: 13, color: "var(--muted)", flex: 1 }}><b>1,284</b> ilan bulundu · İstanbul</div>
-          <select style={{ border: "1px solid var(--border)", borderRadius: 8, padding: "6px 12px", fontSize: 13, outline: "none", cursor: "pointer" }}>
-            <option>En Yeni</option><option>Fiyat ↑</option><option>Fiyat ↓</option><option>m² ↑</option>
+        <button className="btn btn-secondary" style={{width:'100%', marginTop:24}}>Filtreleri Uygula</button>
+        <button className="btn btn-ghost btn-sm" style={{width:'100%', marginTop:6}}>Temizle</button>
+      </aside>
+
+      {/* ── Main ────────────────────────────────────────────── */}
+      <main className="listings-main">
+        <div className="listings-toolbar">
+          <div className="listings-count">
+            <strong>1.284</strong> <span style={{color:'var(--muted)'}}>ilan · İstanbul, Türkiye</span>
+          </div>
+          <div className="listings-toolbar-spacer"/>
+          <span style={{fontSize:13, color:'var(--muted)'}}>Sırala</span>
+          <select value={sort} onChange={(e) => setSort(e.target.value)}>
+            <option>Önerilen</option>
+            <option>En yeni</option>
+            <option>Fiyat — artan</option>
+            <option>Fiyat — azalan</option>
+            <option>m² — artan</option>
+            <option>Atlas AI skoru</option>
           </select>
-          <button style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid var(--border)", fontSize: 13, cursor: "pointer", background: "#fff" }}>🗺 Harita Görünümü</button>
+          <div className="viewtoggle">
+            <button aria-pressed={view==='grid'} onClick={() => setView('grid')}>
+              <IconGrid/> Liste
+            </button>
+            <button aria-pressed={view==='map'} onClick={() => setView('map')}>
+              <IconMap/> Harita
+            </button>
+          </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 20 }}>
-          {allListings.map(l => (
-            <div key={l.title} style={{ background: "#fff", borderRadius: 16, overflow: "hidden", border: "1px solid var(--border)", cursor: "pointer", transition: ".2s" }}
-              className="hover:shadow-lg hover:-translate-y-[2px]">
-              <div style={{ height: 160, background: l.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36, position: "relative" }}>
-                <div style={{ position: "absolute", top: 10, left: 10, background: l.rent ? "var(--teal)" : "var(--gold)", color: l.rent ? "#fff" : "var(--ink)", fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: 6 }}>{l.badge}</div>
-                {l.emoji}
-              </div>
-              <div style={{ padding: 14 }}>
-                <div className="serif" style={{ fontSize: 18, fontWeight: 700 }}>{l.price}{l.extra && <small style={{ fontSize: 12, fontFamily: "system-ui", fontWeight: 400, color: "var(--muted)" }}> {l.extra}</small>}</div>
-                <div style={{ fontSize: 13, fontWeight: 600, marginTop: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.title}</div>
-                <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>📍 {l.loc}</div>
-                <div style={{ display: "flex", gap: 12, marginTop: 10, paddingTop: 10, borderTop: "1px solid var(--border)" }}>
-                  {l.meta.map(m => <span key={m} style={{ fontSize: 11, color: "var(--muted)" }}>{m}</span>)}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Map placeholder */}
-        <div style={{ background: "linear-gradient(135deg,#c8d8c8 0%,#d8e8d0 50%,#c0d0c0 100%)", borderRadius: 12, height: 300, display: "flex", alignItems: "center", justifyContent: "center", color: "#4a6a4a", fontSize: 14, position: "relative", overflow: "hidden", marginTop: 20 }}>
-          🗺 Harita Görünümü — Koordinat Tabanlı (PostGIS)
-          {[
-            { top: "30%", left: "40%" }, { top: "50%", left: "60%" },
-            { top: "65%", left: "35%" }, { top: "45%", left: "25%" }, { top: "25%", left: "70%" },
-          ].map((pos, i) => (
-            <div key={i} style={{ position: "absolute", top: pos.top, left: pos.left, fontSize: 24, cursor: "pointer" }}>📍</div>
-          ))}
-        </div>
-      </div>
+        {view === 'grid' ? (
+          <div className="cards-grid">
+            {LISTINGS.map(l => <ListingCard key={l.id} l={l} onOpen={handleOpenListing}/>)}
+          </div>
+        ) : (
+          <MapView/>
+        )}
+      </main>
     </div>
   );
 }

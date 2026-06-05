@@ -1,135 +1,195 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
 
-interface Message { role: "user" | "ai"; text: string; time: string; }
+import React, { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { LISTINGS, fmtTRY } from '@/lib/data';
+import { IconCompass, IconSparkle, IconSend, IconKebab } from '@/components/icons';
+import { Photo } from '@/components/photos';
+import type { Listing } from '@/lib/data';
 
-const aiReplies = [
-  "Peki, bu konuyu analiz ediyorum... 📊\n\nGüncel veriler inceleniyor, bir saniye bekleyin.",
-  "7fil piyasa verilerine göre bu bölgede yatırım potansiyeli yüksek görünüyor. Kira getirisi yaklaşık %3.2 ve değer artışı beklentisi olumlu.",
-  "Bu mahalledeki son 6 ay içindeki ortalama satış süresi 47 gün. Piyasa hafif alıcı lehine ancak iyi konumlu ilanlar hızlı satılıyor.",
-  "Benzer ilanlar karşılaştırıldığında talep ettiğiniz fiyat piyasa değerinin %8 üzerinde. Fiyatı ₺4.2M'a çekmenizi öneririm.",
-];
-
-const initialMessages: Message[] = [
-  { role: "ai", text: "Merhaba! Ben Atlas, 7fil'in yapay zeka asistanıyım. 🏠\n\nGüncel piyasa verileri, değerleme, mahalle analizi veya yatırım tavsiyesi için buradayım. Ne öğrenmek istersiniz?", time: "14:28" },
-  { role: "user", text: "Beşiktaş'ta 3+1 daire fiyatları son 6 ayda nasıl değişti?", time: "14:31" },
-  { role: "ai", text: "Beşiktaş 3+1 Piyasa Analizi (Kas 2025 – May 2026)\n\n📈 Ortalama Fiyat Artışı: %14.2 (enflasyon üzeri reel +%3.8)\n💰 Mevcut Ortalama: ₺4.2M – ₺5.8M arası\n📐 m² Birim Fiyat: ₺18.500 – ₺24.000\n\nÖne Çıkan Faktörler:\n• Beşiktaş-Sarıyer metro hattı etkisi (+8%)\n• Deniz manzaralı stoklarda ciddi azalma\n• Yabancı alıcı ilgisinde %22 artış\n\nBelirli bir sokak veya proje için daha detaylı analiz ister misiniz?", time: "14:32" },
-];
-
-const historyItems = [
-  { title: "Beşiktaş piyasa analizi",       date: "Bugün, 14:32",  active: true },
-  { title: "Kadıköy değerleme raporu",       date: "Dün, 09:15",   active: false },
-  { title: "Yatırım tavsiyesi — Arnavutköy", date: "19 May",       active: false },
-  { title: "DASK prim hesabı",               date: "17 May",       active: false },
-];
-
-const quickPrompts = [
-  { icon: "📊", label: "Mahalle Skoru",    text: "Mahalle güvenlik skoru ver" },
-  { icon: "💡", label: "Yatırım Analizi",  text: "Bu fiyata yatırım değer mi?" },
-  { icon: "🔍", label: "Benzer İlanlar",   text: "Yakın çevrede satılan benzer ilanlar" },
-  { icon: "🏦", label: "DASK Hesapla",     text: "DASK prim hesapla" },
-];
-
-function now() {
-  const d = new Date();
-  return `${d.getHours()}:${String(d.getMinutes()).padStart(2, "0")}`;
+interface ScriptMessage {
+  from: 'ai' | 'user';
+  text: React.ReactNode;
+  listings?: string[];
 }
 
-export default function AtlasPage() {
-  const [msgs, setMsgs] = useState<Message[]>(initialMessages);
-  const [input, setInput] = useState("");
-  const [typing, setTyping] = useState(false);
-  const [replyIdx, setReplyIdx] = useState(0);
-  const bottomRef = useRef<HTMLDivElement>(null);
+const SCRIPT: ScriptMessage[] = [
+  { from: 'ai', text: (
+    <>
+      <p>İyi günler. Bugün nasıl bir ev arıyoruz?</p>
+      <p style={{color:'var(--muted)', fontSize:14}}>İsterseniz konuşma dilinde anlatın — bütçe, çocuk var mı, ofisiniz nerede gibi. Filtre kutucuklarını doldurmaktan daha hızlı olacaktır.</p>
+    </>
+  ) },
+  { from: 'user', text: <p>Kadıköy&apos;de metroya yakın, balkonlu 3+1 daire arıyorum. Bütçem en fazla 9 milyon.</p> },
+  { from: 'ai', text: (
+    <>
+      <p>Anladım. Aradığınızı şöyle yorumladım — yanlış bir şey varsa söyleyin:</p>
+      <ul style={{margin:'8px 0 12px 16px', padding:0, color:'var(--ink)', fontSize:14, lineHeight:1.8}}>
+        <li>İlçe: <strong>Kadıköy</strong> — Caferağa, Moda, Fenerbahçe çevresi</li>
+        <li>3+1, en az bir balkon, metroya 5–10 dakika yürüme</li>
+        <li>Üst sınır: <strong>9 milyon ₺</strong></li>
+      </ul>
+      <p>Atlas AI bu kriterlere uyan <strong>2 ilan</strong> buldu. Bölgede ortalamadan iyi konumlananları öne aldım:</p>
+    </>
+  ), listings: ['l1', 'l6'] },
+  { from: 'ai', text: (
+    <>
+      <p style={{fontStyle:'italic', color:'var(--muted)', fontSize:14, marginTop:8}}>
+        Küçük bir not — Moda&apos;daki ilan piyasa ortalamasının %4 altında. Acele bir karar şart değil; ama bu fiyat aralığında genellikle iki hafta içinde satılıyor.
+      </p>
+    </>
+  ) },
+  { from: 'user', text: <p>Moda&apos;daki için ne dersin? Yıllık değer artışı ne kadardı?</p> },
+  { from: 'ai', text: (
+    <>
+      <p>Moda&apos;nın son <strong>12 aylık</strong> ortalama fiyat değişimi <strong>+%8,3</strong>. Aynı dönemde Kadıköy genelinde <strong>+%7,1</strong>; Caferağa <strong>+%9,4</strong>. Yani Moda, çevreden hafifçe geride — bu da iki türlü yorumlanabilir:</p>
+      <p style={{paddingLeft:14, borderLeft:'2px solid var(--gold)', color:'var(--ink)', fontSize:14}}>
+        <strong>İyimser:</strong> bölge henüz tepe yapmadı, alım için iyi pencere.<br/>
+        <strong>Temkinli:</strong> Caferağa&apos;da yapılaşma artıyor; uzun vadede Moda&apos;nın görünürlük avantajı korunmayabilir.
+      </p>
+      <p>Ben olsam görmeden karar vermem; ama dosya hazırlatmaya değer. İsterseniz sertifikalı avukat ağımız tapu ve imar kontrolünü 48 saatte tamamlayabilir.</p>
+    </>
+  ) },
+];
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [msgs, typing]);
+export default function AtlasScreen() {
+  const router = useRouter();
+  const [input, setInput] = useState('');
+  const [visible] = useState(SCRIPT.length);
+  const endRef = useRef<HTMLDivElement>(null);
 
-  const send = (text: string) => {
-    if (!text.trim()) return;
-    setMsgs(prev => [...prev, { role: "user", text, time: now() }]);
-    setInput("");
-    setTyping(true);
-    setTimeout(() => {
-      setTyping(false);
-      setMsgs(prev => [...prev, { role: "ai", text: aiReplies[replyIdx % aiReplies.length], time: now() }]);
-      setReplyIdx(i => i + 1);
-    }, 1200 + Math.random() * 800);
+  useEffect(() => { endRef.current?.scrollIntoView({behavior:'smooth'}); }, [visible]);
+
+  const handleOpenListing = (l: Listing) => {
+    router.push(`/ilanlar/${l.id}`);
   };
 
   return (
-    <div style={{ display: "flex", height: "calc(100vh - 60px)" }}>
-      {/* History */}
-      <div style={{ width: 240, background: "#fff", borderRight: "1px solid var(--border)", padding: 16, flexShrink: 0 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 12 }}>Konuşmalar</div>
-        {historyItems.map(h => (
-          <div key={h.title} style={{ padding: "9px 12px", borderRadius: 10, cursor: "pointer", marginBottom: 4, background: h.active ? "var(--ink)" : "transparent", color: h.active ? "#fff" : "var(--ink)" }}
-            className={!h.active ? "hover:bg-gray-100" : ""}>
-            <p style={{ fontSize: 12, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", margin: 0 }}>{h.title}</p>
-            <small style={{ fontSize: 11, color: h.active ? "rgba(255,255,255,0.4)" : "var(--muted)" }}>{h.date}</small>
+    <div className="atlas-page">
+      {/* Sidebar */}
+      <aside className="atlas-side">
+        <div className="atlas-side-head">
+          <div className="atlas-side-mark">
+            <IconCompass/>
           </div>
-        ))}
-        <div style={{ marginTop: 16 }}>
-          <button style={{ width: "100%", padding: "8px 18px", borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: "pointer", border: "1px solid var(--border)", background: "#fff", color: "var(--ink)" }}>
-            + Yeni Konuşma
-          </button>
-        </div>
-      </div>
-
-      {/* Chat */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "var(--cream)" }}>
-        {/* Messages */}
-        <div style={{ flex: 1, padding: 24, overflowY: "auto", display: "flex", flexDirection: "column", gap: 16 }}>
-          {msgs.map((m, i) => (
-            <div key={i} style={{ maxWidth: "70%", display: "flex", flexDirection: "column", gap: 4, alignSelf: m.role === "user" ? "flex-end" : "flex-start" }}>
-              <div style={{
-                padding: "12px 16px", borderRadius: m.role === "user" ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
-                fontSize: 13, lineHeight: 1.6, whiteSpace: "pre-line",
-                background: m.role === "user" ? "var(--ink)" : "#fff",
-                color: m.role === "user" ? "#fff" : "var(--ink)",
-                border: m.role === "ai" ? "1px solid var(--border)" : "none",
-              }}>
-                {m.text}
-              </div>
-              <div style={{ fontSize: 10, color: "var(--muted)", textAlign: m.role === "user" ? "right" : "left" }}>{m.time}</div>
-            </div>
-          ))}
-          {typing && (
-            <div style={{ maxWidth: "70%" }}>
-              <div className="typing"><span /><span /><span /></div>
-            </div>
-          )}
-          <div ref={bottomRef} />
+          <div>
+            <div className="atlas-side-title">Atlas AI</div>
+            <div className="atlas-side-sub">FILTERRA.AI Powered</div>
+          </div>
         </div>
 
-        {/* Input */}
-        <div style={{ padding: "16px 24px", background: "#fff", borderTop: "1px solid var(--border)" }}>
-          <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
-            {quickPrompts.map(q => (
-              <button key={q.label} onClick={() => send(q.text)}
-                style={{ padding: "5px 12px", borderRadius: 20, border: "1px solid var(--border)", background: "#fff", fontSize: 12, cursor: "pointer", color: "var(--ink)" }}
-                className="hover:border-[var(--teal)] hover:text-[var(--teal)]">
-                {q.icon} {q.label}
-              </button>
-            ))}
+        <div className="atlas-side-section">
+          <div className="atlas-side-section-label">Bu Hafta</div>
+          <div className="atlas-thread" data-active="true">
+            Kadıköy&apos;de 3+1 araması
+            <div className="atlas-thread-time">Bugün · 10:24</div>
           </div>
-          <div style={{ display: "flex", gap: 10 }}>
-            <textarea
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input); } }}
-              rows={1}
-              placeholder="Atlas'a sor..."
-              style={{ flex: 1, border: "1px solid var(--border)", borderRadius: 12, padding: "10px 16px", fontSize: 14, outline: "none", resize: "none", fontFamily: "inherit" }}
-            />
-            <button onClick={() => send(input)}
-              style={{ background: "var(--gold)", color: "var(--ink)", border: "none", borderRadius: 12, padding: "0 20px", fontWeight: 700, cursor: "pointer", fontSize: 18 }}>
-              →
+          <div className="atlas-thread">
+            Levent ofis kira analizi
+            <div className="atlas-thread-time">Dün · 15:08</div>
+          </div>
+          <div className="atlas-thread">
+            Çeşme yazlık değerleme
+            <div className="atlas-thread-time">21 Mayıs</div>
+          </div>
+        </div>
+
+        <div className="atlas-side-section">
+          <div className="atlas-side-section-label">Önceki</div>
+          <div className="atlas-thread">Galata tarihi apartman riski</div>
+          <div className="atlas-thread">Mortgage karşılaştırma</div>
+          <div className="atlas-thread">DASK ve yangın sigortası</div>
+        </div>
+
+        <div className="atlas-side-section" style={{marginTop:'auto'}}>
+          <button className="btn btn-outline btn-sm" style={{width:'100%'}}>+ Yeni Konuşma</button>
+        </div>
+      </aside>
+
+      {/* Main */}
+      <main className="atlas-main">
+        <header className="atlas-main-head">
+          <div>
+            <h2>Kadıköy&apos;de 3+1 araması</h2>
+            <div className="atlas-main-status">çevrimiçi</div>
+          </div>
+          <div style={{marginLeft:'auto', display:'flex', gap:8}}>
+            <span className="pill pill-line" style={{height:24, fontSize:11}}>
+              <IconSparkle size={12}/> claude-sonnet-4
+            </span>
+            <button className="btn btn-ghost btn-sm">
+              <IconKebab size={16}/>
             </button>
           </div>
+        </header>
+
+        <div className="atlas-chat">
+          {SCRIPT.slice(0, visible).map((m, i) => (
+            <div key={i} className="msg" data-from={m.from}>
+              <div className="msg-avatar">
+                {m.from === 'ai' ? <IconCompass/> : 'ZA'}
+              </div>
+              <div>
+                <div className="msg-bubble">
+                  {m.text}
+                  {m.listings && (
+                    <div className="msg-listings">
+                      {m.listings.map(id => {
+                        const l = LISTINGS.find(x => x.id === id);
+                        if (!l) return null;
+                        return (
+                          <div key={id} className="msg-listing" onClick={() => handleOpenListing(l)}>
+                            <div className="msg-listing-photo">
+                              <Photo scene={l.scene} palette={l.palette}/>
+                            </div>
+                            <div style={{minWidth:0}}>
+                              <div className="msg-listing-title">{l.title}</div>
+                              <div className="msg-listing-meta">{l.district} · {l.area} m² · {l.rooms}</div>
+                            </div>
+                            <div className="msg-listing-price">{fmtTRY(l.price)}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+          <div ref={endRef}/>
         </div>
-      </div>
+
+        <div className="atlas-suggest">
+          <div className="atlas-suggest-row">
+            {[
+              'Tapu kontrolü başlat',
+              'Avukat ata',
+              'Mortgage karşılaştır',
+              'PDF broşür hazırla',
+              'Benzer ilanları göster',
+            ].map(s => (
+              <button key={s} className="atlas-suggest-chip">{s}</button>
+            ))}
+          </div>
+        </div>
+
+        <div className="atlas-input">
+          <div className="atlas-input-inner">
+            <textarea
+              rows={1}
+              placeholder="Atlas AI'a bir şey sor…"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+            />
+            <button className="atlas-send" aria-label="Gönder">
+              <IconSend/>
+            </button>
+          </div>
+          <div style={{maxWidth:820, margin:'10px auto 0', fontSize:11, color:'var(--muted)', textAlign:'center'}}>
+            Atlas AI hata yapabilir. Hukuki konularda her zaman sertifikalı avukat onayı alın.
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
