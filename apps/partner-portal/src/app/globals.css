@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .card { @apply bg-white rounded-2xl border border-gray-200 shadow-sm; }
+  .input-base { @apply w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-ink bg-white focus:outline-none focus:border-teal transition-colors; }
+  .btn-primary { @apply bg-gold text-ink font-semibold px-5 py-2.5 rounded-xl hover:bg-yellow-400 transition-colors disabled:opacity-60 cursor-pointer; }
+  .btn-outline { @apply border border-gray-200 text-ink font-medium px-5 py-2.5 rounded-xl hover:border-teal transition-colors; }
+  .badge { @apply inline-block text-xs font-semibold px-2.5 py-0.5 rounded-full; }
+}

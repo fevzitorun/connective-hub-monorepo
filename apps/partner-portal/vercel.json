@@ -1,0 +1,9 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "cd ../.. && pnpm turbo build --filter=@7fil/partner-portal",
+  "outputDirectory": "apps/partner-portal/.next",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "env": {
+    "NEXT_PUBLIC_API_URL": "@7fil_api_url"
+  }
+}
