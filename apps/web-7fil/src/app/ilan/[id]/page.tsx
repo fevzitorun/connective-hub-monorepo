@@ -46,6 +46,40 @@ async function getListingCertificate(listingId: string) {
   }
 }
 
+function buildJsonLd(listing: any) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://7fil.com.tr'
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'RealEstateListing',
+    name: listing.title,
+    description: listing.description ?? '',
+    url: `${appUrl}/ilan/${listing.id}`,
+    datePosted: listing.publishedAt ?? listing.createdAt,
+    image: listing.photos?.map((p: any) => p.url) ?? [],
+    offers: {
+      '@type': 'Offer',
+      price: listing.price ?? 0,
+      priceCurrency: listing.currency ?? 'TRY',
+      availability: 'https://schema.org/InStock',
+    },
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: listing.district,
+      addressRegion: listing.city,
+      addressCountry: 'TR',
+    },
+    floorSize: listing.areaM2
+      ? { '@type': 'QuantitativeValue', value: listing.areaM2, unitCode: 'MTK' }
+      : undefined,
+    numberOfRooms: listing.roomCount ?? undefined,
+    publisher: {
+      '@type': 'Organization',
+      name: '7fil',
+      url: appUrl,
+    },
+  }
+}
+
 export default async function ListingDetailPage({ params }: Props) {
   let listing
   try {
@@ -56,6 +90,7 @@ export default async function ListingDetailPage({ params }: Props) {
   }
 
   const certificate = await getListingCertificate(params.id)
+  const jsonLd = buildJsonLd(listing)
 
   const coverPhoto = listing.photos?.find((p) => p.isCover) ?? listing.photos?.[0]
   const otherPhotos = listing.photos?.filter((p) => !p.isCover) ?? []
@@ -74,6 +109,10 @@ export default async function ListingDetailPage({ params }: Props) {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar />
       <main className="pt-16 bg-cream min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">

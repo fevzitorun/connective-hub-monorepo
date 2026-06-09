@@ -597,6 +597,20 @@ CREATE TABLE password_reset_tokens (
 CREATE INDEX prt_token_hash_idx ON password_reset_tokens(token_hash);
 CREATE INDEX prt_user_idx ON password_reset_tokens(user_id);
 
+-- ─── Module 17: Email Verification Tokens ────────────────────────────────────
+
+CREATE TABLE email_verification_tokens (
+  id         UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id    UUID REFERENCES users(id) ON DELETE CASCADE,
+  token_hash VARCHAR(64) NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  used_at    TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX evt_token_hash_idx ON email_verification_tokens(token_hash);
+CREATE INDEX evt_user_idx ON email_verification_tokens(user_id);
+
 -- ─── Module 16: Push Notification Tokens ─────────────────────────────────────
 
 CREATE TABLE push_tokens (

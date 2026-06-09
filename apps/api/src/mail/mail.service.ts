@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Resend } from 'resend'
 import {
-  tplWelcome, tplPasswordReset, tplMortgageLead, tplLegalCase,
+  tplWelcome, tplPasswordReset, tplEmailVerification, tplMortgageLead, tplLegalCase,
   tplAuctionOutbid, tplAuctionWon, tplListingExpiry, tplSubscriptionRenewal,
 } from './mail.templates'
 
@@ -45,6 +45,13 @@ export class MailService {
     const base = this.config.get<string>('NEXT_PUBLIC_APP_URL') ?? 'https://7fil.com.tr'
     const link = `${base}/sifre-sifirla?token=${token}`
     const { subject, html } = tplPasswordReset(name, link)
+    await this.send(to, subject, html)
+  }
+
+  async sendEmailVerification(to: string, name: string, token: string) {
+    const base = this.config.get<string>('NEXT_PUBLIC_APP_URL') ?? 'https://7fil.com.tr'
+    const link = `${base}/dogrula-email?token=${token}`
+    const { subject, html } = tplEmailVerification(name, link)
     await this.send(to, subject, html)
   }
 

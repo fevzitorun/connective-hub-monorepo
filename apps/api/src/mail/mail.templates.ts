@@ -182,6 +182,24 @@ export function tplListingExpiry(agencyName: string, listings: { title: string; 
   }
 }
 
+export function tplEmailVerification(name: string, verifyLink: string) {
+  return {
+    subject: 'E-posta adresinizi doğrulayın — 7fil',
+    html: layout(`
+      ${heading(`Merhaba, ${name}! 👋`)}
+      ${para('7fil hesabınızı aktif etmek için e-posta adresinizi doğrulamanız gerekiyor.')}
+      ${para('Aşağıdaki butona tıklayarak hesabınızı doğrulayın. Bu bağlantı <strong>24 saat</strong> geçerlidir.')}
+      ${btn('E-postamı Doğrula', verifyLink, '#c9a84c')}
+      ${divider()}
+      ${para('Bu kaydı siz yapmadıysanız bu e-postayı görmezden gelebilirsiniz.')}
+      <p style="margin:0;font-size:12px;color:#9ca3af;">
+        Buton çalışmıyorsa bu bağlantıyı tarayıcınıza kopyalayın:<br/>
+        <a href="${verifyLink}" style="color:#2d6a6a;word-break:break-all;">${verifyLink}</a>
+      </p>
+    `),
+  }
+}
+
 export function tplSubscriptionRenewal(agencyName: string, plan: string, renewsAt: string) {
   return {
     subject: `Abonelik Yenileme Hatırlatması — 7fil`,

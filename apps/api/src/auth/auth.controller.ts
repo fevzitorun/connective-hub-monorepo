@@ -96,6 +96,26 @@ export class AuthController {
     return this.authService.resetPassword(token, password)
   }
 
+  // POST /api/v1/auth/verify-email
+  @Post('verify-email')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ short: { ttl: 60000, limit: 10 } })
+  @ApiOperation({ summary: 'E-posta doğrulama tokenını işle' })
+  async verifyEmail(@Body('token') token: string) {
+    return this.authService.verifyEmail(token)
+  }
+
+  // POST /api/v1/auth/resend-verification
+  @Post('resend-verification')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Throttle({ short: { ttl: 60000, limit: 3 } })
+  @ApiOperation({ summary: 'Doğrulama e-postasını yeniden gönder' })
+  async resendVerification(@CurrentUser() user: User) {
+    return this.authService.resendVerificationEmail(user.id)
+  }
+
   // POST /api/v1/auth/me
   @Post('me')
   @HttpCode(HttpStatus.OK)

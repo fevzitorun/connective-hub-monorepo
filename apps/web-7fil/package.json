@@ -24,7 +24,8 @@
     "clsx": "^2.1.1",
     "tailwind-merge": "^2.5.4",
     "next-seo": "^6.6.0",
-    "posthog-js": "^1.179.0"
+    "posthog-js": "^1.179.0",
+    "@sentry/nextjs": "^8.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

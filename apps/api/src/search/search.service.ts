@@ -76,17 +76,41 @@ export class SearchService implements OnModuleInit {
       'price', 'areaM2', 'publishedAt', 'pricePerM2',
     ])
 
-    // Türkçe için yazım toleransı
     await this.index.updateSettings({
-      typoTolerance: { enabled: true, minWordSizeForTypos: { oneTypo: 5, twoTypos: 9 } },
-      // Türkçe karakter eşlemeleri
-      synonyms: {
-        'daire':    ['apartment', 'konut', 'ev'],
-        'villa':    ['müstakil', 'köşk'],
-        'isyeri':   ['iş yeri', 'dükkan', 'ofis'],
-        'satilik':  ['satılık'],
-        'kiralik':  ['kiralık'],
+      typoTolerance: {
+        enabled: true,
+        minWordSizeForTypos: { oneTypo: 4, twoTypos: 8 },
+        // Türkçe karakterler typo sayılmasın
+        disableOnAttributes: ['city', 'district', 'neighborhood'],
       },
+      // Türkçe stopword'ler — arama kalitesini artırır
+      stopWords: [
+        've', 'veya', 'ile', 'bir', 'bu', 'şu', 'o', 'da', 'de', 'den',
+        'dan', 'için', 'gibi', 'kadar', 'daha', 'en', 'çok', 'az', 'var',
+        'yok', 'olan', 'olarak', 'olan', 'mi', 'mı', 'mu', 'mü',
+        'ama', 'fakat', 'lakin', 'ancak', 'ne', 'nasıl', 'nerede',
+      ],
+      synonyms: {
+        'daire':        ['apartment', 'konut', 'ev', 'residence'],
+        'villa':        ['müstakil', 'köşk', 'bağımsız'],
+        'isyeri':       ['iş yeri', 'dükkan', 'ofis', 'işyeri'],
+        'satilik':      ['satılık', 'satışa çıkarıldı'],
+        'kiralik':      ['kiralık', 'kiralama'],
+        'dukkan':       ['dükkan', 'mağaza', 'shop'],
+        'arsa':         ['tarla', 'parsel', 'alan'],
+        'asansor':      ['asansör', 'elevator'],
+        'otopark':      ['garaj', 'parking', 'park yeri'],
+        'merkez':       ['center', 'şehir merkezi'],
+        '1+1':          ['1+1', 'bir artı bir', 'bir oda'],
+        '2+1':          ['2+1', 'iki artı bir', 'iki oda bir salon'],
+        '3+1':          ['3+1', 'üç artı bir', 'üç oda bir salon'],
+        '4+1':          ['4+1', 'dört artı bir'],
+        'deniz manzara': ['deniz manzaralı', 'sea view', 'boğaz manzara'],
+      },
+      // Sıralama: en yeni önce varsayılan
+      rankingRules: [
+        'words', 'typo', 'proximity', 'attribute', 'sort', 'exactness',
+      ],
     })
   }
 

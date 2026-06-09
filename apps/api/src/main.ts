@@ -1,3 +1,7 @@
+import { initSentry } from './common/sentry'
+// Sentry en başta init edilmeli — diğer import'lardan önce
+initSentry()
+
 import { NestFactory, Reflector } from '@nestjs/core'
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify'
 import { ValidationPipe, VersioningType } from '@nestjs/common'

@@ -26,6 +26,13 @@ export class ListingsController {
 
   // ─── Public ──────────────────────────────────────────────────────────────
 
+  // GET /api/v1/listings/sitemap — sitemap.xml için aktif ilan ID listesi
+  @Get('sitemap')
+  @ApiOperation({ summary: 'Sitemap için aktif ilan ID listesi' })
+  getSitemapIds() {
+    return this.listingsService.getSitemapIds()
+  }
+
   // GET /api/v1/listings?city=İstanbul&district=Kadıköy&...
   @Get()
   @ApiOperation({ summary: 'İlanları filtrele ve listele' })

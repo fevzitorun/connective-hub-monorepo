@@ -42,7 +42,7 @@ export default function RegisterPage() {
     }
     const { user, accessToken, refreshToken } = res.data
     setAuth(user, accessToken, refreshToken)
-    router.replace(data.role === 'buyer' ? '/' : '/panel')
+    router.replace('/dogrula-email/bekliyor')
   }
 
   return (

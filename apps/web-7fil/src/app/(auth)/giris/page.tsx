@@ -15,6 +15,7 @@ export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirect = searchParams.get('redirect') ?? '/'
+  const verified = searchParams.get('verified') === '1'
   const { setAuth } = useAuthStore()
   const [error, setError] = useState<string | null>(null)
   const { register, handleSubmit, formState: { isSubmitting } } = useForm<FormData>()
@@ -41,6 +42,12 @@ export default function LoginPage() {
           <h1 className="mt-4 font-display text-xl font-bold text-ink">Hesabınıza Giriş Yapın</h1>
           <p className="text-muted text-sm mt-2">Panel ve ilan yönetimi için giriş gerekli.</p>
         </div>
+
+        {verified && (
+          <div className="mb-4 bg-green-50 border border-green-200 text-green-700 rounded-xl p-4 text-sm">
+            E-posta adresiniz doğrulandı. Giriş yapabilirsiniz.
+          </div>
+        )}
 
         {error && (
           <div className="mb-4 bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 text-sm">{error}</div>

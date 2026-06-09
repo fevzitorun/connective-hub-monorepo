@@ -134,6 +134,16 @@ export class ListingsService {
 
   // ─── Görüntülenme say ─────────────────────────────────────────────────────
 
+  async getSitemapIds(): Promise<string[]> {
+    const rows = await this.listingRepo.find({
+      where: { status: ListingStatus.ACTIVE },
+      select: ['id'],
+      order: { publishedAt: 'DESC' },
+      take: 50000,
+    })
+    return rows.map((r) => r.id)
+  }
+
   async incrementView(id: string): Promise<void> {
     await this.listingRepo.increment({ id }, 'viewCount', 1)
   }

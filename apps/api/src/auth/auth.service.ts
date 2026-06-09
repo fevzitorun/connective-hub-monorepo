@@ -44,17 +44,65 @@ export class AuthService {
       userAgent,
     })
 
-    // Eğer telefon varsa OTP gönder
     if (dto.phone) {
       await this.sendPhoneOtp(dto.phone)
     }
 
     const tokens = await this.generateTokens(user)
 
-    // Welcome e-mail (fire & forget — hata kayıt işlemini engellemez)
-    this.mail.sendWelcome(user.email, user.fullName).catch(() => undefined)
+    // E-posta doğrulama gönder (fire & forget)
+    this.sendVerificationEmail(user.id, user.email, user.fullName ?? user.email).catch(() => undefined)
 
-    return { user: this.sanitize(user), ...tokens }
+    return { user: this.sanitize(user), ...tokens, emailVerificationSent: true }
+  }
+
+  // ─── E-posta Doğrulama ────────────────────────────────────────────────────
+
+  async sendVerificationEmail(userId: string, email: string, name: string) {
+    const rawToken = crypto.randomBytes(32).toString('hex')
+    const hash = crypto.createHash('sha256').update(rawToken).digest('hex')
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1_000) // 24 saat
+
+    await this.ds.query(
+      `DELETE FROM email_verification_tokens WHERE user_id = $1`,
+      [userId],
+    )
+    await this.ds.query(
+      `INSERT INTO email_verification_tokens (user_id, token_hash, expires_at) VALUES ($1,$2,$3)`,
+      [userId, hash, expiresAt.toISOString()],
+    )
+
+    await this.mail.sendEmailVerification(email, name, rawToken)
+    return { message: 'Doğrulama e-postası gönderildi.' }
+  }
+
+  async verifyEmail(token: string) {
+    const hash = crypto.createHash('sha256').update(token).digest('hex')
+    const rows = await this.ds.query(`
+      SELECT evt.id, evt.user_id
+      FROM email_verification_tokens evt
+      WHERE evt.token_hash = $1
+        AND evt.expires_at > NOW()
+        AND evt.used_at IS NULL
+      LIMIT 1
+    `, [hash])
+
+    const row = rows[0] as { id: string; user_id: string } | undefined
+    if (!row) throw new BadRequestException('Geçersiz veya süresi dolmuş doğrulama bağlantısı.')
+
+    await Promise.all([
+      this.ds.query(`UPDATE users SET is_verified = TRUE WHERE id = $1`, [row.user_id]),
+      this.ds.query(`UPDATE email_verification_tokens SET used_at = NOW() WHERE id = $1`, [row.id]),
+    ])
+
+    await this.usersService.audit({ userId: row.user_id, action: 'EMAIL_VERIFIED', resource: 'users' })
+    return { message: 'E-posta adresiniz başarıyla doğrulandı.' }
+  }
+
+  async resendVerificationEmail(userId: string) {
+    const user = await this.usersService.findById(userId)
+    if (user.isVerified) throw new BadRequestException('E-posta adresiniz zaten doğrulanmış.')
+    return this.sendVerificationEmail(user.id, user.email, user.fullName ?? user.email)
   }
 
   // ─── Login ────────────────────────────────────────────────────────────────
