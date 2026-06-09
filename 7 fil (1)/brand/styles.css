@@ -1,0 +1,295 @@
+/* ──────────────────────────────────────────────────────────────
+   7fil — Marka Kimliği · Shared styles
+   Editorial print-grade tokens. Sotheby's prestige + Airbnb warmth.
+   ────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Brand palette */
+  --ink:        #14142a;
+  --ink-2:      #1d1d35;
+  --gold:       #c9a84c;
+  --gold-deep:  #a8893a;
+  --gold-tint:  #efe2c0;
+  --teal:       #2d6a6a;
+  --teal-deep:  #234f4f;
+  --teal-tint:  #d8e6e3;
+  --cream:      #f8f4ee;
+  --cream-2:    #efe9dd;
+  --paper:      #fffdf8;
+  --paper-edge: #e8e1d2;
+  --muted:      #7a7569;
+  --line:       #e3ddcd;
+
+  /* Type */
+  --font-display: "Playfair Display", "Cormorant Garamond", Georgia, serif;
+  --font-body:    "DM Sans", "Inter", system-ui, sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, monospace;
+
+  --tracking-wide:    0.06em;
+  --tracking-wider:   0.14em;
+  --tracking-widest:  0.22em;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: #efece4;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ── Editorial type helpers ─────────────────────────────────── */
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.05;
+  text-wrap: pretty;
+}
+.display em { font-style: italic; color: var(--gold-deep); font-weight: 400; }
+.body  { font-family: var(--font-body); }
+.mono  { font-family: var(--font-mono); }
+
+.eyebrow {
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.eyebrow-gold { color: var(--gold-deep); }
+.eyebrow-paper { color: rgba(255,253,248,0.6); }
+
+.rule { height: 1px; background: var(--line); border: 0; margin: 0; }
+.rule-gold { height: 1px; background: var(--gold); border: 0; margin: 0; }
+
+/* ── Artboard surface wrappers ─────────────────────────────── */
+.surface-paper {
+  width: 100%; height: 100%;
+  background: var(--paper);
+  position: relative;
+}
+.surface-cream {
+  width: 100%; height: 100%;
+  background: var(--cream);
+  position: relative;
+}
+.surface-ink {
+  width: 100%; height: 100%;
+  background: var(--ink);
+  color: var(--paper);
+  position: relative;
+}
+
+/* Print artifact common chrome — subtle outer ring + drop shadow
+   are added by DCArtboard automatically. We add inner padding + a
+   bottom-right "spec" line in 14px mono for credibility. */
+.spec-line {
+  position: absolute;
+  bottom: 12px;
+  right: 16px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(20,20,42,0.35);
+}
+.surface-ink .spec-line { color: rgba(255,253,248,0.32); }
+
+/* ── Gold accent strip (used on letterhead, folder) ─────────── */
+.gold-stripe-left {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 8px;
+  background: var(--gold);
+}
+.gold-stripe-bottom {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 6px;
+  background: var(--gold);
+}
+.gold-stripe-top {
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 4px;
+  background: var(--gold);
+}
+
+/* ── Watermark (elephant silhouette decoration) ─────────────── */
+.watermark {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.14;
+}
+.watermark-fade {
+  opacity: 0.08;
+}
+
+/* ── Color swatch grid ───────────────────────────────────────── */
+.swatch {
+  display: flex;
+  flex-direction: column;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: 0 1px 0 var(--line);
+}
+.swatch-fill {
+  height: 220px;
+  position: relative;
+}
+.swatch-name {
+  position: absolute;
+  bottom: 14px; left: 16px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+}
+.swatch-num {
+  position: absolute;
+  top: 14px; left: 16px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.swatch-meta {
+  background: var(--paper);
+  padding: 14px 16px 16px;
+  border-top: 1px solid var(--line);
+}
+.swatch-meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  padding: 3px 0;
+}
+.swatch-meta-row strong {
+  color: var(--ink);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+/* ── Pulled quote ───────────────────────────────────────────── */
+.pull-quote {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: italic;
+  font-size: 38px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.pull-quote::before {
+  content: "“";
+  color: var(--gold-deep);
+  font-size: 1.1em;
+  margin-right: 6px;
+  line-height: 0;
+}
+
+/* ── Specimen letter (for type page) ────────────────────────── */
+.specimen-letter {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 360px;
+  line-height: 0.85;
+  color: var(--ink);
+  letter-spacing: -0.04em;
+}
+.specimen-letter em { font-style: italic; color: var(--gold-deep); }
+
+/* ── Material chips ─────────────────────────────────────────── */
+.material-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--cream-2);
+  border: 1px solid var(--line);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.material-chip::before {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+/* ── Definition list ────────────────────────────────────────── */
+.dl {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 6px 14px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--muted);
+}
+.dl dt {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 10px;
+}
+.dl dd { margin: 0; color: var(--ink); }
+
+/* ── Logo rules micro-cards ─────────────────────────────────── */
+.rule-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 12px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--ink);
+  position: relative;
+}
+.rule-card.is-ok::before,
+.rule-card.is-bad::before {
+  content: "";
+  position: absolute;
+  top: 8px; right: 10px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+.rule-card.is-bad::before {
+  background: #b56b58;
+}
+
+/* ── Page heads inside artboards ────────────────────────────── */
+.page-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+.page-section-head h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 56px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.page-section-head h2 em { font-style: italic; color: var(--gold-deep); }
+
+/* Force fonts to load with weights we use even if Google Fonts is slow */
+@font-face {
+  font-family: "Playfair Display";
+  font-display: swap;
+  src: local("Playfair Display");
+}
