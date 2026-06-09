@@ -6,6 +6,11 @@ import { Navbar } from '../../../components/Navbar'
 import { Footer } from '../../../components/Footer'
 import { FavoriteButton } from '../../../components/FavoriteButton'
 import { OfferButton } from '../../../components/OfferButton'
+import { ListingFilterra } from '../../../components/ListingFilterra'
+import { LegalRequestButton } from '../../../components/LegalRequestButton'
+import { CertificateBadge } from '../../../components/CertificateBadge'
+import { MortgageCalculator } from '../../../components/MortgageCalculator'
+import { InsuranceQuote } from '../../../components/InsuranceQuote'
 import { api } from '../../../lib/api'
 import { formatPrice, formatArea, listingTypeLabel, propertyTypeLabel, categoryLabel, timeAgo } from '../../../lib/utils'
 
@@ -28,6 +33,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
+async function getListingCertificate(listingId: string) {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1'}/legal/verify/listing/${listingId}`,
+      { cache: 'no-store' },
+    )
+    const json = await res.json()
+    return json.data ?? null
+  } catch {
+    return null
+  }
+}
+
 export default async function ListingDetailPage({ params }: Props) {
   let listing
   try {
@@ -36,6 +54,8 @@ export default async function ListingDetailPage({ params }: Props) {
   } catch {
     notFound()
   }
+
+  const certificate = await getListingCertificate(params.id)
 
   const coverPhoto = listing.photos?.find((p) => p.isCover) ?? listing.photos?.[0]
   const otherPhotos = listing.photos?.filter((p) => !p.isCover) ?? []
@@ -150,16 +170,50 @@ export default async function ListingDetailPage({ params }: Props) {
                 </div>
               )}
 
-              {/* FILTERRA.AI badge */}
-              <div className="flex items-center gap-2 text-xs text-teal/70 bg-teal/5 border border-teal/20 rounded-lg px-4 py-3">
-                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
-                <span>
-                  <strong className="text-teal">FILTERRA.AI</strong> — Bu ilan yapay zeka destekli analiz kapsamına alınacak.
-                  Değerleme ve hukuki ön inceleme için emlakçıyla iletişime geçin.
-                </span>
-              </div>
+              {/* Finans — Mortgage + Sigorta */}
+              {listing.listingType === 'sale' && listing.price && (
+                <div className="space-y-4">
+                  <h2 className="font-display text-lg font-bold text-ink">Finansman Araçları</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <MortgageCalculator
+                      defaultPrice={listing.price}
+                      defaultCity={listing.city}
+                      listingId={listing.id}
+                      propertyType={listing.propertyType === 'commercial' ? 'commercial' : listing.propertyType === 'land' ? 'land' : 'residential'}
+                      compact
+                    />
+                    {listing.areaM2 && (
+                      <InsuranceQuote
+                        listingId={listing.id}
+                        defaultArea={listing.areaM2}
+                        defaultCity={listing.city}
+                        defaultBuildingAge={listing.buildingAge ?? 10}
+                        compact
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* FILTERRA.AI — Buyer-facing analysis panel */}
+              <ListingFilterra
+                listingId={listing.id}
+                city={listing.city}
+                district={listing.district}
+                neighborhood={listing.neighborhood}
+                propertyType={listing.propertyType}
+                listingType={listing.listingType}
+                roomCount={listing.roomCount}
+                areaM2={listing.areaM2}
+                buildingAge={listing.buildingAge}
+                floorNo={listing.floorNo}
+                totalFloors={listing.totalFloors}
+                hasParking={listing.hasParking}
+                hasElevator={listing.hasElevator}
+                price={listing.price}
+                title={listing.title}
+                description={listing.description}
+              />
             </div>
 
             {/* Sağ — Fiyat + İletişim kartı */}
@@ -211,6 +265,25 @@ export default async function ListingDetailPage({ params }: Props) {
                       height={120}
                       className="mx-auto rounded-lg"
                     />
+                  </div>
+                )}
+
+                {/* Sertifika */}
+                {certificate && (
+                  <div className="mt-5 pt-5 border-t border-border">
+                    <CertificateBadge
+                      certHash={certificate.certHash}
+                      issuedAt={certificate.issuedAt}
+                      issuedBy={certificate.issuedByUser?.fullName}
+                      validUntil={certificate.validUntil}
+                    />
+                  </div>
+                )}
+
+                {/* Hukuki inceleme talebi */}
+                {!certificate && (
+                  <div className="mt-5 pt-5 border-t border-border">
+                    <LegalRequestButton listingId={listing.id} />
                   </div>
                 )}
 

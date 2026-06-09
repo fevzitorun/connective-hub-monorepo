@@ -6,7 +6,7 @@ import { useHistoryStore } from '../../store/history'
 import { useAuthStore } from '../../store/auth'
 import { timeAgo } from '../../lib/utils'
 
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1'
+const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1'
 
 function buildSearchUrl(params: Record<string, unknown>): string {
   const qs = new URLSearchParams()

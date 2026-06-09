@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { useAuthStore } from '../../../../store/auth'
+import { FilterraPanel } from '../../../../components/FilterraPanel'
 
 const CITIES = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 'Gaziantep', 'Mersin', 'Diyarbakır']
 const ROOM_OPTIONS = ['Stüdyo', '1+1', '2+1', '3+1', '4+1', '5+']
@@ -40,12 +41,14 @@ export default function NewListingPage() {
   const [csvMode, setCsvMode] = useState(false)
   const [csvFile, setCsvFile] = useState<File | null>(null)
   const [csvLoading, setCsvLoading] = useState(false)
+  const [showFilterra, setShowFilterra] = useState(false)
 
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormData>({
     defaultValues: { currency: 'TRY', listingType: 'sale', propertyType: 'residential' }
   })
 
   const propertyType = watch('propertyType')
+  const watchedValues = watch()
 
   async function onSubmit(data: FormData) {
     if (!accessToken) return
@@ -53,7 +56,7 @@ export default function NewListingPage() {
     setError(null)
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1'}/listings`,
+        `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1'}/listings`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
@@ -87,7 +90,7 @@ export default function NewListingPage() {
       const buffer = await csvFile.arrayBuffer()
       const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)))
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1'}/listings/csv/import`,
+        `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1'}/listings/csv/import`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
@@ -137,7 +140,7 @@ export default function NewListingPage() {
           <p className="text-ink font-semibold mb-2">CSV ile Toplu İlan Yükle</p>
           <p className="text-sm text-muted mb-4">Maks 500 satır. Excel uyumlu UTF-8 BOM formatında.</p>
           <a
-            href={`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1'}/listings/csv/template`}
+            href={`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1'}/listings/csv/template`}
             download
             className="text-sm text-teal hover:text-gold transition-colors font-medium"
           >
@@ -223,8 +226,46 @@ export default function NewListingPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-muted mb-1.5">Açıklama</label>
-              <textarea {...register('description')} rows={4} className="input-base resize-none" placeholder="İlan açıklaması..." />
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-medium text-muted">Açıklama</label>
+                <button
+                  type="button"
+                  onClick={() => setShowFilterra((v) => !v)}
+                  className="flex items-center gap-1.5 text-xs text-gold hover:text-ink transition-colors font-medium"
+                >
+                  <span className="text-[10px] font-bold tracking-wider">FILTERRA</span>
+                  {showFilterra ? '▲ Gizle' : '✨ AI ile Yaz'}
+                </button>
+              </div>
+              <textarea {...register('description')} rows={4} className="input-base resize-none" placeholder="İlan açıklaması veya FILTERRA.AI ile otomatik oluşturun..." />
+              {showFilterra && (
+                <div className="mt-3">
+                  <FilterraPanel
+                    listingInput={{
+                      title: watchedValues.title ?? '',
+                      city: watchedValues.city ?? '',
+                      district: watchedValues.district,
+                      neighborhood: watchedValues.neighborhood,
+                      propertyType: watchedValues.propertyType ?? 'residential',
+                      listingType: watchedValues.listingType ?? 'sale',
+                      roomCount: watchedValues.roomCount,
+                      areaM2: watchedValues.areaM2 ? Number(watchedValues.areaM2) : undefined,
+                      floorNo: watchedValues.floorNo ? Number(watchedValues.floorNo) : undefined,
+                      totalFloors: watchedValues.totalFloors ? Number(watchedValues.totalFloors) : undefined,
+                      buildingAge: watchedValues.buildingAge ? Number(watchedValues.buildingAge) : undefined,
+                      isFurnished: watchedValues.isFurnished,
+                      hasParking: watchedValues.hasParking,
+                      hasElevator: watchedValues.hasElevator,
+                      hasBalcony: watchedValues.hasBalcony,
+                      category: watchedValues.category,
+                    }}
+                    onDescriptionGenerated={(text) => {
+                      setValue('description', text)
+                      setShowFilterra(false)
+                    }}
+                  />
+                </div>
+              )}
             </div>
           </div>
 

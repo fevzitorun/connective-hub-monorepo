@@ -41,6 +41,66 @@ const NAV_ITEMS = [
       </svg>
     ),
   },
+  {
+    href: '/panel/atlas',
+    label: 'Atlas AI',
+    roles: ['agency', 'agent_person', 'admin', 'lawyer', 'bank'],
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1 1 .3 2.7-1.2 2.7H4c-1.5 0-2.2-1.7-1.2-2.7L4 16.2" />
+      </svg>
+    ),
+  },
+  {
+    href: '/panel/muzayede',
+    label: 'Müzayede',
+    roles: ['agency', 'agent_person', 'admin'],
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zm9.75-9.75c0-.621.504-1.125 1.125-1.125h2.25C17.496 2.25 18 2.754 18 3.375v16.5c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V3.375z" />
+      </svg>
+    ),
+  },
+  {
+    href: '/panel/analitik',
+    label: 'Analitik',
+    roles: ['agency', 'agent_person', 'admin'],
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+    ),
+  },
+  {
+    href: '/panel/marka',
+    label: 'White-Label',
+    roles: ['agency', 'agent_person', 'admin'],
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+      </svg>
+    ),
+  },
+  {
+    href: '/panel/hukuk',
+    label: 'Hukuki Panel',
+    roles: ['lawyer', 'admin'],
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+      </svg>
+    ),
+  },
+  {
+    href: '/panel/banka',
+    label: 'Kredi Lead Paneli',
+    roles: ['bank', 'admin'],
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+      </svg>
+    ),
+  },
 ]
 
 export default function PanelLayout({ children }: { children: React.ReactNode }) {
@@ -56,7 +116,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
 
   if (!accessToken) return null
 
-  const agencyRoles = ['agency', 'agent_person', 'admin']
+  const agencyRoles = ['agency', 'agent_person', 'admin', 'lawyer', 'bank']
   if (user && !agencyRoles.includes(user.role)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-cream">
@@ -87,7 +147,10 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
 
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          {NAV_ITEMS.map((item) => {
+          {NAV_ITEMS.filter((item) => {
+            if (!('roles' in item)) return true
+            return user && item.roles.includes(user.role)
+          }).map((item) => {
             const active = pathname === item.href || (item.href !== '/panel' && pathname.startsWith(item.href))
             return (
               <Link

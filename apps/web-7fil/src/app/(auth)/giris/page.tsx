@@ -71,7 +71,12 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="text-center text-sm text-muted mt-6">
+        <p className="text-center text-sm text-muted mt-4">
+          <Link href="/sifremi-unuttum" className="text-gray-400 hover:text-teal transition-colors text-xs">
+            Şifremi unuttum
+          </Link>
+        </p>
+        <p className="text-center text-sm text-muted mt-4">
           Hesabınız yok mu?{' '}
           <Link href="/kayit" className="text-teal hover:text-gold transition-colors font-medium">
             Kayıt Ol

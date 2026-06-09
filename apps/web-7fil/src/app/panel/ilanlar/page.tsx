@@ -44,7 +44,7 @@ export default function PanelListings() {
   async function handlePublish(id: string) {
     if (!accessToken) return
     await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1'}/listings/${id}/publish`,
+      `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1'}/listings/${id}/publish`,
       { method: 'POST', headers: { Authorization: `Bearer ${accessToken}` } }
     )
     load()
@@ -54,7 +54,7 @@ export default function PanelListings() {
     if (!accessToken || !confirm('Bu ilanı silmek istediğinizden emin misiniz?')) return
     setDeleting(id)
     await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1'}/listings/${id}`,
+      `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1'}/listings/${id}`,
       { method: 'DELETE', headers: { Authorization: `Bearer ${accessToken}` } }
     )
     setDeleting(null)
@@ -70,7 +70,7 @@ export default function PanelListings() {
         </div>
         <div className="flex gap-3">
           <a
-            href={`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1'}/listings/csv/template`}
+            href={`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1'}/listings/csv/template`}
             download
             className="btn-outline text-sm py-2 px-4"
           >

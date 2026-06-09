@@ -4,7 +4,7 @@ import { useFavoritesStore } from '../store/favorites'
 import { useAuthStore } from '../store/auth'
 import { cn } from '../lib/utils'
 
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1'
+const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1'
 
 interface Props {
   listingId: string

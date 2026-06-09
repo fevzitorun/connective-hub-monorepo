@@ -20,6 +20,7 @@ export function Navbar() {
           <Link href="/ara?listingType=rent" className="hover:text-gold transition-colors">Kiralık</Link>
           <Link href="/ara?propertyType=commercial" className="hover:text-gold transition-colors">İş Yeri</Link>
           <Link href="/ara?propertyType=land" className="hover:text-gold transition-colors">Arsa</Link>
+          <Link href="/ticari" className="hover:text-gold transition-colors font-semibold text-gold/80">TicariMetre</Link>
         </div>
 
         {/* Actions */}
