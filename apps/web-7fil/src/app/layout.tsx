@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Playfair_Display, DM_Sans } from 'next/font/google'
 import '@7fil/ui/globals.css'
 import './globals.css'
+import { PostHogProvider } from '../components/PostHogProvider'
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -74,7 +75,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="tr" className={`${playfair.variable} ${dmSans.variable}`}>
       <body className="min-h-screen bg-cream font-body antialiased">
-        {children}
+        <PostHogProvider>
+          {children}
+        </PostHogProvider>
       </body>
     </html>
   )
