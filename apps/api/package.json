@@ -43,7 +43,13 @@
     "@nestjs/cache-manager": "^2.3.0",
     "cache-manager": "^5.7.6",
     "cache-manager-ioredis-yet": "^2.1.0",
-    "meilisearch": "^0.38.0"
+    "meilisearch": "^0.38.0",
+    "@anthropic-ai/sdk": "^0.39.0",
+    "resend": "^4.0.1",
+    "@nestjs/websockets": "^10.4.7",
+    "@nestjs/platform-socket.io": "^10.4.7",
+    "@nestjs/schedule": "^4.1.1",
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.8",

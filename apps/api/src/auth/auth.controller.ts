@@ -75,6 +75,27 @@ export class AuthController {
     return this.authService.logout(user.id)
   }
 
+  // POST /api/v1/auth/forgot-password
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ short: { ttl: 60000, limit: 3 } })
+  @ApiOperation({ summary: 'Şifre sıfırlama e-postası gönder' })
+  async forgotPassword(@Body('email') email: string) {
+    return this.authService.forgotPassword(email)
+  }
+
+  // POST /api/v1/auth/reset-password
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ short: { ttl: 60000, limit: 5 } })
+  @ApiOperation({ summary: 'Şifreyi sıfırla' })
+  async resetPassword(
+    @Body('token') token: string,
+    @Body('password') password: string,
+  ) {
+    return this.authService.resetPassword(token, password)
+  }
+
   // POST /api/v1/auth/me
   @Post('me')
   @HttpCode(HttpStatus.OK)

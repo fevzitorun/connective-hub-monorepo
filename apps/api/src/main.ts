@@ -40,8 +40,10 @@ async function bootstrap() {
     origin: [
       'http://localhost:3000',
       'http://localhost:3001',
+      'http://localhost:3002',
       'https://7fil.com.tr',
       'https://www.7fil.com.tr',
+      'https://partner.7fil.com.tr',
     ],
     credentials: true,
   })
@@ -60,6 +62,10 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, config)
     SwaggerModule.setup('api/docs', app, document)
   }
+
+  // Health check (before global prefix)
+  const fastify = app.getHttpAdapter().getInstance() as import('fastify').FastifyInstance
+  fastify.get('/api/v1/health', async () => ({ status: 'ok', ts: new Date().toISOString() }))
 
   const port = configService.get<number>('PORT', 4000)
   await app.listen(port, '0.0.0.0')

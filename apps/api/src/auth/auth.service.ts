@@ -2,9 +2,13 @@ import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/
 import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
 import * as bcrypt from 'bcryptjs'
+import * as crypto from 'crypto'
+import { InjectDataSource } from '@nestjs/typeorm'
+import { DataSource } from 'typeorm'
 import { UsersService } from '../users/users.service'
 import { SmsService } from '../common/services/sms.service'
 import { OtpService } from '../common/services/otp.service'
+import { MailService } from '../mail/mail.service'
 import { RegisterDto } from './dto/register.dto'
 import { LoginDto } from './dto/login.dto'
 import { User } from '../users/entities/user.entity'
@@ -17,6 +21,8 @@ export class AuthService {
     private readonly config: ConfigService,
     private readonly smsService: SmsService,
     private readonly otpService: OtpService,
+    private readonly mail: MailService,
+    @InjectDataSource() private readonly ds: DataSource,
   ) {}
 
   // ─── Register ─────────────────────────────────────────────────────────────
@@ -44,6 +50,10 @@ export class AuthService {
     }
 
     const tokens = await this.generateTokens(user)
+
+    // Welcome e-mail (fire & forget — hata kayıt işlemini engellemez)
+    this.mail.sendWelcome(user.email, user.fullName).catch(() => undefined)
+
     return { user: this.sanitize(user), ...tokens }
   }
 
@@ -106,6 +116,56 @@ export class AuthService {
   async logout(userId: string) {
     await this.usersService.updateRefreshToken(userId, null)
     return { message: 'Çıkış yapıldı' }
+  }
+
+  // ─── Şifre Sıfırlama ─────────────────────────────────────────────────────
+
+  async forgotPassword(email: string) {
+    const user = await this.usersService.findByEmail(email)
+    // Güvenlik: kullanıcı yoksa da aynı yanıtı döndür (timing attack önlemi)
+    if (!user) return { message: 'Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.' }
+
+    const rawToken = crypto.randomBytes(32).toString('hex')
+    const hash = crypto.createHash('sha256').update(rawToken).digest('hex')
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1_000) // 1 saat
+
+    // Eski tokenları geçersiz kıl
+    await this.ds.query(
+      `DELETE FROM password_reset_tokens WHERE user_id = $1`, [user.id],
+    )
+    await this.ds.query(
+      `INSERT INTO password_reset_tokens (user_id, token_hash, expires_at) VALUES ($1,$2,$3)`,
+      [user.id, hash, expiresAt.toISOString()],
+    )
+
+    this.mail.sendPasswordReset(user.email, user.fullName, rawToken).catch(() => undefined)
+    return { message: 'Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.' }
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    const hash = crypto.createHash('sha256').update(token).digest('hex')
+    const rows = await this.ds.query(`
+      SELECT prt.id, prt.user_id, u.email, u.full_name
+      FROM password_reset_tokens prt
+      JOIN users u ON u.id = prt.user_id
+      WHERE prt.token_hash = $1
+        AND prt.expires_at > NOW()
+        AND prt.used_at IS NULL
+      LIMIT 1
+    `, [hash])
+
+    const row = rows[0] as { id: string; user_id: string; email: string; full_name: string } | undefined
+    if (!row) throw new BadRequestException('Geçersiz veya süresi dolmuş bağlantı.')
+
+    if (newPassword.length < 8) throw new BadRequestException('Şifre en az 8 karakter olmalı.')
+
+    const passwordHash = await bcrypt.hash(newPassword, 12)
+    await Promise.all([
+      this.ds.query(`UPDATE users SET password = $1 WHERE id = $2`, [passwordHash, row.user_id]),
+      this.ds.query(`UPDATE password_reset_tokens SET used_at = NOW() WHERE id = $1`, [row.id]),
+    ])
+
+    return { message: 'Şifreniz başarıyla güncellendi.' }
   }
 
   // ─── Helpers ─────────────────────────────────────────────────────────────

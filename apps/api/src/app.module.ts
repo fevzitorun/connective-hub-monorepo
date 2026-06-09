@@ -9,6 +9,20 @@ import { ListingsModule } from './listings/listings.module'
 import { SearchModule } from './search/search.module'
 import { AgencyModule } from './agency/agency.module'
 import { FavoritesModule } from './favorites/favorites.module'
+import { FilterraModule } from './filterra/filterra.module'
+import { LegalModule } from './legal/legal.module'
+import { FinanceModule } from './finance/finance.module'
+import { TicariModule } from './ticari/ticari.module'
+import { WhitelabelModule } from './whitelabel/whitelabel.module'
+import { AnalyticsModule } from './analytics/analytics.module'
+import { MailModule } from './mail/mail.module'
+import { AuctionModule } from './auction/auction.module'
+import { AtlasModule } from './atlas/atlas.module'
+import { AdminModule } from './admin/admin.module'
+import { PartnerModule } from './partner/partner.module'
+import { MlsModule }     from './mls/mls.module'
+import { CrmModule }     from './crm/crm.module'
+import { ScribeModule }  from './agents/scribe/scribe.module'
 
 @Module({
   imports: [
@@ -27,6 +41,7 @@ import { FavoritesModule } from './favorites/favorites.module'
 
     // Database
     DatabaseModule,
+    MailModule,
 
     StorageModule,
     AuthModule,
@@ -35,6 +50,19 @@ import { FavoritesModule } from './favorites/favorites.module'
     SearchModule,
     AgencyModule,
     FavoritesModule,
+    FilterraModule,
+    LegalModule,
+    FinanceModule,
+    TicariModule,
+    WhitelabelModule,
+    AnalyticsModule,
+    AuctionModule,
+    AtlasModule,
+    AdminModule,
+    PartnerModule,
+    MlsModule,      // Modül B — Emlakçılar Arası MLS Portföy Paylaşımı
+    CrmModule,      // M-01  — CRM & Lead Yönetimi
+    ScribeModule,   // M-04  — SCRIBE AI İçerik Ajansı
   ],
 })
 export class AppModule {}

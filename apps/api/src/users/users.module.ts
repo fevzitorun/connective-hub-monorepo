@@ -4,9 +4,11 @@ import { User } from './entities/user.entity'
 import { Agency } from './entities/agency.entity'
 import { KvkkAuditLog } from './entities/kvkk-audit.entity'
 import { UsersService } from './users.service'
+import { UsersController } from './users.controller'
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, Agency, KvkkAuditLog])],
+  controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],
 })

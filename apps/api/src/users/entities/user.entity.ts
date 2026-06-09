@@ -11,6 +11,7 @@ export enum UserRole {
   LAWYER       = 'lawyer',
   BANK         = 'bank',
   INSURER      = 'insurer',
+  PARTNER      = 'partner',
   ADMIN        = 'admin',
 }
 
