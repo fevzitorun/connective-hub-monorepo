@@ -1,7 +1,8 @@
-# 7fil.com.tr — MASTER PLAN v5.0
+# 7fil.com.tr — MASTER PLAN v5.1
 ### Connective Hub Dijital Teknolojiler Ltd. Şti.
-> **Son Güncelleme:** 9 Haziran 2026 · **Versiyon:** 5.0.0  
-> **Tema:** *30 Modül · 11 Mühendis Ajanı · Test Moduna 6 Hafta*
+> **Son Güncelleme:** 14 Haziran 2026 · **Versiyon:** 5.1.0  
+> **Tema:** *30 Modül · 11 Mühendis Ajanı · Test Moduna 6 Hafta*  
+> **Sprint Durumu:** Hafta 1 Sprint'i tamamlandı — P0 blokajlar çözüldü ✅
 
 ---
 
@@ -491,19 +492,31 @@ KPI: 50 kayıtlı kullanıcı · 20 test ilanı · sıfır P0 bug
 ## 6. Güncel Durum — Hangi Modül Nerede?
 
 ```
-CANLIDA (kod yazıldı, test edilmedi):
-  M01-M25 → Tüm kod yerel branch'te
-  Git: 5 commit yapıldı, push için GitHub auth gerekiyor
+GÜNCEL: 14 Haziran 2026 — Sprint Hafta 1 Tamamlandı
+
+KOD DURUMU (yerel, push bekliyor):
+  M01-M25 → Tüm kod tamamlandı ✅
+  Git: 16 commit · 260 dosya · 41,108 satır kod
+  API: 126 kaynak dosya · 23 modül · 1136 satırlık init.sql
+  Web: 78 kaynak dosya · 20+ sayfa
+  Mobile: 17 kaynak dosya · 8 ekran
+
+BU SPRINT TAMAMLANANLAR (9-14 Haz):
+  ✅ M01 E-posta OTP doğrulama (email_verification_tokens + akış)
+  ✅ M03 Meilisearch Türkçe config (30 stopword, 14 synonym)
+  ✅ SEO: robots.ts, sitemap.ts, Schema.org JSON-LD, OG/Twitter meta
+  ✅ Sentry: API (PII filtreleme) + Web (Replay)
+  ✅ PostHog: App Router uyumlu sayfa izleme
+  ✅ Design tokens: shadow, gradient, transition, z-index genişletildi
 
 STAGING'DE (henüz):
   Hiçbir modül staging'e deploy edilmedi
-  → Hafta 1 görevi: DevOps staging deploy
+  → Hafta 1 görevi: DevOps Railway + Vercel deploy
 
 PRODUCTION:
   Henüz yok — test modundan sonra
 
 EKSIK KOD:
-  M01: E-posta OTP doğrulama (bloklayıcı → Hafta 2)
   M26: PDF Broşür → Sprint 4
   M27: Property Management → Sprint 4
   M28: Depozito Escrow → Sprint 4
@@ -516,40 +529,42 @@ EKSIK KOD:
 ## 7. Kritik Yol Analizi (Test Modu Bloklayıcıları)
 
 ```
-BLOKLAYICI 1 (P0): E-posta OTP doğrulama
-  Durum: Mail servisi var, OTP akışı yok
-  Sahip: BACKEND-CORE
-  Çözüm: 2 saatlik iş — PasswordResetToken entity'si var,
-          aynı pattern ile EmailVerification ekle
-  ETA: Hafta 1
+✅ BLOKLAYICI 1 (P0): E-posta OTP doğrulama — ÇÖZÜLDÜ (14 Haz)
+  email_verification_tokens tablosu, verify + resend endpoint
+  /dogrula-email + /dogrula-email/bekliyor sayfaları
 
-BLOKLAYICI 2 (P0): GitHub auth → push
-  Durum: 5 commit yerel, push auth hatası
+✅ BLOKLAYICI 4 (P1): Meilisearch Turkish config — ÇÖZÜLDÜ (14 Haz)
+  30 Türkçe stopword · 14 synonym grubu · özel ranking kuralları
+
+🔴 BLOKLAYICI 2 (P0): GitHub auth → push — AÇIK
+  Durum: 16 commit yerel, push auth hatası devam ediyor
   Sahip: Fevzi Torun (GitHub token)
   Çözüm: gh auth login VEYA SSH key kurulumu
   ETA: Bu gün
 
-BLOKLAYICI 3 (P1): Staging ortamı .env
+🔴 BLOKLAYICI 3 (P1): Staging ortamı deploy — AÇIK
   Durum: Railway + Vercel hesabı açık olmalı
   Sahip: DevOps / Fevzi Torun
   Çözüm: Railway project + Vercel project bağlantısı
-  ETA: Hafta 1
+  ETA: Hafta 1 (şu an)
 
-BLOKLAYICI 4 (P1): Meilisearch Turkish config
-  Durum: Meilisearch servisi var, Turkish stopwords/typo config?
-  Sahip: BACKEND-CORE
-  Çözüm: settings.json türkçe yapılandırması
-  ETA: Hafta 1
-
-RİSK 1 (P2): İyzico test modu
-  IYZICO_BASE_URL test vs prod ayrımı doğrulanmalı
+⚠️  RİSK 1 (P2): İyzico test modu
+  IYZICO_API_KEY + IYZICO_SECRET_KEY staging'e girilmeli
+  Sandbox key .env.example'da mevcut
   Sahip: BACKEND-FINANCE
   ETA: Hafta 2
 
-RİSK 2 (P2): WebSocket (Socket.IO) + Railway
+⚠️  RİSK 2 (P2): WebSocket (Socket.IO) + Railway
   Railway WebSocket desteği var ama sticky session gerekebilir
   Sahip: DEVOPS + BACKEND-FINANCE
   ETA: Hafta 3
+
+SONRAKI ADIMLAR (öncelik sırasıyla):
+  1. gh auth login → git push origin main
+  2. Railway: API deploy → PostgreSQL + Meilisearch addon
+  3. Vercel: web-7fil bağlantısı
+  4. pnpm install (Sentry + PostHog paketleri)
+  5. Hafta 2: E2E test akışları (5 kritik akış)
 ```
 
 ---
@@ -575,8 +590,8 @@ RİSK 2 (P2): WebSocket (Socket.IO) + Railway
 
 ### İzleme
 
-- [ ] Sentry: web-7fil + API entegrasyonu
-- [ ] Google Analytics 4: web-7fil
+- [x] Sentry: web-7fil + API entegrasyonu ✅
+- [x] PostHog: sayfa izleme, kullanıcı analitik ✅
 - [ ] Uptime monitoring: UptimeRobot
 - [ ] Railway metrics: CPU/RAM alert
 - [ ] DB backup: günlük otomatik
@@ -598,10 +613,11 @@ RİSK 2 (P2): WebSocket (Socket.IO) + Railway
 
 ```
 Test Modu Öncesi Yapılacaklar:
-□ robots.txt + sitemap.xml → Next.js otomatik oluşturma
-□ Schema.org RealEstateListing JSON-LD → ilan sayfaları
-□ Open Graph + Twitter Card meta → paylaşım önizlemesi
-□ GA4 + Meta Pixel → temel event tracking
+✅ robots.ts + sitemap.ts → Next.js App Router native
+✅ Schema.org RealEstateListing JSON-LD → ilan detay sayfası
+✅ Open Graph + Twitter Card meta → layout.tsx + ilan sayfaları
+✅ PostHog → sayfa izleme entegre
+□ Meta Pixel → temel event tracking
 □ Hotjar → kullanıcı davranış haritası
 
 İlk 30 Gün Kampanya:
@@ -622,8 +638,9 @@ Test Modu Öncesi Yapılacaklar:
 | v2.0 | 2026 Q1 | FILTERRA, Müzayede, Hukuk, Finans |
 | v3.0 | 2026 May | MLS, Google I/O 2026 Search vizyonu |
 | v4.0 | 2026 Haz | Admin, CRM, Mobile, SCRIBE, Kurumsal Kimlik |
-| **v5.0** | **2026 Haz** | **30 Modül · 11 Ajan Ekip · Test Modu Sprint'i** |
-| v5.1 | 2026 Tem | Test Modu → 50 beta kullanıcı |
+| v5.0 | 9 Haz 2026 | 30 Modül · 11 Ajan Ekip · Test Modu Sprint'i |
+| **v5.1** | **14 Haz 2026** | **P0 blokaj çözümleri: email OTP, Meilisearch TR, SEO, Sentry, PostHog** |
+| v5.2 | Tem 2026 | Staging deploy → Test Modu → 50 beta kullanıcı |
 | v6.0 | 2026 Q3 | PDF, Property Mgmt, Escrow, AI Search |
 | v7.0 | 2026 Q4 | Full Agent Orkestrasyonu, e-Güven, Uluslararası |
 
