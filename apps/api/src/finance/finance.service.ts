@@ -235,8 +235,8 @@ export class FinanceService {
 
     await Promise.all(banks.map((b) =>
       this.mail.sendMortgageLead(b.email, b.full_name, {
-        contactName: lead.contactName,
-        contactPhone: lead.contactPhone,
+        contactName: lead.contactName ?? '',
+        contactPhone: lead.contactPhone ?? '',
         loanAmount: lead.loanAmount,
         loanTermYears: lead.loanTermYears,
         listingTitle,

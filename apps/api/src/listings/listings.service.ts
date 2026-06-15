@@ -40,19 +40,20 @@ export class ListingsService {
     const expiresAt = new Date()
     expiresAt.setDate(expiresAt.getDate() + LISTING_EXPIRY_DAYS)
 
-    const listing = this.listingRepo.create({
+    const partial: Record<string, unknown> = {
       ...dto,
       ownerUserId: userId,
       agencyId: agency?.id,
       status: ListingStatus.DRAFT,
       expiresAt,
-      // PostGIS Point — raw string format
-      coordinates: dto.lat && dto.lng
-        ? () => `ST_SetSRID(ST_MakePoint(${dto.lng}, ${dto.lat}), 4326)`
-        : undefined,
-    })
+    }
+    if (dto.lat && dto.lng) {
+      // PostGIS raw function — TypeORM accepts lambdas for generated columns
+      partial['coordinates'] = () => `ST_SetSRID(ST_MakePoint(${dto.lng}, ${dto.lat}), 4326)`
+    }
+    const listing = this.listingRepo.create(partial as Parameters<typeof this.listingRepo.create>[0])
 
-    const saved = await this.listingRepo.save(listing)
+    const saved = await this.listingRepo.save(listing as Listing) as Listing
 
     // WhatsApp Deep Link + QR oluştur
     if (dto.agentPhone) {

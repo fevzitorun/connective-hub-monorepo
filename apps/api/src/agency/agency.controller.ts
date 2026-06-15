@@ -1,5 +1,5 @@
 import {
-  Controller, Get, Patch, Post, Body, Query, Version,
+  Controller, Get, Patch, Post, Body, Query,
   UseGuards, ParseIntPipe, DefaultValuePipe,
 } from '@nestjs/common'
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger'
@@ -19,7 +19,7 @@ class SubscribeDto {
 
 @ApiTags('Agency')
 @Controller('agency')
-@Version('1')
+
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.AGENCY, UserRole.AGENT_PERSON, UserRole.ADMIN)
 @ApiBearerAuth()

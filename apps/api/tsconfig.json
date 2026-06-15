@@ -8,7 +8,12 @@
     "rootDir": "./src",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "useDefineForClassFields": false,
+    "noUncheckedIndexedAccess": false,
+    "strictFunctionTypes": false,
+    "ignoreDeprecations": "5.0",
+    "moduleResolution": "node"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test"]

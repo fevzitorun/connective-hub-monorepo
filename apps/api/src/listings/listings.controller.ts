@@ -1,6 +1,6 @@
 import {
   Controller, Get, Post, Patch, Delete, Body, Param, Query,
-  UseGuards, Res, HttpCode, HttpStatus, ParseUUIDPipe, Version, Req,
+  UseGuards, Res, HttpCode, HttpStatus, ParseUUIDPipe, Req,
 } from '@nestjs/common'
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger'
 import { Throttle } from '@nestjs/throttler'
@@ -18,7 +18,7 @@ import { User, UserRole } from '../users/entities/user.entity'
 
 @ApiTags('Listings')
 @Controller('listings')
-@Version('1')
+
 export class ListingsController {
   constructor(
     private readonly listingsService: ListingsService,
@@ -157,10 +157,10 @@ export class ListingsController {
   // GET /api/v1/listings/csv/template
   @Get('csv/template')
   @ApiOperation({ summary: 'CSV şablonu indir (pilot ajanslar için)' })
-  downloadTemplate(@Res() res: Response) {
+  downloadTemplate(@Res() res: FastifyReply) {
     const csv = CsvImportService.templateCsv()
-    res.setHeader('Content-Type', 'text/csv; charset=utf-8')
-    res.setHeader('Content-Disposition', 'attachment; filename="7fil-ilan-sablonu.csv"')
+    res.header('Content-Type', 'text/csv; charset=utf-8')
+    res.header('Content-Disposition', 'attachment; filename="7fil-ilan-sablonu.csv"')
     res.send('﻿' + csv)  // BOM — Excel'de Türkçe karakter desteği
   }
 

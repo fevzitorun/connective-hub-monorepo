@@ -36,8 +36,8 @@ async function bootstrap() {
     })
   )
 
-  // API versioning
-  app.enableVersioning({ type: VersioningType.URI })
+  // API versioning — tüm route'lar varsayılan olarak v1
+  app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' })
 
   // CORS
   app.enableCors({

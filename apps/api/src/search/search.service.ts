@@ -138,7 +138,7 @@ export class SearchService implements OnModuleInit {
   // ─── Arama ───────────────────────────────────────────────────────────────
 
   async search(params: {
-    q:            string
+    q?:           string
     city?:        string
     district?:    string
     propertyType?: string

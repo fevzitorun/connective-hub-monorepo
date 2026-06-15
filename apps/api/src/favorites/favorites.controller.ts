@@ -1,6 +1,6 @@
 import {
   Controller, Get, Post, Delete, Param, Body, Query,
-  UseGuards, HttpCode, HttpStatus, Version,
+  UseGuards, HttpCode, HttpStatus,
 } from '@nestjs/common'
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger'
 import { FavoritesService } from './favorites.service'
@@ -10,7 +10,7 @@ import { User } from '../users/entities/user.entity'
 
 @ApiTags('Favorites')
 @Controller('favorites')
-@Version('1')
+
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class FavoritesController {

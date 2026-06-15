@@ -90,8 +90,8 @@ export class LegalService {
     c.status = dto.verdict === 'approved' ? 'approved' : 'rejected'
     c.riskScore = dto.riskScore
     c.riskNotes = dto.riskNotes
-    c.lawyerNotes = dto.lawyerNotes ?? null
-    c.fee = dto.fee ?? null
+    c.lawyerNotes = dto.lawyerNotes ?? ''
+    c.fee = dto.fee ?? 0
     c.reviewedAt = new Date()
     return this.caseRepo.save(c)
   }

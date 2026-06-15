@@ -2,7 +2,6 @@ import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { PassportStrategy } from '@nestjs/passport'
 import { ExtractJwt, Strategy } from 'passport-jwt'
 import { ConfigService } from '@nestjs/config'
-import { Request } from 'express'
 import * as bcrypt from 'bcryptjs'
 import { UsersService } from '../../users/users.service'
 import { JwtPayload } from './jwt.strategy'
@@ -20,7 +19,7 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
     })
   }
 
-  async validate(req: Request, payload: JwtPayload) {
+  async validate(req: { body?: Record<string, string> }, payload: JwtPayload) {
     const refreshToken = req.body?.refreshToken
     const user = await this.usersService.findById(payload.sub)
 

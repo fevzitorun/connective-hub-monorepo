@@ -53,7 +53,7 @@ export class UsersService {
   }
 
   async updateRefreshToken(userId: string, hash: string | null): Promise<void> {
-    await this.userRepo.update(userId, { refreshTokenHash: hash })
+    await this.userRepo.update(userId, { refreshTokenHash: hash ?? undefined })
   }
 
   async markVerified(userId: string): Promise<void> {

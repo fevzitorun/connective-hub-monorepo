@@ -1,6 +1,6 @@
 import {
   Controller, Get, Post, Delete, Body, Query, Param,
-  UseGuards, HttpCode, HttpStatus, ParseUUIDPipe, Version,
+  UseGuards, HttpCode, HttpStatus, ParseUUIDPipe,
 } from '@nestjs/common'
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger'
 import { IsOptional, IsString, IsEnum, IsNumber, IsBoolean } from 'class-validator'
@@ -42,7 +42,7 @@ class CreateAlertDto {
 
 @ApiTags('Search')
 @Controller('search')
-@Version('1')
+
 export class SearchController {
   constructor(
     private readonly searchService: SearchService,

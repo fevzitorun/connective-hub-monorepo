@@ -18,5 +18,14 @@
     "node": ">=20.0.0",
     "pnpm": ">=9.0.0"
   },
-  "packageManager": "pnpm@11.1.3"
+  "packageManager": "pnpm@11.1.3",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "@sentry/cli",
+      "@sentry/profiling-node",
+      "core-js",
+      "unrs-resolver"
+    ]
+  }
 }
