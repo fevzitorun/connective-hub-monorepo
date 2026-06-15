@@ -8,6 +8,7 @@ import { FinanceService } from './finance.service'
 import { IyzicoService } from './iyzico.service'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { RolesGuard } from '../auth/guards/roles.guard'
+import { EmailVerifiedGuard } from '../auth/guards/email-verified.guard'
 import { Roles } from '../auth/decorators/roles.decorator'
 import { CurrentUser } from '../auth/decorators/current-user.decorator'
 import { User, UserRole } from '../users/entities/user.entity'
@@ -185,7 +186,7 @@ export class FinanceController {
 
   @Post('payment/init')
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, EmailVerifiedGuard)
   @HttpCode(HttpStatus.OK)
   async initPayment(
     @Body() body: { plan: string; months?: number },

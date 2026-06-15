@@ -1,6 +1,7 @@
 import {
-  Injectable, NotFoundException, ForbiddenException, BadRequestException,
+  Injectable, NotFoundException, ForbiddenException, BadRequestException, Logger,
 } from '@nestjs/common'
+import { Cron, CronExpression } from '@nestjs/schedule'
 import { InjectRepository, InjectDataSource } from '@nestjs/typeorm'
 import { Repository, DataSource } from 'typeorm'
 import { Listing, ListingStatus } from './entities/listing.entity'
@@ -284,5 +285,36 @@ export class ListingsService {
       take: perPage,
     })
     return { data, total, page, perPage }
+  }
+
+  // ─── Zamanlanmış görevler ─────────────────────────────────────────────────
+
+  private readonly logger = new Logger(ListingsService.name)
+
+  /** Her gün 03:00'te süresi dolmuş ilanları pasife çeker */
+  @Cron(CronExpression.EVERY_DAY_AT_3AM)
+  async expireListings() {
+    const result = await this.dataSource.query(`
+      UPDATE listings
+      SET status = 'expired', updated_at = NOW()
+      WHERE status = 'active'
+        AND expires_at IS NOT NULL
+        AND expires_at < NOW()
+    `)
+    const count = result[1] ?? 0
+    if (count > 0) this.logger.log(`${count} ilan süresi doldu → 'expired' yapıldı`)
+  }
+
+  /** Her gün 04:00'te kullanılmış/süresi dolmuş doğrulama tokenlarını temizle */
+  @Cron(CronExpression.EVERY_DAY_AT_4AM)
+  async cleanExpiredTokens() {
+    await this.dataSource.query(`
+      DELETE FROM email_verification_tokens
+      WHERE expires_at < NOW() OR used_at IS NOT NULL
+    `)
+    await this.dataSource.query(`
+      DELETE FROM password_reset_tokens
+      WHERE expires_at < NOW() OR used_at IS NOT NULL
+    `)
   }
 }

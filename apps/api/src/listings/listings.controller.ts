@@ -11,6 +11,7 @@ import { CreateListingDto } from './dto/create-listing.dto'
 import { ListingFiltersDto } from './dto/listing-filters.dto'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { RolesGuard } from '../auth/guards/roles.guard'
+import { EmailVerifiedGuard } from '../auth/guards/email-verified.guard'
 import { CurrentUser } from '../auth/decorators/current-user.decorator'
 import { Roles } from '../auth/decorators/roles.decorator'
 import { User, UserRole } from '../users/entities/user.entity'
@@ -62,7 +63,7 @@ export class ListingsController {
 
   // POST /api/v1/listings
   @Post()
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, EmailVerifiedGuard, RolesGuard)
   @Roles(UserRole.AGENCY, UserRole.AGENT_PERSON, UserRole.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Yeni ilan oluştur' })
