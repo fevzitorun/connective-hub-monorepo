@@ -1,9 +1,9 @@
 packages:
   - "apps/*"
   - "packages/*"
-allowBuilds:
-  '@nestjs/core': set this to true or false
-  '@sentry/cli': set this to true or false
-  '@sentry/profiling-node': set this to true or false
-  core-js: set this to true or false
-  unrs-resolver: set this to true or false
+onlyBuiltDependencies:
+  - "@nestjs/core"
+  - "@sentry/cli"
+  - "@sentry/profiling-node"
+  - core-js
+  - unrs-resolver
