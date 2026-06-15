@@ -2,12 +2,14 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useAuthStore } from '../../store/auth'
 
 type Status = 'loading' | 'success' | 'error'
 
 export default function VerifyEmailPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const { user, setUser } = useAuthStore()
   const token = searchParams.get('token')
   const [status, setStatus] = useState<Status>('loading')
   const [message, setMessage] = useState('')
@@ -33,14 +35,20 @@ export default function VerifyEmailPage() {
         } else {
           setStatus('success')
           setMessage(data.message ?? 'E-posta adresiniz doğrulandı.')
-          setTimeout(() => router.replace('/giris?verified=1'), 2500)
+          if (user) {
+            setUser({ ...user, isVerified: true })
+            setTimeout(() => router.replace('/panel'), 2500)
+          } else {
+            setTimeout(() => router.replace('/giris?verified=1'), 2500)
+          }
         }
       })
       .catch(() => {
         setStatus('error')
         setMessage('Sunucu hatası. Lütfen tekrar deneyin.')
       })
-  }, [token, router])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token])
 
   return (
     <div className="min-h-screen bg-cream flex items-center justify-center p-4">
@@ -65,7 +73,7 @@ export default function VerifyEmailPage() {
             </div>
             <h1 className="font-display text-xl font-bold text-ink mb-2">E-posta Doğrulandı!</h1>
             <p className="text-muted text-sm mb-6">{message}</p>
-            <p className="text-xs text-muted">Giriş sayfasına yönlendiriliyorsunuz...</p>
+            <p className="text-xs text-muted">{user ? 'Panele' : 'Giriş sayfasına'} yönlendiriliyorsunuz...</p>
           </div>
         )}
 
