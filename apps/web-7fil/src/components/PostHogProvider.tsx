@@ -2,7 +2,7 @@
 import posthog from 'posthog-js'
 import { PostHogProvider as PHProvider, usePostHog } from 'posthog-js/react'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { useEffect, Suspense, ReactNode } from 'react'
+import React, { useEffect, Suspense, ReactNode } from 'react'
 
 function PageViewTracker() {
   const pathname = usePathname()
@@ -31,12 +31,14 @@ export function PostHogProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
+  // PHProvider'dan gelen ReactNode tip uyumsuzluğunu önlemek için wrap ediyoruz
+  const C = PHProvider as React.ComponentType<{ client: typeof posthog; children: ReactNode }>
   return (
-    <PHProvider client={posthog}>
+    <C client={posthog}>
       <Suspense fallback={null}>
         <PageViewTracker />
       </Suspense>
       {children}
-    </PHProvider>
+    </C>
   )
 }

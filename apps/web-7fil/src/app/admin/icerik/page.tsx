@@ -2,9 +2,9 @@
 import { useState } from 'react'
 
 const CONTENT_QUEUE = [
-  { id: '1', type: 'blog',    title: 'İstanbul'da 2026 Kira Trendleri',        agent: 'SCRIBE',      status: 'draft',     city: 'İstanbul', created: '2026-05-24' },
+  { id: '1', type: 'blog',    title: "İstanbul'da 2026 Kira Trendleri",        agent: 'SCRIBE',      status: 'draft',     city: 'İstanbul', created: '2026-05-24' },
   { id: '2', type: 'social',  title: '7 fotoğraflı Kadıköy daire tanıtımı',   agent: 'SCRIBE',      status: 'published', city: 'İstanbul', created: '2026-05-23' },
-  { id: '3', type: 'youtube', title: 'Ankara Çankaya\'da yatırım rehberi',     agent: 'YT-DIRECTOR', status: 'draft',     city: 'Ankara',   created: '2026-05-22' },
+  { id: '3', type: 'youtube', title: "Ankara Çankaya'da yatırım rehberi",      agent: 'YT-DIRECTOR', status: 'draft',     city: 'Ankara',   created: '2026-05-22' },
   { id: '4', type: 'report',  title: '7fil Kira Endeksi — Mayıs 2026',         agent: 'PR-MAESTRO',  status: 'draft',     city: 'Türkiye',  created: '2026-05-21' },
 ]
 

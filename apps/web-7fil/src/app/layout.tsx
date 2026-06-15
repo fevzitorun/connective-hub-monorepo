@@ -62,13 +62,12 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { children: React.ReactNode }): React.JSX.Element {
   return (
     <html lang="tr" className={`${playfair.variable} ${dmSans.variable}`}>
       <body className="min-h-screen bg-cream font-body antialiased">
-        <PostHogProvider>
-          {children}
-        </PostHogProvider>
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        <PostHogProvider>{children as any}</PostHogProvider>
       </body>
     </html>
   )

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useAuthStore } from '../../../store/auth'
 
 export default function VerifyEmailWaitingPage() {
-  const { user, token } = useAuthStore()
+  const { user, accessToken: token } = useAuthStore()
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

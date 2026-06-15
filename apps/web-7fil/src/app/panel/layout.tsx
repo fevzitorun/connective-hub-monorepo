@@ -148,7 +148,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {NAV_ITEMS.filter((item) => {
-            if (!('roles' in item)) return true
+            if (!('roles' in item) || !item.roles) return true
             return user && item.roles.includes(user.role)
           }).map((item) => {
             const active = pathname === item.href || (item.href !== '/panel' && pathname.startsWith(item.href))

@@ -334,7 +334,7 @@ export default function AtlasPage() {
                   }`}>{vResult['confidence'] as string}</span>
                   <span className="text-xs text-gray-400 ml-auto">m²: {Math.round(vResult['pricePerM2'] as number ?? 0).toLocaleString('tr-TR')} ₺</span>
                 </div>
-                {vResult['reasoning'] && <p className="text-sm text-gray-600 leading-relaxed">{vResult['reasoning'] as string}</p>}
+                {Boolean(vResult['reasoning']) && <p className="text-sm text-gray-600 leading-relaxed">{String(vResult['reasoning'])}</p>}
                 {(vResult['marketData'] as Record<string, number>)?.sampleCount !== undefined && (
                   <p className="text-xs text-gray-400 mt-2">Örnek veri: {(vResult['marketData'] as Record<string, number>).sampleCount} aktif ilan</p>
                 )}
