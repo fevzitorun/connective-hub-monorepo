@@ -1,8 +1,8 @@
-# 7fil.com.tr — MASTER PLAN v5.1
+# 7fil.com.tr — MASTER PLAN v5.2
 ### Connective Hub Dijital Teknolojiler Ltd. Şti.
-> **Son Güncelleme:** 14 Haziran 2026 · **Versiyon:** 5.1.0  
-> **Tema:** *30 Modül · 11 Mühendis Ajanı · Test Moduna 6 Hafta*  
-> **Sprint Durumu:** Hafta 1 Sprint'i tamamlandı — P0 blokajlar çözüldü ✅
+> **Son Güncelleme:** 15 Haziran 2026 · **Versiyon:** 5.2.0  
+> **Tema:** *30 Modül · 11 Mühendis Ajanı · Test Moduna ~5 Hafta*  
+> **Sprint Durumu:** Hafta 2 tamamlandı — 5 kritik akış koda hazır · GitHub'da · Staging deploy aşamasında 🚀
 
 ---
 
@@ -492,16 +492,16 @@ KPI: 50 kayıtlı kullanıcı · 20 test ilanı · sıfır P0 bug
 ## 6. Güncel Durum — Hangi Modül Nerede?
 
 ```
-GÜNCEL: 14 Haziran 2026 — Sprint Hafta 1 Tamamlandı
+GÜNCEL: 15 Haziran 2026 — Sprint Hafta 2 Tamamlandı
 
-KOD DURUMU (yerel, push bekliyor):
+KOD DURUMU (GitHub'da ✅):
   M01-M25 → Tüm kod tamamlandı ✅
-  Git: 16 commit · 260 dosya · 41,108 satır kod
+  Git: 24 commit · GitHub main branch'e push edildi ✅
   API: 126 kaynak dosya · 23 modül · 1136 satırlık init.sql
-  Web: 78 kaynak dosya · 20+ sayfa
+  Web: 80+ kaynak dosya · 22+ sayfa (yeni: [id] fotoğraf sayfası)
   Mobile: 17 kaynak dosya · 8 ekran
 
-BU SPRINT TAMAMLANANLAR (9-14 Haz):
+SPRINT HAFTA 1 TAMAMLANANLAR (9-14 Haz):
   ✅ M01 E-posta OTP doğrulama (email_verification_tokens + akış)
   ✅ M03 Meilisearch Türkçe config (30 stopword, 14 synonym)
   ✅ SEO: robots.ts, sitemap.ts, Schema.org JSON-LD, OG/Twitter meta
@@ -509,9 +509,29 @@ BU SPRINT TAMAMLANANLAR (9-14 Haz):
   ✅ PostHog: App Router uyumlu sayfa izleme
   ✅ Design tokens: shadow, gradient, transition, z-index genişletildi
 
+SPRINT HAFTA 2 TAMAMLANANLAR (14-15 Haz):
+  ✅ TypeScript 0 hata — API (NestJS 10 + TS 5.9 uyumu) + Web
+  ✅ EmailVerifiedGuard: ilan & ödeme akışlarında zorunlu e-posta doğrulama
+  ✅ Listing expire cron (03:00) + token cleanup cron (04:00)
+  ✅ ScheduleModule: @nestjs/schedule entegrasyonu
+  ✅ Panel doğrulama banner (amber) → isVerified=false kullanıcılar
+  ✅ dogrula-email: başarılı doğrulama sonrası Zustand store güncelleme
+  ✅ panel/ilanlar/[id]: fotoğraf drag&drop yükleme + yayına alma akışı
+  ✅ pnpm-workspace.yaml: onlyBuiltDependencies (pnpm v11 syntax)
+  ✅ GitHub push: 24 commit → remote/main ✅
+  ✅ Dockerfile + CI/deploy: pnpm@9 → pnpm@11
+
+5 KRİTİK AKIM DURUMU (Hafta 2 Hedefi):
+  ✅ Akış 1: Kayıt → E-posta OTP → Giriş → Profil
+  ✅ Akış 2: İlan Oluştur → Fotoğraf Yükle → Yayına Al
+  ✅ Akış 3: Arama → Harita → İlan Detay
+  ✅ Akış 4: Plan Seç → İyzico 3DS → Abonelik Aktif
+  ✅ Akış 5: Admin Girişi → İlan Moderasyonu
+  → KOD TAMAMLANDI — staging deploy sonrası manuel test gerekli
+
 STAGING'DE (henüz):
   Hiçbir modül staging'e deploy edilmedi
-  → Hafta 1 görevi: DevOps Railway + Vercel deploy
+  → AKTİF GÖREV: Railway + Vercel deploy (bu sprint)
 
 PRODUCTION:
   Henüz yok — test modundan sonra
@@ -536,35 +556,81 @@ EKSIK KOD:
 ✅ BLOKLAYICI 4 (P1): Meilisearch Turkish config — ÇÖZÜLDÜ (14 Haz)
   30 Türkçe stopword · 14 synonym grubu · özel ranking kuralları
 
-🔴 BLOKLAYICI 2 (P0): GitHub auth → push — AÇIK
-  Durum: 16 commit yerel, push auth hatası devam ediyor
-  Sahip: Fevzi Torun (GitHub token)
-  Çözüm: gh auth login VEYA SSH key kurulumu
-  ETA: Bu gün
+✅ BLOKLAYICI 2 (P0): GitHub push — ÇÖZÜLDÜ (15 Haz)
+  24 commit force-push ile GitHub main'e yazıldı
+  GitHub Actions CI/CD aktif (pnpm v11 güncellemesiyle)
 
-🔴 BLOKLAYICI 3 (P1): Staging ortamı deploy — AÇIK
-  Durum: Railway + Vercel hesabı açık olmalı
-  Sahip: DevOps / Fevzi Torun
-  Çözüm: Railway project + Vercel project bağlantısı
-  ETA: Hafta 1 (şu an)
+🔴 BLOKLAYICI 3 (P1): Staging ortamı deploy — AKTİF
+  Durum: Kod hazır · GitHub'da · CLI yok → web UI üzerinden kurulum
+  Sahip: Fevzi Torun
+  Çözüm: AŞAĞIDA KURULUM REHBERİ → 3 adım
+  ETA: Bu hafta
 
 ⚠️  RİSK 1 (P2): İyzico test modu
   IYZICO_API_KEY + IYZICO_SECRET_KEY staging'e girilmeli
-  Sandbox key .env.example'da mevcut
-  Sahip: BACKEND-FINANCE
-  ETA: Hafta 2
+  Sandbox key .env.example'da mevcut (sandbox-... ile başlıyor)
+  ETA: Railway env vars girerken ekle
 
 ⚠️  RİSK 2 (P2): WebSocket (Socket.IO) + Railway
   Railway WebSocket desteği var ama sticky session gerekebilir
-  Sahip: DEVOPS + BACKEND-FINANCE
-  ETA: Hafta 3
+  ETA: Müzayede modülü teste alınmadan önce
+
+─── STAGING KURULUM REHBERİ (3 Adım) ───────────────────────────────────────
+
+ADIM 1 — Railway (API + PostgreSQL + Meilisearch):
+  1. railway.app → New Project → Deploy from GitHub Repo
+  2. Repo: fevzitorun/connective-hub-monorepo seç
+  3. Root Directory: apps/api (railway.json burada)
+  4. + Add Service → PostgreSQL Plugin
+  5. + Add Service → Meilisearch (Docker: getmeili/meilisearch:v1.7)
+  6. Variables (API servisi) → aşağıdaki env vars'ları gir:
+     DATABASE_URL       → Railway PostgreSQL otomatik doldurur
+     JWT_SECRET         → openssl rand -hex 32
+     REFRESH_TOKEN_SECRET → openssl rand -hex 32
+     MEILI_HOST         → http://meilisearch.railway.internal:7700
+     MEILI_MASTER_KEY   → güçlü rastgele string
+     ANTHROPIC_API_KEY  → sk-ant-...
+     R2_ACCOUNT_ID / R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY
+     R2_BUCKET_NAME     → 7fil-media
+     SENDGRID_API_KEY   → SG...
+     EMAIL_FROM         → noreply@7fil.com.tr
+     IYZICO_API_KEY     → sandbox-1NWpEMsMJCHnHg0j9jRvxRTHEePJCNp2
+     IYZICO_SECRET_KEY  → sandbox-jaTGxVRTXj6WBVXSnkKa7RRiRz98aQwR
+     IYZICO_MODE        → sandbox
+     FRONTEND_URL       → https://staging.7fil.com.tr (Vercel URL)
+     NODE_ENV           → production
+  7. Settings → Domain: api-staging.7fil.com.tr (veya railway subdomain)
+  8. Deploy butonuna bas → build log izle
+
+ADIM 2 — Vercel (web-7fil):
+  1. vercel.com → New Project → Import Git Repository
+  2. Repo: fevzitorun/connective-hub-monorepo
+  3. Framework: Next.js
+  4. Root Directory: apps/web-7fil
+  5. Environment Variables:
+     NEXT_PUBLIC_API_URL    → https://[railway-url]/api/v1
+     NEXT_PUBLIC_APP_URL    → https://[vercel-url]
+     NEXT_PUBLIC_MAPBOX_TOKEN → pk.eyJ1...
+     NEXT_PUBLIC_POSTHOG_KEY  → phc_...
+     NEXT_PUBLIC_POSTHOG_HOST → https://eu.posthog.com
+     NEXT_PUBLIC_SENTRY_DSN  → https://...@sentry.io/...
+  6. Deploy
+
+ADIM 3 — GitHub Actions Secrets (otomatik deploy için):
+  Repo → Settings → Secrets → Actions:
+  RAILWAY_TOKEN      → railway.app → Account → API Tokens
+  VERCEL_TOKEN       → vercel.com → Account → Tokens
+  VERCEL_ORG_ID      → vercel.com → Settings → Team ID
+  VERCEL_PROJECT_ID_WEB → Vercel Project Settings → Project ID
+  NEXT_PUBLIC_API_URL  → https://[railway-url]/api/v1
 
 SONRAKI ADIMLAR (öncelik sırasıyla):
-  1. gh auth login → git push origin main
-  2. Railway: API deploy → PostgreSQL + Meilisearch addon
-  3. Vercel: web-7fil bağlantısı
-  4. pnpm install (Sentry + PostHog paketleri)
-  5. Hafta 2: E2E test akışları (5 kritik akış)
+  1. ✅ TAMAMLANDI — GitHub push
+  2. 🔴 Railway API deploy (Adım 1 → yukarıda)
+  3. 🔴 Vercel web-7fil deploy (Adım 2 → yukarıda)
+  4. 🔴 DB migration: init.sql çalıştır → apps/api/db/init.sql
+  5. 🔴 Meilisearch index sync: POST /api/v1/search/sync (admin)
+  6. E2E manuel test: 5 kritik akış → staging ortamında
 ```
 
 ---
@@ -573,11 +639,13 @@ SONRAKI ADIMLAR (öncelik sırasıyla):
 
 ### Deployment
 
-- [ ] Railway: API projesi oluşturuldu + PostgreSQL + Meilisearch eklendi
-- [ ] Vercel: web-7fil projesi bağlandı (GitHub repo)
+- [ ] Railway: API projesi oluşturuldu + PostgreSQL + Meilisearch eklendi ← AKTİF
+- [ ] Vercel: web-7fil projesi bağlandı (GitHub repo) ← AKTİF
 - [ ] Vercel: partner-portal projesi bağlandı
 - [ ] Cloudflare R2: bucket oluşturuldu + CORS ayarlandı
 - [ ] DNS: staging.7fil.com.tr + api-staging.7fil.com.tr
+- [ ] DB migration: init.sql çalıştırıldı (Railway console veya psql)
+- [ ] Meilisearch index sync: /admin/search/sync endpoint çağrıldı
 
 ### Güvenlik
 
@@ -598,8 +666,10 @@ SONRAKI ADIMLAR (öncelik sırasıyla):
 
 ### CI/CD (.github/workflows/)
 
-- [x] ci.yml: lint + test + type-check
-- [x] deploy.yml: main → Railway + Vercel
+- [x] ci.yml: lint + test + type-check ✅
+- [x] deploy.yml: main → Railway + Vercel ✅
+- [x] pnpm v11 güncellendi (Dockerfile + CI + deploy) ✅
+- [ ] GitHub Actions secrets eklendi (RAILWAY_TOKEN, VERCEL_TOKEN vb.) ← AKTİF
 - [ ] staging branch tanımlandı (staging → test ortamı)
 - [ ] Semantic versioning: Release Drafter aktif
 
@@ -639,8 +709,9 @@ Test Modu Öncesi Yapılacaklar:
 | v3.0 | 2026 May | MLS, Google I/O 2026 Search vizyonu |
 | v4.0 | 2026 Haz | Admin, CRM, Mobile, SCRIBE, Kurumsal Kimlik |
 | v5.0 | 9 Haz 2026 | 30 Modül · 11 Ajan Ekip · Test Modu Sprint'i |
-| **v5.1** | **14 Haz 2026** | **P0 blokaj çözümleri: email OTP, Meilisearch TR, SEO, Sentry, PostHog** |
-| v5.2 | Tem 2026 | Staging deploy → Test Modu → 50 beta kullanıcı |
+| v5.1 | 14 Haz 2026 | P0 blokaj çözümleri: email OTP, Meilisearch TR, SEO, Sentry, PostHog |
+| **v5.2** | **15 Haz 2026** | **5 kritik akış kodu tamamlandı · TypeScript 0 hata · GitHub push · Staging deploy rehberi** |
+| v5.3 | Haz 2026 | Staging deploy tamamlandı → Test Modu → 50 beta kullanıcı |
 | v6.0 | 2026 Q3 | PDF, Property Mgmt, Escrow, AI Search |
 | v7.0 | 2026 Q4 | Full Agent Orkestrasyonu, e-Güven, Uluslararası |
 
