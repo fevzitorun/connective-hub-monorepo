@@ -196,6 +196,23 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
 
       {/* Main content */}
       <main className="flex-1 ml-60 min-h-screen overflow-y-auto">
+        {/* E-posta doğrulama uyarı banner'ı */}
+        {user && !user.isVerified && (
+          <div className="bg-amber-50 border-b border-amber-200 px-6 py-3 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-sm text-amber-800">
+              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>E-posta adresiniz henüz doğrulanmadı. İlan oluşturmak ve ödeme yapmak için doğrulama gerekli.</span>
+            </div>
+            <Link
+              href="/dogrula-email/bekliyor"
+              className="shrink-0 text-xs font-semibold text-amber-700 underline hover:text-amber-900"
+            >
+              E-postayı doğrula →
+            </Link>
+          </div>
+        )}
         {children}
       </main>
     </div>

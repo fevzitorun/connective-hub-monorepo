@@ -41,14 +41,6 @@ export const metadata: Metadata = {
     siteName: '7fil',
     title: '7fil — Evin için doğru adım',
     description: 'Türkiye\'nin entegre gayrimenkul platformu. AI değerleme, hukuki doğrulama, mortgage ve müzayede.',
-    images: [
-      {
-        url: '/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: '7fil Gayrimenkul Platformu',
-      },
-    ],
   },
   twitter: {
     card: 'summary_large_image',
@@ -56,7 +48,6 @@ export const metadata: Metadata = {
     creator: '@7filemlak',
     title: '7fil — Evin için doğru adım',
     description: 'Türkiye\'nin entegre gayrimenkul platformu.',
-    images: ['/og-image.jpg'],
   },
   robots: {
     index: true,
