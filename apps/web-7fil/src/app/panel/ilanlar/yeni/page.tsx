@@ -74,7 +74,8 @@ export default function NewListingPage() {
       )
       const json = await res.json()
       if (!res.ok) throw new Error(json.message ?? 'İlan oluşturulamadı')
-      router.push(`/panel/ilanlar`)
+      const listingId: string = json.data?.id ?? json.id
+      router.push(`/panel/ilanlar/${listingId}`)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Hata oluştu')
     } finally {
