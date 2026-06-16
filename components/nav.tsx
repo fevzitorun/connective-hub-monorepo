@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 const tabs = [
   { label: "Ana Sayfa",  href: "/" },
   { label: "İlanlar",    href: "/ilanlar" },
+  { label: "Şehirler",   href: "/sehir/istanbul" },
+  { label: "Fiyatlar",   href: "/fiyatlar" },
   { label: "Müzayede",   href: "/muzayede" },
   { label: "Panel",      href: "/panel" },
   { label: "Atlas AI",   href: "/atlas" },

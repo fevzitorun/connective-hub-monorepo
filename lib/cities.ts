@@ -1,0 +1,161 @@
+export interface City {
+  slug: string;
+  name: string;
+  nameFull: string;
+  tagline: string;
+  desc: string;
+  listingCount: number;
+  agentCount: number;
+  avgPrice: number;
+  priceUnit: string;
+  trend: string;
+  districts: string[];
+  palette: "warm" | "cool" | "sea" | "morn" | "dusk" | "ink";
+}
+
+export const CITIES: City[] = [
+  {
+    slug: "istanbul",
+    name: "İstanbul",
+    nameFull: "İstanbul",
+    tagline: "Türkiye'nin kalbi. Değerin merkezi.",
+    desc: "İstanbul, Türkiye gayrimenkul piyasasının %42'sini oluşturur. Kadıköy, Beşiktaş, Ataşehir, Sarıyer ve Beylikdüzü — farklı bütçe ve yaşam stillerine göre doğru ilçeyi bulmak için Atlas AI kullanın.",
+    listingCount: 48200,
+    agentCount: 1240,
+    avgPrice: 6800000,
+    priceUnit: "₺",
+    trend: "+%9,4",
+    districts: ["Kadıköy", "Beşiktaş", "Ataşehir", "Sarıyer", "Şişli", "Beylikdüzü", "Üsküdar", "Maltepe"],
+    palette: "cool",
+  },
+  {
+    slug: "ankara",
+    name: "Ankara",
+    nameFull: "Ankara",
+    tagline: "Başkentin güvenli limanı.",
+    desc: "Ankara, istikrarlı fiyat artışı ve yüksek kiracı talebiyle yatırımcılar için cazip. Çankaya, Keçiören ve Etimesgut başlıca ilçeler.",
+    listingCount: 21400,
+    agentCount: 580,
+    avgPrice: 3200000,
+    priceUnit: "₺",
+    trend: "+%7,1",
+    districts: ["Çankaya", "Keçiören", "Yenimahalle", "Mamak", "Etimesgut", "Sincan"],
+    palette: "morn",
+  },
+  {
+    slug: "izmir",
+    name: "İzmir",
+    nameFull: "İzmir",
+    tagline: "Ege'nin özgür ruhu.",
+    desc: "İzmir, yaşam kalitesi endeksinde Türkiye'nin zirvesinde. Karşıyaka, Bornova ve Bayraklı konut piyasasının lokomotifi.",
+    listingCount: 14800,
+    agentCount: 390,
+    avgPrice: 4100000,
+    priceUnit: "₺",
+    trend: "+%11,2",
+    districts: ["Karşıyaka", "Bornova", "Bayraklı", "Konak", "Buca", "Çiğli"],
+    palette: "sea",
+  },
+  {
+    slug: "bodrum",
+    name: "Bodrum",
+    nameFull: "Bodrum · Muğla",
+    tagline: "Mavi suların üzerinde yatırım.",
+    desc: "Bodrum, Türkiye'nin lüks konut başkenti. Yalıkavak, Türkbükü ve Gündoğan; küresel yatırımcıların gözdesi. FILTERRA.AI değerleme raporu ile doğru fiyatı keşfedin.",
+    listingCount: 3200,
+    agentCount: 120,
+    avgPrice: 18500000,
+    priceUnit: "₺",
+    trend: "+%14,8",
+    districts: ["Yalıkavak", "Türkbükü", "Gündoğan", "Bitez", "Ortakent", "Gümüşlük"],
+    palette: "sea",
+  },
+  {
+    slug: "antalya",
+    name: "Antalya",
+    nameFull: "Antalya",
+    tagline: "Akdeniz'in yatırım merkezi.",
+    desc: "Antalya, yabancı alıcıların en çok tercih ettiği şehir. Konyaaltı, Lara ve Kepez'de hem yatırım hem tatil amaçlı ilanlar.",
+    listingCount: 9600,
+    agentCount: 280,
+    avgPrice: 5200000,
+    priceUnit: "₺",
+    trend: "+%13,5",
+    districts: ["Konyaaltı", "Lara", "Kepez", "Muratpaşa", "Döşemealtı"],
+    palette: "warm",
+  },
+  {
+    slug: "bursa",
+    name: "Bursa",
+    nameFull: "Bursa",
+    tagline: "Yeşil şehrin büyüyen değeri.",
+    desc: "Bursa, İstanbul'a yakınlığı ve sanayi gücüyle kira getirisi yüksek bir piyasa. Nilüfer ve Osmangazi önde gelen ilçeler.",
+    listingCount: 8100,
+    agentCount: 210,
+    avgPrice: 2900000,
+    priceUnit: "₺",
+    trend: "+%8,6",
+    districts: ["Nilüfer", "Osmangazi", "Yıldırım", "Mudanya", "Gemlik"],
+    palette: "morn",
+  },
+  {
+    slug: "cesme",
+    name: "Çeşme",
+    nameFull: "Çeşme · İzmir",
+    tagline: "Ege'nin incisi, yazlığın gözesi.",
+    desc: "Çeşme ve Alaçatı, Türkiye'nin en pahalı yazlık piyasasını oluşturur. FILTERRA.AI değerleme ile gerçek fiyatı bulun.",
+    listingCount: 1800,
+    agentCount: 65,
+    avgPrice: 12000000,
+    priceUnit: "₺",
+    trend: "+%16,2",
+    districts: ["Alaçatı", "Ilıca", "Çiftlikköy", "Şifne", "Dalyan"],
+    palette: "sea",
+  },
+  {
+    slug: "gaziantep",
+    name: "Gaziantep",
+    nameFull: "Gaziantep",
+    tagline: "Güneyin yükselen yıldızı.",
+    desc: "Gaziantep, ekonomik büyümesiyle kiracı talebinin yüksek olduğu bir piyasa. Şahinbey ve Şehitkamil önde gelen ilçeler.",
+    listingCount: 6200,
+    agentCount: 165,
+    avgPrice: 1800000,
+    priceUnit: "₺",
+    trend: "+%6,8",
+    districts: ["Şahinbey", "Şehitkamil", "Oğuzeli", "İslahiye"],
+    palette: "warm",
+  },
+  {
+    slug: "mersin",
+    name: "Mersin",
+    nameFull: "Mersin",
+    tagline: "Akdeniz'in liman kenti.",
+    desc: "Mersin, liman ekonomisi ve üniversitesiyle sürekli kiracı talebi yaratan bir piyasa. Yenişehir ve Mezitli öne çıkan ilçeler.",
+    listingCount: 5400,
+    agentCount: 148,
+    avgPrice: 2100000,
+    priceUnit: "₺",
+    trend: "+%7,9",
+    districts: ["Yenişehir", "Mezitli", "Toroslar", "Akdeniz"],
+    palette: "sea",
+  },
+  {
+    slug: "trabzon",
+    name: "Trabzon",
+    nameFull: "Trabzon",
+    tagline: "Karadeniz'in gözde kenti.",
+    desc: "Trabzon, son yıllarda Orta Doğu kaynaklı yabancı yatırımcı ilgisiyle hızla değer kazandı. Ortahisar ve Yomra başlıca ilçeler.",
+    listingCount: 3800,
+    agentCount: 95,
+    avgPrice: 2400000,
+    priceUnit: "₺",
+    trend: "+%12,1",
+    districts: ["Ortahisar", "Yomra", "Akçaabat", "Arsin"],
+    palette: "cool",
+  },
+];
+
+export function getCityBySlug(slug: string): City | undefined {
+  return CITIES.find((c) => c.slug === slug);
+}
