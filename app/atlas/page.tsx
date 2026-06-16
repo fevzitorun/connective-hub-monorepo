@@ -1,67 +1,158 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { LISTINGS, fmtTRY } from '@/lib/data';
-import { IconCompass, IconSparkle, IconSend, IconKebab } from '@/components/icons';
-import { Photo } from '@/components/photos';
-import type { Listing } from '@/lib/data';
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { LISTINGS, fmtTRY } from "@/lib/data";
+import { IconCompass, IconSparkle, IconSend, IconKebab } from "@/components/icons";
+import { Photo } from "@/components/photos";
+import type { Listing } from "@/lib/data";
 
-interface ScriptMessage {
-  from: 'ai' | 'user';
-  text: React.ReactNode;
-  listings?: string[];
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface Message {
+  role: "user" | "assistant";
+  content: string;
+  listingIds?: string[];
+  streaming?: boolean;
 }
 
-const SCRIPT: ScriptMessage[] = [
-  { from: 'ai', text: (
-    <>
-      <p>İyi günler. Bugün nasıl bir ev arıyoruz?</p>
-      <p style={{color:'var(--muted)', fontSize:14}}>İsterseniz konuşma dilinde anlatın — bütçe, çocuk var mı, ofisiniz nerede gibi. Filtre kutucuklarını doldurmaktan daha hızlı olacaktır.</p>
-    </>
-  ) },
-  { from: 'user', text: <p>Kadıköy&apos;de metroya yakın, balkonlu 3+1 daire arıyorum. Bütçem en fazla 9 milyon.</p> },
-  { from: 'ai', text: (
-    <>
-      <p>Anladım. Aradığınızı şöyle yorumladım — yanlış bir şey varsa söyleyin:</p>
-      <ul style={{margin:'8px 0 12px 16px', padding:0, color:'var(--ink)', fontSize:14, lineHeight:1.8}}>
-        <li>İlçe: <strong>Kadıköy</strong> — Caferağa, Moda, Fenerbahçe çevresi</li>
-        <li>3+1, en az bir balkon, metroya 5–10 dakika yürüme</li>
-        <li>Üst sınır: <strong>9 milyon ₺</strong></li>
-      </ul>
-      <p>Atlas AI bu kriterlere uyan <strong>2 ilan</strong> buldu. Bölgede ortalamadan iyi konumlananları öne aldım:</p>
-    </>
-  ), listings: ['l1', 'l6'] },
-  { from: 'ai', text: (
-    <>
-      <p style={{fontStyle:'italic', color:'var(--muted)', fontSize:14, marginTop:8}}>
-        Küçük bir not — Moda&apos;daki ilan piyasa ortalamasının %4 altında. Acele bir karar şart değil; ama bu fiyat aralığında genellikle iki hafta içinde satılıyor.
-      </p>
-    </>
-  ) },
-  { from: 'user', text: <p>Moda&apos;daki için ne dersin? Yıllık değer artışı ne kadardı?</p> },
-  { from: 'ai', text: (
-    <>
-      <p>Moda&apos;nın son <strong>12 aylık</strong> ortalama fiyat değişimi <strong>+%8,3</strong>. Aynı dönemde Kadıköy genelinde <strong>+%7,1</strong>; Caferağa <strong>+%9,4</strong>. Yani Moda, çevreden hafifçe geride — bu da iki türlü yorumlanabilir:</p>
-      <p style={{paddingLeft:14, borderLeft:'2px solid var(--gold)', color:'var(--ink)', fontSize:14}}>
-        <strong>İyimser:</strong> bölge henüz tepe yapmadı, alım için iyi pencere.<br/>
-        <strong>Temkinli:</strong> Caferağa&apos;da yapılaşma artıyor; uzun vadede Moda&apos;nın görünürlük avantajı korunmayabilir.
-      </p>
-      <p>Ben olsam görmeden karar vermem; ama dosya hazırlatmaya değer. İsterseniz sertifikalı avukat ağımız tapu ve imar kontrolünü 48 saatte tamamlayabilir.</p>
-    </>
-  ) },
+// ─── Suggest chips ────────────────────────────────────────────────────────────
+
+const SUGGESTS = [
+  "Kadıköy'de 3+1 daire, bütçem 9M",
+  "Cihangir kiralık",
+  "Çeşme'de yazlık villa",
+  "Levent ofis kira",
+  "Bodrum Yalıkavak",
 ];
 
-export default function AtlasScreen() {
+// ─── Listing mini-card ────────────────────────────────────────────────────────
+
+const MsgListingCard = ({ id, onClick }: { id: string; onClick: (l: Listing) => void }) => {
+  const l = LISTINGS.find((x) => x.id === id);
+  if (!l) return null;
+  return (
+    <div className="msg-listing" onClick={() => onClick(l)} style={{ cursor: "pointer" }}>
+      <div className="msg-listing-photo">
+        <Photo scene={l.scene} palette={l.palette} />
+      </div>
+      <div style={{ minWidth: 0 }}>
+        <div className="msg-listing-title">{l.title}</div>
+        <div className="msg-listing-meta">
+          {l.district} · {l.area} m² · {l.rooms}
+        </div>
+      </div>
+      <div className="msg-listing-price">{fmtTRY(l.price)}</div>
+    </div>
+  );
+};
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
+
+export default function AtlasPage() {
   const router = useRouter();
-  const [input, setInput] = useState('');
-  const [visible] = useState(SCRIPT.length);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: "assistant",
+      content:
+        "İyi günler. Bugün nasıl bir ev arıyoruz?\n\nİsterseniz konuşma dilinde anlatın — bütçe, çocuk var mı, ofisiniz nerede gibi. Filtre kutucuklarını doldurmaktan daha hızlı olacaktır.",
+    },
+  ]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => { endRef.current?.scrollIntoView({behavior:'smooth'}); }, [visible]);
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
-  const handleOpenListing = (l: Listing) => {
-    router.push(`/ilanlar/${l.id}`);
+  const handleOpenListing = (l: Listing) => router.push(`/ilanlar/${l.id}`);
+
+  const send = useCallback(
+    async (text: string) => {
+      if (!text.trim() || loading) return;
+
+      const userMsg: Message = { role: "user", content: text };
+      const history = [...messages, userMsg];
+      setMessages(history);
+      setInput("");
+      setLoading(true);
+
+      // Add placeholder streaming message
+      const streamingMsg: Message = { role: "assistant", content: "", streaming: true };
+      setMessages([...history, streamingMsg]);
+
+      try {
+        const res = await fetch("/api/atlas", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: history.map((m) => ({ role: m.role, content: m.content })),
+            mode: "search",
+          }),
+        });
+
+        if (!res.ok || !res.body) throw new Error("API error");
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let aiText = "";
+        let listingIds: string[] = [];
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          for (const line of chunk.split("\n")) {
+            if (!line.startsWith("data: ")) continue;
+            const data = line.slice(6);
+            if (data === "[DONE]") break;
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.type === "listings") {
+                listingIds = parsed.ids;
+              } else if (parsed.type === "text") {
+                aiText += parsed.text;
+                setMessages((prev) => {
+                  const next = [...prev];
+                  next[next.length - 1] = { role: "assistant", content: aiText, listingIds, streaming: true };
+                  return next;
+                });
+              }
+            } catch {}
+          }
+        }
+
+        // Finalize
+        setMessages((prev) => {
+          const next = [...prev];
+          next[next.length - 1] = { role: "assistant", content: aiText, listingIds, streaming: false };
+          return next;
+        });
+      } catch {
+        setMessages((prev) => {
+          const next = [...prev];
+          next[next.length - 1] = {
+            role: "assistant",
+            content: "Atlas AI şu an kullanılamıyor. Lütfen biraz sonra tekrar deneyin.",
+            streaming: false,
+          };
+          return next;
+        });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [messages, loading]
+  );
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      send(input);
+    }
   };
 
   return (
@@ -70,7 +161,7 @@ export default function AtlasScreen() {
       <aside className="atlas-side">
         <div className="atlas-side-head">
           <div className="atlas-side-mark">
-            <IconCompass/>
+            <IconCompass />
           </div>
           <div>
             <div className="atlas-side-title">Atlas AI</div>
@@ -81,8 +172,8 @@ export default function AtlasScreen() {
         <div className="atlas-side-section">
           <div className="atlas-side-section-label">Bu Hafta</div>
           <div className="atlas-thread" data-active="true">
-            Kadıköy&apos;de 3+1 araması
-            <div className="atlas-thread-time">Bugün · 10:24</div>
+            Aktif konuşma
+            <div className="atlas-thread-time">Şimdi</div>
           </div>
           <div className="atlas-thread">
             Levent ofis kira analizi
@@ -101,8 +192,17 @@ export default function AtlasScreen() {
           <div className="atlas-thread">DASK ve yangın sigortası</div>
         </div>
 
-        <div className="atlas-side-section" style={{marginTop:'auto'}}>
-          <button className="btn btn-outline btn-sm" style={{width:'100%'}}>+ Yeni Konuşma</button>
+        <div className="atlas-side-section" style={{ marginTop: "auto" }}>
+          <button
+            className="btn btn-outline btn-sm"
+            style={{ width: "100%" }}
+            onClick={() => setMessages([{
+              role: "assistant",
+              content: "Yeni konuşma başladı. Nasıl yardımcı olabilirim?",
+            }])}
+          >
+            + Yeni Konuşma
+          </button>
         </div>
       </aside>
 
@@ -110,82 +210,80 @@ export default function AtlasScreen() {
       <main className="atlas-main">
         <header className="atlas-main-head">
           <div>
-            <h2>Kadıköy&apos;de 3+1 araması</h2>
-            <div className="atlas-main-status">çevrimiçi</div>
+            <h2>Atlas AI</h2>
+            <div className="atlas-main-status">{loading ? "yazıyor…" : "çevrimiçi"}</div>
           </div>
-          <div style={{marginLeft:'auto', display:'flex', gap:8}}>
-            <span className="pill pill-line" style={{height:24, fontSize:11}}>
-              <IconSparkle size={12}/> claude-sonnet-4
+          <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+            <span className="pill pill-line" style={{ height: 24, fontSize: 11 }}>
+              <IconSparkle size={12} /> claude-sonnet-4-6
             </span>
             <button className="btn btn-ghost btn-sm">
-              <IconKebab size={16}/>
+              <IconKebab size={16} />
             </button>
           </div>
         </header>
 
         <div className="atlas-chat">
-          {SCRIPT.slice(0, visible).map((m, i) => (
-            <div key={i} className="msg" data-from={m.from}>
-              <div className="msg-avatar">
-                {m.from === 'ai' ? <IconCompass/> : 'ZA'}
-              </div>
+          {messages.map((m, i) => (
+            <div key={i} className="msg" data-from={m.role === "user" ? "user" : "ai"}>
+              <div className="msg-avatar">{m.role === "assistant" ? <IconCompass /> : "ZA"}</div>
               <div>
                 <div className="msg-bubble">
-                  {m.text}
-                  {m.listings && (
+                  {m.content.split("\n").map((line, j) =>
+                    line ? <p key={j} style={{ margin: "0 0 6px" }}>{line}</p> : <br key={j} />
+                  )}
+                  {m.streaming && (
+                    <span className="atlas-cursor">▋</span>
+                  )}
+                  {m.listingIds && m.listingIds.length > 0 && (
                     <div className="msg-listings">
-                      {m.listings.map(id => {
-                        const l = LISTINGS.find(x => x.id === id);
-                        if (!l) return null;
-                        return (
-                          <div key={id} className="msg-listing" onClick={() => handleOpenListing(l)}>
-                            <div className="msg-listing-photo">
-                              <Photo scene={l.scene} palette={l.palette}/>
-                            </div>
-                            <div style={{minWidth:0}}>
-                              <div className="msg-listing-title">{l.title}</div>
-                              <div className="msg-listing-meta">{l.district} · {l.area} m² · {l.rooms}</div>
-                            </div>
-                            <div className="msg-listing-price">{fmtTRY(l.price)}</div>
-                          </div>
-                        );
-                      })}
+                      {m.listingIds.map((id) => (
+                        <MsgListingCard key={id} id={id} onClick={handleOpenListing} />
+                      ))}
                     </div>
                   )}
                 </div>
               </div>
             </div>
           ))}
-          <div ref={endRef}/>
+          <div ref={endRef} />
         </div>
 
-        <div className="atlas-suggest">
-          <div className="atlas-suggest-row">
-            {[
-              'Tapu kontrolü başlat',
-              'Avukat ata',
-              'Mortgage karşılaştır',
-              'PDF broşür hazırla',
-              'Benzer ilanları göster',
-            ].map(s => (
-              <button key={s} className="atlas-suggest-chip">{s}</button>
-            ))}
+        {/* Suggest chips */}
+        {messages.length <= 1 && (
+          <div className="atlas-suggest">
+            <div className="atlas-suggest-row">
+              {SUGGESTS.map((s) => (
+                <button key={s} className="atlas-suggest-chip" onClick={() => send(s)}>
+                  {s}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
+        {/* Input */}
         <div className="atlas-input">
           <div className="atlas-input-inner">
             <textarea
+              ref={textareaRef}
               rows={1}
-              placeholder="Atlas AI'a bir şey sor…"
+              placeholder="Atlas AI&apos;a bir şey sor…"
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={loading}
             />
-            <button className="atlas-send" aria-label="Gönder">
-              <IconSend/>
+            <button
+              className="atlas-send"
+              aria-label="Gönder"
+              onClick={() => send(input)}
+              disabled={loading || !input.trim()}
+            >
+              <IconSend />
             </button>
           </div>
-          <div style={{maxWidth:820, margin:'10px auto 0', fontSize:11, color:'var(--muted)', textAlign:'center'}}>
+          <div style={{ maxWidth: 820, margin: "10px auto 0", fontSize: 11, color: "var(--muted)", textAlign: "center" }}>
             Atlas AI hata yapabilir. Hukuki konularda her zaman sertifikalı avukat onayı alın.
           </div>
         </div>
