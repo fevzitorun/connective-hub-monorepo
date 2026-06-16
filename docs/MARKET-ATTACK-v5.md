@@ -1,6 +1,6 @@
 # 7fil.com.tr — MARKET ATTACK PLAN v5.0
 ### "Rightmove + Zoopla + LoopNet = Türkiye'nin Entegre Gayrimenkul SaaS Ekosistemi"
-> **Tarih:** Haziran 2026 · **Durum:** Stratejik Master Belge  
+> **Tarih:** Haziran 2026 · **Son Güncelleme:** 16 Haziran 2026 · **Durum:** Aktif Geliştirme  
 > *Sahibinden'in tekelini kırmak: İlan platformu + Acenta SaaS + Ticari Portal + AI Katmanı*
 
 ---
@@ -449,12 +449,21 @@ Hedef kitle:
 ### 6.3 Acenta SaaS Panel — Tam Route Listesi
 
 ```
-Mevcut ✅:
-  /panel                 → Dashboard (KPI, sparkline, top ilanlar)
-  /panel/ilanlar         → İlan listesi + yönetim kartları
+Mevcut ✅ (16 Haziran 2026 itibarıyla — hi-fi tasarım entegre edildi):
+  /                      → Ana sayfa (hero NLS, stats, RitualStrip, öne çıkan ilanlar, features grid)
+  /ilanlar               → İlan listesi (filtre sidebar, harita/grid toggle, Atlas AI filtreleri)
+  /ilanlar/[id]          → İlan detayı (galeri, Atlas AI mahalle raporu, RitualVertical sidebar)
+  /panel                 → Partner dashboard (dark theme, KPI kartları, MLS toggle, kebab menü, Atlas AI optimize)
+  /atlas                 → Atlas AI chat (NLS arama, inline listing kartları, suggest chips)
   /admin                 → Admin panel (kullanıcı, ajans, ödemeler)
-  /atlas                 → Atlas AI chat
   /muzayede              → Canlı müzayede
+
+  Teknik altyapı ✅:
+  lib/data.ts            → TypeScript LISTINGS (9), STEPS, fmtTRY, Listing/Step interface
+  components/icons.tsx   → 40+ SVG ikon + BrandMark fil logosu + BrandSilhouette
+  components/photos.tsx  → Photo bileşeni (6 sahne × 6 palet SVG)
+  components/ui.tsx      → RitualStrip, RitualVertical, Pill, ListingCard
+  app/globals.css        → 1714-satır tasarım sistemi (CSS vars, tüm bileşenler)
 
 Sprint 3 — Eklenecek ❌:
   /panel/crm                   → Lead pipeline (Kanban)
@@ -682,9 +691,14 @@ Hedef (2028):
 
 ### Sprint 3 — Haziran 2026 (4 Hafta)
 
+> **Tamamlanan (Sprint 3 Başı):**
+> - ✅ Hi-fi tasarım prototipi Next.js'e port edildi (16 Haz 2026)
+> - ✅ Tam komponent kütüphanesi oluşturuldu (icons, photos, ui, data)
+> - ✅ Branch `claude/friendly-curie-d64CC` → PR #1 açıldı
+
 ```
 Hafta 1: Temel SaaS Altyapısı
-  Dev-01: CRM modülü (entity + Kanban UI)
+  Dev-01: CRM modülü (entity + Kanban UI) ← SONRAKİ ÖNCELIK
   Dev-02: /panel/mls sayfaları
   Dev-03: Admin şehir + koordinatör yönetimi
   Dev-04: Acenta onboarding magic link akışı
@@ -782,5 +796,5 @@ Altyapı:
 
 *Connective Hub Dijital Teknolojiler Ltd. Şti. — 7fil.com.tr*
 *"Sahibinden ilan satar. 7fil sizi zengin eder."*
-*MARKET ATTACK PLAN v5.0 — Haziran 2026*
+*MARKET ATTACK PLAN v5.0 — Haziran 2026 · Son güncelleme: 16 Haziran 2026*
 *Rightmove + Zoopla + LoopNet → Türkiye'nin entegre gayrimenkul SaaS ekosistemi*
