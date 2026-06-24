@@ -263,7 +263,7 @@ export class AdminService {
           COALESCE(SUM(tokens_used), 0)::int                     AS total_tokens,
           COALESCE(SUM(tokens_used) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours'), 0)::int AS tokens_24h,
           COALESCE(SUM(tokens_used) FILTER (WHERE created_at >= NOW() - INTERVAL '7 days'), 0)::int  AS tokens_7d
-        FROM scribe_contents
+        FROM generated_contents
       `),
     ])
 
