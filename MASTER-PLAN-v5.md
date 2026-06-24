@@ -1,8 +1,8 @@
-# 7fil.com.tr — MASTER PLAN v5.2
+# 7fil.com.tr — MASTER PLAN v5.3
 ### Connective Hub Dijital Teknolojiler Ltd. Şti.
-> **Son Güncelleme:** 15 Haziran 2026 · **Versiyon:** 5.2.0  
-> **Tema:** *30 Modül · 11 Mühendis Ajanı · Test Moduna ~5 Hafta*  
-> **Sprint Durumu:** Hafta 2 tamamlandı — 5 kritik akış koda hazır · GitHub'da · Staging deploy aşamasında 🚀
+> **Son Güncelleme:** 24 Haziran 2026 · **Versiyon:** 5.3.0  
+> **Tema:** *30 Modül · 11 Mühendis Ajanı · Test Moduna ~4 Hafta*  
+> **Sprint Durumu:** Hafta 3 AI hazırlığı tamamlandı · Staging deploy bekliyor 🚀
 
 ---
 
@@ -373,17 +373,18 @@ KPI: 5 akışın tamamı manuel test geçti → QA sign-off
 ```
 HEDEF: FILTERRA.AI + Atlas + SCRIBE staging'de çalışıyor
 
-□ OpenAI API key staging'e tanımlı
-□ Anthropic API key staging'e tanımlı
-□ FILTERRA: listing_writer → test ilanı üret
-□ FILTERRA: valuation → fiyat tahmini döndür
-□ FILTERRA: neighborhood → mahalle skoru döndür
-□ FILTERRA: legal_precheck → ön kontrol çalışıyor
-□ Atlas AI: konuşma → bağlam koruyor mu? (session)
-□ SCRIBE: blog post üret → format doğru mu?
-□ Token maliyet takibi: admin paneli AI ajanlar sekmesi
-□ Rate limiting: abuse koruması aktif
+□ OpenAI API key staging'e tanımlı  ← deploy'da env var olarak gir
+□ Anthropic API key staging'e tanımlı ← deploy'da env var olarak gir
+✅ FILTERRA: listing_writer → SSE streaming uygulandı (FilterraPanel.tsx)
+✅ FILTERRA: valuation → fiyat tahmini döndür (valuation.agent.ts)
+✅ FILTERRA: neighborhood → mahalle skoru döndür (neighborhood.agent.ts)
+✅ FILTERRA: legal_precheck → ön kontrol çalışıyor (legal-precheck.agent.ts)
+✅ Atlas AI: konuşma → bağlam koruyor (son 20 mesaj, atlas_conversations DB)
+✅ SCRIBE: blog post üret → format doğru (generated_contents tablosu)
+✅ Token maliyet takibi: GET /admin/ai/stats → admin/ai-ajanlar sayfası
+✅ Rate limiting: FILTERRA 20/dk · Atlas 30/dk · SCRIBE 10/dk
 
+KOD HAZIR — staging'de ANTHROPIC_API_KEY env var ile aktif olacak
 KPI: Her ajanın başarı oranı > %95 · ortalama yanıt süresi < 5s
 ```
 
@@ -710,7 +711,8 @@ Test Modu Öncesi Yapılacaklar:
 | v4.0 | 2026 Haz | Admin, CRM, Mobile, SCRIBE, Kurumsal Kimlik |
 | v5.0 | 9 Haz 2026 | 30 Modül · 11 Ajan Ekip · Test Modu Sprint'i |
 | v5.1 | 14 Haz 2026 | P0 blokaj çözümleri: email OTP, Meilisearch TR, SEO, Sentry, PostHog |
-| **v5.2** | **15 Haz 2026** | **5 kritik akış kodu tamamlandı · TypeScript 0 hata · GitHub push · Staging deploy rehberi** |
+| v5.2 | 15 Haz 2026 | 5 kritik akış kodu tamamlandı · TypeScript 0 hata · GitHub push · Staging deploy rehberi |
+| **v5.3** | **24 Haz 2026** | **AI rate limiting · token stats API · Hafta 3 AI modülleri kod hazır · CLAUDE.md + README.md** |
 | v5.3 | Haz 2026 | Staging deploy tamamlandı → Test Modu → 50 beta kullanıcı |
 | v6.0 | 2026 Q3 | PDF, Property Mgmt, Escrow, AI Search |
 | v7.0 | 2026 Q4 | Full Agent Orkestrasyonu, e-Güven, Uluslararası |

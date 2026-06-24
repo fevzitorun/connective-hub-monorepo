@@ -150,7 +150,7 @@ pnpm --filter @7fil/api test
 
 ---
 
-## Sprint Durumu (15 Haziran 2026)
+## Sprint Durumu (24 Haziran 2026)
 
 **Tamamlanan (Kod hazır + GitHub'da):**
 - M01-M25 tüm modüller kodlandı
@@ -161,7 +161,10 @@ pnpm --filter @7fil/api test
   - Akış 4: İyzico 3DS → Abonelik Aktivasyon
   - Akış 5: Admin → İlan Moderasyonu
 - TypeScript 0 hata (hem API hem web)
-- GitHub: 25 commit, `main` branch
+- GitHub: 28+ commit, `main` branch
+- AI rate limiting: FILTERRA 20/dk · Atlas 30/dk · SCRIBE 10/dk
+- Admin token stats API: `GET /admin/ai/stats`
+- Hafta 3 AI modülleri kod hazır (ANTHROPIC_API_KEY staging'de gerekli)
 
 **Şu an aktif görev: Staging Deploy**
 - Railway (API) → [railway.app](https://railway.app)
@@ -170,7 +173,7 @@ pnpm --filter @7fil/api test
 
 **Sıradaki sprint:**
 - Staging'de 5 akış manuel E2E testi
-- Hafta 3: AI Modülleri staging'de aktif (FILTERRA + Atlas + SCRIBE)
+- Hafta 4: Mobile EAS Build + Partner Portal deploy
 - Beta kullanıcılar davet (50 kişi)
 
 ---
