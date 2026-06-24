@@ -2,6 +2,7 @@ import {
   Controller, Post, Get, Body, Param, Query, UseGuards,
 } from '@nestjs/common'
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger'
+import { Throttle } from '@nestjs/throttler'
 import { AtlasService } from './atlas.service'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { CurrentUser } from '../auth/decorators/current-user.decorator'
@@ -9,6 +10,7 @@ import { User } from '../users/entities/user.entity'
 
 @ApiTags('atlas')
 @Controller('atlas')
+@Throttle({ long: { ttl: 60000, limit: 30 } })
 export class AtlasController {
   constructor(private readonly atlas: AtlasService) {}
 

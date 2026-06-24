@@ -4,6 +4,7 @@ import {
 } from '@nestjs/common'
 import { FastifyReply } from 'fastify'
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger'
+import { Throttle } from '@nestjs/throttler'
 import { FilterraService } from './filterra.service'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { CurrentUser } from '../auth/decorators/current-user.decorator'
@@ -20,6 +21,7 @@ import { TranslationInput } from './agents/translation.agent'
 @ApiTags('filterra')
 @ApiBearerAuth()
 @Controller('filterra')
+@Throttle({ long: { ttl: 60000, limit: 20 } })
 export class FilterraController {
   constructor(private readonly filterra: FilterraService) {}
 

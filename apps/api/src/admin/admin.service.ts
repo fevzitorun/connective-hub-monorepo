@@ -231,6 +231,58 @@ export class AdminService {
     await this.ds.query(`UPDATE agencies SET plan = $1, updated_at = NOW() WHERE id = $2`, [plan, agencyId])
   }
 
+  // ── AI token kullanım istatistikleri ──────────────────────────────────────
+
+  async getAiStats() {
+    const [filterra, atlas, scribe] = await Promise.all([
+      this.ds.query(`
+        SELECT
+          COUNT(*)::int                                           AS total_calls,
+          COALESCE(SUM(tokens_used), 0)::int                     AS total_tokens,
+          COALESCE(SUM(tokens_used) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours'), 0)::int AS tokens_24h,
+          COALESCE(SUM(tokens_used) FILTER (WHERE created_at >= NOW() - INTERVAL '7 days'), 0)::int  AS tokens_7d,
+          COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours')::int                     AS calls_24h,
+          agent_type,
+          COUNT(*) AS agent_calls
+        FROM filterra_reports
+        GROUP BY agent_type
+        ORDER BY agent_calls DESC
+      `),
+      this.ds.query(`
+        SELECT
+          COUNT(*)::int                                           AS total_messages,
+          COALESCE(SUM(tokens_used), 0)::int                     AS total_tokens,
+          COALESCE(SUM(tokens_used) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours'), 0)::int AS tokens_24h,
+          COALESCE(SUM(tokens_used) FILTER (WHERE created_at >= NOW() - INTERVAL '7 days'), 0)::int  AS tokens_7d
+        FROM atlas_messages
+        WHERE role = 'assistant'
+      `),
+      this.ds.query(`
+        SELECT
+          COUNT(*)::int                                           AS total_calls,
+          COALESCE(SUM(tokens_used), 0)::int                     AS total_tokens,
+          COALESCE(SUM(tokens_used) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours'), 0)::int AS tokens_24h,
+          COALESCE(SUM(tokens_used) FILTER (WHERE created_at >= NOW() - INTERVAL '7 days'), 0)::int  AS tokens_7d
+        FROM scribe_contents
+      `),
+    ])
+
+    const filerra0 = filterra[0] as Record<string, number> ?? {}
+    const atlas0 = atlas[0] as Record<string, number> ?? {}
+    const scribe0 = scribe[0] as Record<string, number> ?? {}
+
+    const totalTokens = (filerra0['total_tokens'] ?? 0) + (atlas0['total_tokens'] ?? 0) + (scribe0['total_tokens'] ?? 0)
+    const tokens24h = (filerra0['tokens_24h'] ?? 0) + (atlas0['tokens_24h'] ?? 0) + (scribe0['tokens_24h'] ?? 0)
+    const tokens7d = (filerra0['tokens_7d'] ?? 0) + (atlas0['tokens_7d'] ?? 0) + (scribe0['tokens_7d'] ?? 0)
+
+    return {
+      summary: { totalTokens, tokens24h, tokens7d },
+      filterra: { totalCalls: filerra0['total_calls'] ?? 0, totalTokens: filerra0['total_tokens'] ?? 0, tokens24h: filerra0['tokens_24h'] ?? 0, byAgent: filterra },
+      atlas: { totalMessages: atlas0['total_messages'] ?? 0, totalTokens: atlas0['total_tokens'] ?? 0, tokens24h: atlas0['tokens_24h'] ?? 0 },
+      scribe: { totalCalls: scribe0['total_calls'] ?? 0, totalTokens: scribe0['total_tokens'] ?? 0, tokens24h: scribe0['tokens_24h'] ?? 0 },
+    }
+  }
+
   // ── Summary stats ─────────────────────────────────────────────────────────
 
   async getDashboardStats() {

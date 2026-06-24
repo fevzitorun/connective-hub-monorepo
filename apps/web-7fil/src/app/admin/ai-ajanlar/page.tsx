@@ -1,5 +1,21 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useAuthStore } from '../../../store/auth'
+
+interface AiStats {
+  summary: { totalTokens: number; tokens24h: number; tokens7d: number }
+  filterra: { totalCalls: number; totalTokens: number; tokens24h: number }
+  atlas: { totalMessages: number; totalTokens: number; tokens24h: number }
+  scribe: { totalCalls: number; totalTokens: number; tokens24h: number }
+}
+
+const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1'
+
+function fmtTokens(n: number) {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`
+  return String(n)
+}
 
 const AGENTS = [
   {
@@ -138,6 +154,16 @@ const STATUS_LABELS: Record<string, string> = {
 
 export default function AiAjanlarPage() {
   const [filter, setFilter] = useState<'all' | 'active' | 'in_progress' | 'planned'>('all')
+  const [stats, setStats] = useState<AiStats | null>(null)
+  const { accessToken } = useAuthStore()
+
+  useEffect(() => {
+    if (!accessToken) return
+    fetch(`${BASE}/admin/ai/stats`, { headers: { Authorization: `Bearer ${accessToken}` } })
+      .then((r) => r.json())
+      .then((d) => setStats(d as AiStats))
+      .catch(() => null)
+  }, [accessToken])
 
   const filtered = filter === 'all' ? AGENTS : AGENTS.filter((a) => a.status === filter)
 
@@ -148,7 +174,28 @@ export default function AiAjanlarPage() {
         <p className="text-ink/60 mt-1">12 ajan · 7fil'in yapay zeka motoru</p>
       </div>
 
-      {/* Özet */}
+      {/* Token kullanım istatistikleri */}
+      {stats && (
+        <div className="grid grid-cols-4 gap-4 mb-6">
+          {[
+            { label: 'Toplam Token', value: fmtTokens(stats.summary.totalTokens), sub: 'tüm zamanlar', icon: '🔢' },
+            { label: 'Son 24 Saat',  value: fmtTokens(stats.summary.tokens24h),   sub: 'token harcandı', icon: '⚡' },
+            { label: 'Son 7 Gün',   value: fmtTokens(stats.summary.tokens7d),    sub: 'token harcandı', icon: '📊' },
+            { label: 'FILTERRA çağrı', value: String(stats.filterra.totalCalls), sub: `+${stats.filterra.tokens24h > 0 ? fmtTokens(stats.filterra.tokens24h) + ' bugün' : '0 bugün'}`, icon: '🤖' },
+          ].map((c) => (
+            <div key={c.label} className="bg-white rounded-2xl p-5 shadow-sm border border-stone-100 flex items-center gap-3">
+              <span className="text-2xl">{c.icon}</span>
+              <div>
+                <p className="text-xs text-ink/50">{c.label}</p>
+                <p className="text-2xl font-bold text-ink">{c.value}</p>
+                <p className="text-xs text-ink/30 mt-0.5">{c.sub}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Ajan durum özeti */}
       <div className="grid grid-cols-3 gap-4 mb-8">
         {[
           { label: 'Aktif Ajan',        value: AGENTS.filter(a => a.status === 'active').length,      color: 'bg-green-500' },

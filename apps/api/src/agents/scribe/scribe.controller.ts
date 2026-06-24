@@ -9,6 +9,7 @@ import {
   Query,
 } from '@nestjs/common'
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger'
+import { Throttle } from '@nestjs/throttler'
 import { IsString, IsOptional, IsEnum, IsArray } from 'class-validator'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { ScribeService, ContentType } from './scribe.service'
@@ -50,6 +51,7 @@ class GenerateContentDto {
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('agents/scribe')
+@Throttle({ long: { ttl: 60000, limit: 10 } })
 export class ScribeController {
   constructor(private readonly scribeService: ScribeService) {}
 

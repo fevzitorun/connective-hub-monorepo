@@ -124,4 +124,11 @@ export class AdminController {
   ) {
     return this.admin.upsertSubscription(agencyId, plan, Number(months))
   }
+
+  // ── AI Token İstatistikleri ────────────────────────────────────────────────
+
+  @Get('ai/stats')
+  getAiStats() {
+    return this.admin.getAiStats()
+  }
 }
