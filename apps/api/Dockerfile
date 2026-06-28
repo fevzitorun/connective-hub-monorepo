@@ -7,7 +7,7 @@ FROM base AS deps
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api/package.json ./apps/api/
 COPY packages/ ./packages/
-RUN pnpm install --frozen-lockfile --filter @7fil/api...
+RUN pnpm install --frozen-lockfile --ignore-scripts --filter @7fil/api...
 
 # ─── Build ────────────────────────────────────────────────────────────────────
 FROM deps AS builder
