@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["nodejs_22"]
+
+[phases.install]
+cmds = ["npm install -g pnpm@11", "cd ../.. && pnpm install --frozen-lockfile --ignore-scripts"]
+
+[phases.build]
+cmds = ["cd ../.. && pnpm turbo build --filter=@7fil/web"]
+
+[start]
+cmd = "node apps/web-7fil/.next/standalone/apps/web-7fil/server.js"
