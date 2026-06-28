@@ -1,4 +1,4 @@
-FROM node:20-alpine AS base
+FROM node:22-alpine AS base
 WORKDIR /app
 RUN npm install -g pnpm@11
 
@@ -16,7 +16,7 @@ COPY packages ./packages
 RUN pnpm --filter @7fil/api build
 
 # ─── Runtime ──────────────────────────────────────────────────────────────────
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
