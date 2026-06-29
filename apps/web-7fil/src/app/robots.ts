@@ -6,8 +6,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: '/',
-        disallow: ['/panel/', '/admin/', '/api/', '/dogrula-email/bekliyor'],
+        allow: ['/', '/on-kayit', '/fiyatlar'],
+        disallow: ['/panel/', '/admin/', '/api/', '/beta/', '/ara', '/ilan/', '/sehir/', '/dogrula-email/'],
       },
     ],
     sitemap: `${base}/sitemap.xml`,
