@@ -40,7 +40,7 @@ export class MortgageLead {
   @Column({ name: 'property_type', type: 'enum', enum: ['residential', 'commercial', 'land', 'industrial'], nullable: true })
   propertyType: string | null
 
-  @Column({ name: 'is_first_home', default: true }) isFirstHome: boolean
+  @Column({ name: 'is_first_home', type: 'boolean', default: true }) isFirstHome: boolean
   @Column({ nullable: true, type: 'text' }) notes: string | null
 
   @ManyToOne(() => User, { nullable: true }) @JoinColumn({ name: 'user_id' }) user: User

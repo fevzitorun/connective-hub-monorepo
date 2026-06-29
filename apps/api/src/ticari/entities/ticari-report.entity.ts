@@ -9,7 +9,7 @@ export class TicariReport {
   @Column({ name: 'report_type', length: 50 }) reportType: string
   @Column({ name: 'input_data', type: 'jsonb', nullable: true }) inputData: Record<string, unknown> | null
   @Column({ name: 'result_data', type: 'jsonb', nullable: true }) resultData: Record<string, unknown> | null
-  @Column({ nullable: true, length: 255 }) title: string | null
+  @Column({ type: 'varchar', nullable: true, length: 255 }) title: string | null
 
   @CreateDateColumn({ name: 'created_at' }) createdAt: Date
 }
