@@ -67,16 +67,16 @@ export class Lead {
 
   // ─── Müşteri bilgileri ────────────────────────────────────────────────
 
-  @Column({ name: 'first_name', length: 100 })
+  @Column({ name: 'first_name', type: 'varchar', length: 100 })
   firstName: string
 
-  @Column({ name: 'last_name', length: 100 })
+  @Column({ name: 'last_name', type: 'varchar', length: 100 })
   lastName: string
 
-  @Column({ length: 20, nullable: true })
+  @Column({ type: 'varchar', length: 20, nullable: true })
   phone: string | null
 
-  @Column({ length: 200, nullable: true })
+  @Column({ type: 'varchar', length: 200, nullable: true })
   email: string | null
 
   // ─── CRM durumu ───────────────────────────────────────────────────────
@@ -100,11 +100,11 @@ export class Lead {
   listingId: string | null
 
   /** İstediği şehir */
-  @Column({ name: 'preferred_city', length: 100, nullable: true })
+  @Column({ name: 'preferred_city', type: 'varchar', length: 100, nullable: true })
   preferredCity: string | null
 
   /** İstediği semt/ilçe */
-  @Column({ name: 'preferred_district', length: 100, nullable: true })
+  @Column({ name: 'preferred_district', type: 'varchar', length: 100, nullable: true })
   preferredDistrict: string | null
 
   /** Min bütçe (TL) */
@@ -124,7 +124,7 @@ export class Lead {
   sizeMaxM2: number | null
 
   /** Oda sayısı tercihi (serbest text: "2+1, 3+1") */
-  @Column({ name: 'room_preference', length: 100, nullable: true })
+  @Column({ name: 'room_preference', type: 'varchar', length: 100, nullable: true })
   roomPreference: string | null
 
   // ─── Takip ───────────────────────────────────────────────────────────
@@ -146,7 +146,7 @@ export class Lead {
   dealValueTry: string | null
 
   /** Kaybedilme sebebi — status=lost olduğunda dolu */
-  @Column({ name: 'lost_reason', length: 500, nullable: true })
+  @Column({ name: 'lost_reason', type: 'varchar', length: 500, nullable: true })
   lostReason: string | null
 
   /** KVKK açık rıza */

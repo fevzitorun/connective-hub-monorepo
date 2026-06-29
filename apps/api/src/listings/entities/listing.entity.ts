@@ -69,7 +69,7 @@ export class Listing {
   @Column({ name: 'owner_user_id', type: 'uuid' })
   ownerUserId: string
 
-  @Column({ length: 500 })
+  @Column({ type: 'varchar', length: 500 })
   title: string
 
   @Column({ type: 'text', nullable: true })
@@ -82,7 +82,7 @@ export class Listing {
   @Column({ type: 'decimal', precision: 14, scale: 2, nullable: true })
   price: number
 
-  @Column({ length: 3, default: 'TRY' })
+  @Column({ type: 'varchar', length: 3, default: 'TRY' })
   currency: string
 
   @Column({ name: 'property_type', type: 'enum', enum: PropertyType })
@@ -91,7 +91,7 @@ export class Listing {
   @Column({ name: 'listing_type', type: 'enum', enum: ListingType })
   listingType: ListingType
 
-  @Column({ length: 100, nullable: true })
+  @Column({ type: 'varchar', length: 100, nullable: true })
   category: string
 
   @Column({ type: 'enum', enum: ListingStatus, default: ListingStatus.DRAFT })
@@ -106,13 +106,13 @@ export class Listing {
   @Column({ name: 'address_text', type: 'text', nullable: true })
   addressText: string
 
-  @Column({ length: 100 })
+  @Column({ type: 'varchar', length: 100 })
   city: string
 
-  @Column({ length: 100, nullable: true })
+  @Column({ type: 'varchar', length: 100, nullable: true })
   district: string
 
-  @Column({ length: 100, nullable: true })
+  @Column({ type: 'varchar', length: 100, nullable: true })
   neighborhood: string
 
   // ─── Özellikler ──────────────────────────────────────────────────────────
@@ -120,7 +120,7 @@ export class Listing {
   @Column({ name: 'area_m2', type: 'decimal', precision: 10, scale: 2, nullable: true })
   areaM2: number
 
-  @Column({ name: 'room_count', length: 20, nullable: true })
+  @Column({ name: 'room_count', type: 'varchar', length: 20, nullable: true })
   roomCount: string    // '1+1', '2+1', '3+1', '4+1', '5+'
 
   @Column({ name: 'floor_no', type: 'int', nullable: true })
