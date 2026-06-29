@@ -8,12 +8,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink:    'var(--ink)',
-        gold:   'var(--gold)',
-        teal:   'var(--teal)',
-        cream:  'var(--cream)',
-        muted:  'var(--muted)',
-        border: 'var(--border)',
+        ink:    '#1a1a2e',
+        gold:   '#c9a84c',
+        teal:   '#2d6a6a',
+        cream:  '#f8f4ee',
+        muted:  '#6b7280',
+        border: '#e5e0d8',
       },
       fontFamily: {
         display: ['var(--font-display)', 'Georgia', 'serif'],
