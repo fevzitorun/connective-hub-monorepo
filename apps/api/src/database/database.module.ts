@@ -13,7 +13,7 @@ import { ConfigService } from '@nestjs/config'
         migrations: [__dirname + '/migrations/*{.ts,.js}'],
         synchronize: false,           // prod'da ASLA true yapma
         logging: config.get('NODE_ENV') !== 'production',
-        ssl: config.get('NODE_ENV') === 'production'
+        ssl: config.get('DB_SSL') === 'true'
           ? { rejectUnauthorized: false }
           : false,
       }),
