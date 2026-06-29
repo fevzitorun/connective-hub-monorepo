@@ -12,8 +12,8 @@ export class PaymentOrder {
   @Column({ type: 'decimal', precision: 10, scale: 2 }) amount: number
   @Column({ length: 3, default: 'TRY' }) currency: string
 
-  @Column({ name: 'iyzico_token', nullable: true }) iyzicoToken: string | null
-  @Column({ name: 'iyzico_ref', nullable: true, unique: true }) iyzicoRef: string | null
+  @Column({ name: 'iyzico_token', type: 'varchar', nullable: true }) iyzicoToken: string | null
+  @Column({ name: 'iyzico_ref', type: 'varchar', nullable: true, unique: true }) iyzicoRef: string | null
 
   @Column({ type: 'enum', enum: ['pending', 'success', 'failed', 'refunded'], default: 'pending' })
   status: 'pending' | 'success' | 'failed' | 'refunded'

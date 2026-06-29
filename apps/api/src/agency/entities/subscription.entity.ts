@@ -21,7 +21,7 @@ export class Subscription {
   @JoinColumn({ name: 'agency_id' })
   agency: Agency
 
-  @Column({ name: 'agency_id' })
+  @Column({ name: 'agency_id', type: 'uuid' })
   agencyId: string
 
   @Column({ type: 'enum', enum: AgencyPlan })
@@ -30,7 +30,7 @@ export class Subscription {
   @Column({ type: 'enum', enum: SubStatus, default: SubStatus.ACTIVE })
   status: SubStatus
 
-  @Column({ name: 'iyzico_sub_id', nullable: true })
+  @Column({ name: 'iyzico_sub_id', type: 'varchar', nullable: true })
   iyzicoSubId: string
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })

@@ -10,16 +10,16 @@ export class KvkkAuditLog {
   @JoinColumn({ name: 'user_id' })
   user: User
 
-  @Column({ name: 'user_id', nullable: true })
+  @Column({ name: 'user_id', type: 'uuid', nullable: true })
   userId: string
 
-  @Column()
+  @Column({ type: 'varchar' })
   action: string
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   resource: string
 
-  @Column({ name: 'ip_address', nullable: true })
+  @Column({ name: 'ip_address', type: 'varchar', nullable: true })
   ipAddress: string
 
   @Column({ name: 'user_agent', type: 'text', nullable: true })

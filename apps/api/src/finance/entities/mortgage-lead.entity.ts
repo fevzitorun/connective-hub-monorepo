@@ -32,10 +32,10 @@ export class MortgageLead {
   @Column({ type: 'enum', enum: ['new', 'contacted', 'qualified', 'rejected', 'converted'], default: 'new' })
   status: 'new' | 'contacted' | 'qualified' | 'rejected' | 'converted'
 
-  @Column({ name: 'contact_name', nullable: true }) contactName: string | null
-  @Column({ name: 'contact_phone', nullable: true }) contactPhone: string | null
-  @Column({ name: 'contact_email', nullable: true }) contactEmail: string | null
-  @Column({ nullable: true }) city: string | null
+  @Column({ name: 'contact_name', type: 'varchar', nullable: true }) contactName: string | null
+  @Column({ name: 'contact_phone', type: 'varchar', nullable: true }) contactPhone: string | null
+  @Column({ name: 'contact_email', type: 'varchar', nullable: true }) contactEmail: string | null
+  @Column({ type: 'varchar', nullable: true }) city: string | null
 
   @Column({ name: 'property_type', type: 'enum', enum: ['residential', 'commercial', 'land', 'industrial'], nullable: true })
   propertyType: string | null

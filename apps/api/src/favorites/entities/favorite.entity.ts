@@ -4,10 +4,10 @@ import { Listing } from '../../listings/entities/listing.entity'
 
 @Entity('favorites')
 export class Favorite {
-  @PrimaryColumn({ name: 'user_id' })
+  @PrimaryColumn({ name: 'user_id', type: 'uuid' })
   userId: string
 
-  @PrimaryColumn({ name: 'listing_id' })
+  @PrimaryColumn({ name: 'listing_id', type: 'uuid' })
   listingId: string
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })

@@ -12,9 +12,9 @@ export class InsuranceQuote {
 
   @Column({ name: 'area_m2', type: 'decimal', precision: 10, scale: 2, nullable: true }) areaM2: number | null
   @Column({ name: 'building_age', type: 'int', nullable: true }) buildingAge: number | null
-  @Column({ nullable: true }) city: string | null
-  @Column({ nullable: true }) district: string | null
-  @Column({ name: 'construction_type', default: 'betonarme' }) constructionType: string
+  @Column({ type: 'varchar', nullable: true }) city: string | null
+  @Column({ type: 'varchar', nullable: true }) district: string | null
+  @Column({ name: 'construction_type', type: 'varchar', default: 'betonarme' }) constructionType: string
   @Column({ name: 'floor_count', type: 'int', nullable: true }) floorCount: number | null
 
   @Column({ name: 'dask_premium', type: 'decimal', precision: 10, scale: 2, nullable: true }) daskPremium: number | null
@@ -25,7 +25,7 @@ export class InsuranceQuote {
   status: 'draft' | 'sent' | 'accepted' | 'expired'
 
   @Column({ name: 'valid_until', type: 'timestamptz', nullable: true }) validUntil: Date | null
-  @Column({ name: 'contact_email', nullable: true }) contactEmail: string | null
+  @Column({ name: 'contact_email', type: 'varchar', nullable: true }) contactEmail: string | null
 
   @CreateDateColumn({ name: 'created_at' }) createdAt: Date
 }

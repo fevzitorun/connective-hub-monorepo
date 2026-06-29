@@ -20,35 +20,34 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @Column({ unique: true })
+  @Column({ type: 'varchar', unique: true })
   email: string
 
-  @Column({ nullable: true, unique: true })
+  @Column({ type: 'varchar', nullable: true, unique: true })
   phone: string
 
-  @Column({ nullable: true, name: 'tc_kimlik' })
+  @Column({ type: 'varchar', nullable: true, name: 'tc_kimlik' })
   tcKimlik: string
 
-  @Column()
+  @Column({ type: 'varchar' })
   password: string
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.BUYER })
   role: UserRole
 
-  @Column({ name: 'is_verified', default: false })
+  @Column({ name: 'is_verified', type: 'boolean', default: false })
   isVerified: boolean
 
-  @Column({ name: 'is_active', default: true })
+  @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive: boolean
 
-  @Column({ name: 'full_name', nullable: true })
+  @Column({ name: 'full_name', type: 'varchar', nullable: true })
   fullName: string
 
-  @Column({ name: 'avatar_url', nullable: true })
+  @Column({ name: 'avatar_url', type: 'varchar', nullable: true })
   avatarUrl: string
 
-  // Refresh token hash — güvenli saklama
-  @Column({ name: 'refresh_token_hash', nullable: true })
+  @Column({ name: 'refresh_token_hash', type: 'varchar', nullable: true })
   refreshTokenHash: string
 
   @CreateDateColumn({ name: 'created_at' })

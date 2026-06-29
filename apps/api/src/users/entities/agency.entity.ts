@@ -19,31 +19,31 @@ export class Agency {
   @JoinColumn({ name: 'user_id' })
   user: User
 
-  @Column({ name: 'user_id' })
+  @Column({ name: 'user_id', type: 'uuid' })
   userId: string
 
-  @Column({ name: 'company_name' })
+  @Column({ name: 'company_name', type: 'varchar' })
   companyName: string
 
-  @Column({ name: 'license_no', nullable: true })
+  @Column({ name: 'license_no', type: 'varchar', nullable: true })
   licenseNo: string
 
   @Column({ type: 'enum', enum: AgencyPlan, default: AgencyPlan.FREE })
   plan: AgencyPlan
 
-  @Column({ nullable: true, unique: true })
+  @Column({ type: 'varchar', nullable: true, unique: true })
   subdomain: string
 
-  @Column({ name: 'logo_url', nullable: true })
+  @Column({ name: 'logo_url', type: 'varchar', nullable: true })
   logoUrl: string
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   phone: string
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   address: string
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   city: string
 
   @Column({ type: 'text', nullable: true })

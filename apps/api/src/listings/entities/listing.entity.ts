@@ -59,14 +59,14 @@ export class Listing {
   @JoinColumn({ name: 'agency_id' })
   agency: Agency
 
-  @Column({ name: 'agency_id', nullable: true })
+  @Column({ name: 'agency_id', type: 'uuid', nullable: true })
   agencyId: string
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'owner_user_id' })
   owner: User
 
-  @Column({ name: 'owner_user_id' })
+  @Column({ name: 'owner_user_id', type: 'uuid' })
   ownerUserId: string
 
   @Column({ length: 500 })
@@ -123,31 +123,31 @@ export class Listing {
   @Column({ name: 'room_count', length: 20, nullable: true })
   roomCount: string    // '1+1', '2+1', '3+1', '4+1', '5+'
 
-  @Column({ name: 'floor_no', nullable: true })
+  @Column({ name: 'floor_no', type: 'int', nullable: true })
   floorNo: number
 
-  @Column({ name: 'total_floors', nullable: true })
+  @Column({ name: 'total_floors', type: 'int', nullable: true })
   totalFloors: number
 
-  @Column({ name: 'building_age', nullable: true })
+  @Column({ name: 'building_age', type: 'int', nullable: true })
   buildingAge: number
 
-  @Column({ name: 'is_furnished', nullable: true })
+  @Column({ name: 'is_furnished', type: 'boolean', nullable: true })
   isFurnished: boolean
 
-  @Column({ name: 'has_parking', default: false })
+  @Column({ name: 'has_parking', type: 'boolean', default: false })
   hasParking: boolean
 
-  @Column({ name: 'has_elevator', default: false })
+  @Column({ name: 'has_elevator', type: 'boolean', default: false })
   hasElevator: boolean
 
-  @Column({ name: 'has_balcony', default: false })
+  @Column({ name: 'has_balcony', type: 'boolean', default: false })
   hasBalcony: boolean
 
-  @Column({ name: 'has_garden', default: false })
+  @Column({ name: 'has_garden', type: 'boolean', default: false })
   hasGarden: boolean
 
-  @Column({ name: 'has_pool', default: false })
+  @Column({ name: 'has_pool', type: 'boolean', default: false })
   hasPool: boolean
 
   // ─── Ticari özellikler (TicariMetre için) ────────────────────────────────
@@ -155,7 +155,7 @@ export class Listing {
   @Column({ name: 'ceiling_height_m', type: 'decimal', precision: 5, scale: 2, nullable: true })
   ceilingHeightM: number
 
-  @Column({ name: 'power_kva', nullable: true })
+  @Column({ name: 'power_kva', type: 'int', nullable: true })
   powerKva: number
 
   @Column({ name: 'floor_load_tons', type: 'decimal', precision: 8, scale: 2, nullable: true })
@@ -182,13 +182,13 @@ export class Listing {
 
   // ─── İstatistikler ───────────────────────────────────────────────────────
 
-  @Column({ name: 'view_count', default: 0 })
+  @Column({ name: 'view_count', type: 'int', default: 0 })
   viewCount: number
 
-  @Column({ name: 'whatsapp_clicks', default: 0 })
+  @Column({ name: 'whatsapp_clicks', type: 'int', default: 0 })
   whatsappClicks: number
 
-  @Column({ name: 'favorite_count', default: 0 })
+  @Column({ name: 'favorite_count', type: 'int', default: 0 })
   favoriteCount: number
 
   // ─── Zamanlama ───────────────────────────────────────────────────────────

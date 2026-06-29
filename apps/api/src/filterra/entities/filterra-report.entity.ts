@@ -20,14 +20,14 @@ export class FilterraReport {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @Column({ name: 'listing_id', nullable: true })
+  @Column({ name: 'listing_id', type: 'uuid', nullable: true })
   listingId: string
 
   @ManyToOne(() => Listing, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'listing_id' })
   listing: Listing
 
-  @Column({ name: 'user_id', nullable: true })
+  @Column({ name: 'user_id', type: 'uuid', nullable: true })
   userId: string
 
   @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
@@ -47,16 +47,16 @@ export class FilterraReport {
   @Column({ name: 'output_data', type: 'jsonb', nullable: true })
   outputData: Record<string, unknown>
 
-  @Column({ name: 'model_id', nullable: true })
+  @Column({ name: 'model_id', type: 'varchar', nullable: true })
   modelId: string
 
-  @Column({ name: 'tokens_used', nullable: true })
+  @Column({ name: 'tokens_used', type: 'int', nullable: true })
   tokensUsed: number
 
-  @Column({ name: 'duration_ms', nullable: true })
+  @Column({ name: 'duration_ms', type: 'int', nullable: true })
   durationMs: number
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   error: string
 
   @CreateDateColumn({ name: 'created_at' })

@@ -13,21 +13,21 @@ export class PropertyCertificate {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @Column({ name: 'listing_id' })
+  @Column({ name: 'listing_id', type: 'uuid' })
   listingId: string
 
   @ManyToOne(() => Listing, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'listing_id' })
   listing: Listing
 
-  @Column({ name: 'case_id', nullable: true })
+  @Column({ name: 'case_id', type: 'uuid', nullable: true })
   caseId: string
 
   @ManyToOne(() => LegalCase, { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'case_id' })
   case: LegalCase
 
-  @Column({ name: 'issued_by', nullable: true })
+  @Column({ name: 'issued_by', type: 'uuid', nullable: true })
   issuedBy: string
 
   @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
@@ -47,7 +47,7 @@ export class PropertyCertificate {
   @Column({ name: 'valid_until', type: 'timestamptz', nullable: true })
   validUntil: Date
 
-  @Column({ name: 'revoke_reason', nullable: true })
+  @Column({ name: 'revoke_reason', type: 'varchar', nullable: true })
   revokeReason: string
 
   @CreateDateColumn({ name: 'issued_at' })

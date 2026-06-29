@@ -5,7 +5,7 @@ export class TicariSnapshot {
   @PrimaryGeneratedColumn('uuid') id: string
 
   @Column({ length: 100 }) city: string
-  @Column({ nullable: true }) district: string | null
+  @Column({ type: 'varchar', nullable: true }) district: string | null
 
   @Column({
     name: 'property_type',

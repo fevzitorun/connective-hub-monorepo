@@ -18,7 +18,7 @@ export class SavedSearch {
   @JoinColumn({ name: 'user_id' })
   user: User
 
-  @Column({ name: 'user_id' })
+  @Column({ name: 'user_id', type: 'uuid' })
   userId: string
 
   // Filtre parametreleri JSON olarak saklanır
@@ -32,10 +32,10 @@ export class SavedSearch {
   @Column({ type: 'enum', enum: AlertChannel, default: AlertChannel.EMAIL })
   channel: AlertChannel
 
-  @Column({ name: 'is_active', default: true })
+  @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive: boolean
 
-  @Column({ name: 'last_sent', nullable: true })
+  @Column({ name: 'last_sent', type: 'timestamptz', nullable: true })
   lastSent: Date
 
   @CreateDateColumn({ name: 'created_at' })

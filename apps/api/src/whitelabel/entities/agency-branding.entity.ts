@@ -33,10 +33,10 @@ export class AgencyBranding {
   @Column({ name: 'seo_description', type: 'text', nullable: true }) seoDescription: string | null
 
   @Column({ name: 'custom_domain', length: 255, nullable: true }) customDomain: string | null
-  @Column({ name: 'domain_verified', default: false }) domainVerified: boolean
+  @Column({ name: 'domain_verified', type: 'boolean', default: false }) domainVerified: boolean
   @Column({ name: 'domain_verify_token', length: 64, nullable: true }) domainVerifyToken: string | null
 
-  @Column({ name: 'show_7fil_badge', default: true }) show7filBadge: boolean
+  @Column({ name: 'show_7fil_badge', type: 'boolean', default: true }) show7filBadge: boolean
   @Column({ name: 'listings_per_page', type: 'smallint', default: 12 }) listingsPerPage: number
 
   @CreateDateColumn({ name: 'created_at' }) createdAt: Date

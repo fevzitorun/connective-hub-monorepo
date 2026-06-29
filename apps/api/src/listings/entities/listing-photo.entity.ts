@@ -13,7 +13,7 @@ export class ListingPhoto {
   @JoinColumn({ name: 'listing_id' })
   listing: Listing
 
-  @Column({ name: 'listing_id' })
+  @Column({ name: 'listing_id', type: 'uuid' })
   listingId: string
 
   @Column({ type: 'text' })
@@ -22,10 +22,10 @@ export class ListingPhoto {
   @Column({ name: 'r2_key', type: 'text' })
   r2Key: string
 
-  @Column({ name: 'sort_order', default: 0 })
+  @Column({ name: 'sort_order', type: 'int', default: 0 })
   sortOrder: number
 
-  @Column({ name: 'is_cover', default: false })
+  @Column({ name: 'is_cover', type: 'boolean', default: false })
   isCover: boolean
 
   @CreateDateColumn({ name: 'created_at' })

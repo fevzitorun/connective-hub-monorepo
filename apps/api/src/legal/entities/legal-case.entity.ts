@@ -12,21 +12,21 @@ export class LegalCase {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @Column({ name: 'listing_id' })
+  @Column({ name: 'listing_id', type: 'uuid' })
   listingId: string
 
   @ManyToOne(() => Listing, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'listing_id' })
   listing: Listing
 
-  @Column({ name: 'requester_id', nullable: true })
+  @Column({ name: 'requester_id', type: 'uuid', nullable: true })
   requesterId: string
 
   @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'requester_id' })
   requester: User
 
-  @Column({ name: 'lawyer_id', nullable: true })
+  @Column({ name: 'lawyer_id', type: 'uuid', nullable: true })
   lawyerId: string
 
   @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
@@ -52,7 +52,7 @@ export class LegalCase {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   fee: number
 
-  @Column({ default: 'TRY' })
+  @Column({ type: 'varchar', default: 'TRY' })
   currency: string
 
   @Column({ name: 'reviewed_at', type: 'timestamptz', nullable: true })
@@ -75,14 +75,14 @@ export class LegalDocument {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @Column({ name: 'case_id' })
+  @Column({ name: 'case_id', type: 'uuid' })
   caseId: string
 
   @ManyToOne(() => LegalCase, (c) => c.documents, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'case_id' })
   case: LegalCase
 
-  @Column({ name: 'uploader_id', nullable: true })
+  @Column({ name: 'uploader_id', type: 'uuid', nullable: true })
   uploaderId: string
 
   @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
@@ -96,10 +96,10 @@ export class LegalDocument {
   })
   docType: DocType
 
-  @Column({ name: 'file_url' })
+  @Column({ name: 'file_url', type: 'varchar' })
   fileUrl: string
 
-  @Column({ name: 'r2_key' })
+  @Column({ name: 'r2_key', type: 'varchar' })
   r2Key: string
 
   @Column({ type: 'text', nullable: true })
