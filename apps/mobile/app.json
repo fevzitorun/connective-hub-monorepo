@@ -57,9 +57,16 @@
     "experiments": {
       "typedRoutes": true
     },
+    "updates": {
+      "url": "https://u.expo.dev/7fil-mobile"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "extra": {
+      "apiUrl": "https://connective-hub-monorepo-production.up.railway.app/api/v1",
       "eas": {
-        "projectId": "7fil-mobile"
+        "projectId": "EXPO_PROJECT_ID_BURAYA"
       }
     }
   }

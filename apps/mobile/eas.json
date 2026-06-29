@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 13.0.0"
+    "version": ">= 13.0.0",
+    "appVersionSource": "local"
   },
   "build": {
     "development": {
@@ -8,31 +9,40 @@
       "distribution": "internal",
       "ios": {
         "simulator": true
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "http://localhost:4000/api/v1"
       }
     },
     "preview": {
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://connective-hub-monorepo-production.up.railway.app/api/v1"
       }
     },
     "production": {
       "autoIncrement": true,
       "android": {
         "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://connective-hub-monorepo-production.up.railway.app/api/v1"
       }
     }
   },
   "submit": {
     "production": {
       "ios": {
-        "appleId": "apps@connectivehub.com.tr",
-        "ascAppId": "CHANGEME",
-        "appleTeamId": "CHANGEME"
+        "appleId": "uniradimaging@gmail.com",
+        "ascAppId": "CHANGEME_APP_STORE_CONNECT_ID",
+        "appleTeamId": "CHANGEME_APPLE_TEAM_ID"
       },
       "android": {
         "serviceAccountKeyPath": "./google-service-account.json",
-        "track": "production"
+        "track": "internal"
       }
     }
   }

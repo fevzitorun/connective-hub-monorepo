@@ -1,6 +1,7 @@
 import Constants from 'expo-constants'
 
 const BASE: string =
+  process.env.EXPO_PUBLIC_API_URL ??
   (Constants.expoConfig?.extra as Record<string, string> | undefined)?.apiUrl ??
   'http://localhost:4000/api/v1'
 
