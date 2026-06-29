@@ -1,18 +1,25 @@
-FROM node:22-alpine AS base
+FROM node:22-alpine AS builder
 WORKDIR /app
-RUN npm install -g pnpm@11
 
-FROM base AS deps
-COPY .npmrc package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/api/package.json ./apps/api/
-COPY packages/ ./packages/
-RUN rm -f pnpm-lock.yaml && pnpm install
+# Install deps first (layer cache-friendly)
+COPY apps/api/package.json ./apps/api/package.json
+RUN cd apps/api && npm install
 
-FROM deps AS builder
-COPY apps/api ./apps/api
-COPY packages ./packages
-RUN pnpm --filter @7fil/api build
+# Copy source files
+# tsconfig.base.json must be at /app/ because api/tsconfig.json extends "../../tsconfig.base.json"
+COPY tsconfig.base.json ./
+COPY apps/api/src ./apps/api/src
+COPY apps/api/tsconfig.json ./apps/api/tsconfig.json
 
+RUN cd apps/api && npm run build
+
+# Production deps (no devDeps, no build scripts)
+FROM node:22-alpine AS prod-deps
+WORKDIR /app
+COPY apps/api/package.json ./
+RUN npm install --omit=dev --ignore-scripts
+
+# Final image
 FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
@@ -20,7 +27,7 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nestjs
 
-COPY --from=deps --chown=nestjs:nodejs /app/node_modules ./node_modules
+COPY --from=prod-deps --chown=nestjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nestjs:nodejs /app/apps/api/dist ./dist
 
 USER nestjs
