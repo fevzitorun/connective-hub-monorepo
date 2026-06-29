@@ -505,6 +505,52 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ─── International ────────────────────────────────────────────────────── */}
+      <section className="py-20 bg-stone-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="flex items-end justify-between mb-10">
+            <div>
+              <p className="text-[#c9a84c] text-xs font-bold uppercase tracking-widest mb-2">Yurt Dışı Yatırım</p>
+              <h2 className="text-[#0d1f3c] text-3xl font-extrabold">Türkiye&apos;nin sınırlarının ötesinde.</h2>
+              <p className="text-stone-500 text-sm mt-2">Londra, Dubai, Kıbrıs ve daha fazlası — çok yakında.</p>
+            </div>
+            <button
+              onClick={() => openModal()}
+              className="text-sm text-stone-400 hover:text-[#0d1f3c] transition-colors font-medium hidden sm:block"
+            >
+              Erken bildirim al →
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[
+              { flag: '🇬🇧', city: 'Londra', country: 'İngiltere', from: '£ 450K', note: 'Zone 1–3 daireler' },
+              { flag: '🇦🇪', city: 'Dubai', country: 'BAE', from: '$ 280K', note: 'Marina & JVC projeleri' },
+              { flag: '🇨🇾', city: 'Kıbrıs', country: 'KKTC / G.Kıbrıs', from: '€ 120K', note: 'Vatandaşlık fırsatları' },
+              { flag: '🇬🇷', city: 'Yunanistan', country: 'Atina & Adalar', from: '€ 90K', note: 'Golden Visa programı' },
+            ].map((d) => (
+              <button
+                key={d.city}
+                onClick={() => openModal()}
+                className="group bg-white border border-stone-200 hover:border-[#c9a84c]/40 hover:shadow-md rounded-2xl p-5 text-left transition-all"
+              >
+                <div className="text-3xl mb-3">{d.flag}</div>
+                <h3 className="text-[#0d1f3c] font-bold text-base mb-0.5">{d.city}</h3>
+                <p className="text-stone-400 text-xs mb-3">{d.country}</p>
+                <div className="text-[#c9a84c] font-bold text-sm">{d.from}&apos;den</div>
+                <p className="text-stone-400 text-xs mt-0.5">{d.note}</p>
+                <div className="mt-4 inline-flex items-center gap-1 text-xs text-stone-300 group-hover:text-[#c9a84c] transition-colors font-semibold">
+                  Yakında
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ─── Agency CTA ───────────────────────────────────────────────────────── */}
       <section className="py-24 bg-[#0d1f3c]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">

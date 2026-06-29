@@ -554,7 +554,13 @@ CREATE TRIGGER auctions_updated_at BEFORE UPDATE ON auctions
 ALTER TABLE listings ADD COLUMN IF NOT EXISTS
   country VARCHAR(2) NOT NULL DEFAULT 'TR';
 
-CREATE INDEX listings_country_idx ON listings(country, city);
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS
+  is_international BOOLEAN NOT NULL DEFAULT FALSE;
+
+ALTER TYPE property_type_enum ADD VALUE IF NOT EXISTS 'overseas';
+
+CREATE INDEX listings_country_idx        ON listings(country, city);
+CREATE INDEX listings_international_idx  ON listings(is_international, country) WHERE is_international = TRUE;
 
 -- ─── Module 15-C: Atlas AI Conversations ─────────────────────────────────────
 
