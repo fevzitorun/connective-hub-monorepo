@@ -335,7 +335,7 @@ CREATE TRIGGER legal_cases_updated_at BEFORE UPDATE ON legal_cases
 -- ─── Module 10: Finans & Sigorta ─────────────────────────────────────────────
 
 CREATE TYPE loan_type_enum AS ENUM ('conventional', 'islamic');
-CREATE TYPE lead_status_enum AS ENUM ('new', 'contacted', 'qualified', 'rejected', 'converted');
+CREATE TYPE lead_status_enum AS ENUM ('new', 'contacted', 'qualified', 'showing', 'offer', 'negotiation', 'won', 'lost', 'nurturing', 'rejected', 'converted');
 CREATE TYPE insurance_type_enum AS ENUM ('dask', 'konut', 'both');
 CREATE TYPE quote_status_enum AS ENUM ('draft', 'sent', 'accepted', 'expired');
 CREATE TYPE payment_status_enum AS ENUM ('pending', 'success', 'failed', 'refunded');

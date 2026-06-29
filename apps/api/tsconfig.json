@@ -3,7 +3,9 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "ES2021",
-    "lib": ["ES2021"],
+    "lib": ["ES2021", "DOM"],
+    "esModuleInterop": true,
+    "skipLibCheck": true,
     "outDir": "./dist",
     "rootDir": "./src",
     "experimentalDecorators": true,
