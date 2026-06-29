@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: ['/', '/on-kayit', '/fiyatlar'],
+        allow: ['/', '/on-kayit', '/fiyatlar', '/blog'],
         disallow: ['/panel/', '/admin/', '/api/', '/beta/', '/ara', '/ilan/', '/sehir/', '/dogrula-email/'],
       },
     ],
