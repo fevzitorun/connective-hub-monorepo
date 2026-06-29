@@ -1,5 +1,5 @@
 'use client'
-export const dynamic = 'force-dynamic'
+import { Suspense } from 'react'
 import { useEffect, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import nextDynamic from 'next/dynamic'
@@ -25,7 +25,7 @@ const SORT_OPTIONS = [
   { value: 'area_asc', label: 'Alan: Küçük → Büyük' },
 ]
 
-export default function SearchPage() {
+function SearchContent() {
   const router = useRouter()
   const urlParams = useSearchParams()
   const { params, result, loading, error, mapView, setParams, setResult, setLoading, setError, toggleMapView } = useSearchStore()
@@ -205,5 +205,13 @@ export default function SearchPage() {
       </div>
       <Footer />
     </>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense>
+      <SearchContent />
+    </Suspense>
   )
 }
