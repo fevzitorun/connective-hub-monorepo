@@ -3,3 +3,6 @@ packages:
   - "packages/*"
 onlyBuiltDependencies:
   - "@nestjs/core"
+  - "@sentry/cli"
+  - "core-js"
+  - "unrs-resolver"
