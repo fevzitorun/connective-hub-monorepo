@@ -2,7 +2,6 @@ import { withSentryConfig } from '@sentry/nextjs'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
   transpilePackages: ['@7fil/ui', '@7fil/types'],
   images: {
     remotePatterns: [
