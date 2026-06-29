@@ -6,7 +6,7 @@ FROM base AS deps
 COPY .npmrc package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api/package.json ./apps/api/
 COPY packages/ ./packages/
-RUN pnpm install --no-frozen-lockfile
+RUN rm -f pnpm-lock.yaml && pnpm install
 
 FROM deps AS builder
 COPY apps/api ./apps/api
