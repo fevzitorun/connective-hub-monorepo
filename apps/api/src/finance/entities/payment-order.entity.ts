@@ -8,9 +8,9 @@ export class PaymentOrder {
   @Column({ name: 'user_id', type: 'uuid', nullable: true }) userId: string | null
 
   @Column({ type: 'enum', enum: ['free', 'pro', 'corporate', 'enterprise'] }) plan: string
-  @Column({ default: 1 }) months: number
+  @Column({ type: 'int', default: 1 }) months: number
   @Column({ type: 'decimal', precision: 10, scale: 2 }) amount: number
-  @Column({ length: 3, default: 'TRY' }) currency: string
+  @Column({ type: 'varchar', length: 3, default: 'TRY' }) currency: string
 
   @Column({ name: 'iyzico_token', type: 'varchar', nullable: true }) iyzicoToken: string | null
   @Column({ name: 'iyzico_ref', type: 'varchar', nullable: true, unique: true }) iyzicoRef: string | null

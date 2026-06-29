@@ -36,7 +36,7 @@ export class Subscription {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   amount: number
 
-  @Column({ length: 3, default: 'TRY' })
+  @Column({ type: 'varchar', length: 3, default: 'TRY' })
   currency: string
 
   @Column({ name: 'starts_at', type: 'timestamptz' })

@@ -49,7 +49,7 @@ export class Agency {
   @Column({ type: 'text', nullable: true })
   description: string
 
-  @Column({ name: 'is_verified', default: false })
+  @Column({ name: 'is_verified', type: 'boolean', default: false })
   isVerified: boolean
 
   @CreateDateColumn({ name: 'created_at' })

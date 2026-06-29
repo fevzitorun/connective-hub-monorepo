@@ -193,10 +193,10 @@ export class Listing {
 
   // ─── Zamanlama ───────────────────────────────────────────────────────────
 
-  @Column({ name: 'expires_at', nullable: true })
+  @Column({ name: 'expires_at', type: 'timestamptz', nullable: true })
   expiresAt: Date
 
-  @Column({ name: 'published_at', nullable: true })
+  @Column({ name: 'published_at', type: 'timestamptz', nullable: true })
   publishedAt: Date
 
   @CreateDateColumn({ name: 'created_at' })

@@ -4,7 +4,7 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeor
 export class TicariSnapshot {
   @PrimaryGeneratedColumn('uuid') id: string
 
-  @Column({ length: 100 }) city: string
+  @Column({ type: 'varchar', length: 100 }) city: string
   @Column({ type: 'varchar', nullable: true }) district: string | null
 
   @Column({
