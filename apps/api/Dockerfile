@@ -4,7 +4,7 @@ RUN npm install -g pnpm@11
 
 # ─── Install deps ─────────────────────────────────────────────────────────────
 FROM base AS deps
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY .npmrc package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api/package.json ./apps/api/
 COPY packages/ ./packages/
 RUN pnpm install --frozen-lockfile --ignore-scripts --filter @7fil/api...
@@ -21,12 +21,18 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+RUN npm install -g pnpm@11
+
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nestjs
 
+COPY --chown=nestjs:nodejs .npmrc package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY --chown=nestjs:nodejs apps/api/package.json ./apps/api/
+COPY --chown=nestjs:nodejs packages/ ./packages/
+
+RUN pnpm install --frozen-lockfile --prod --filter @7fil/api...
+
 COPY --from=builder --chown=nestjs:nodejs /app/apps/api/dist ./dist
-COPY --from=builder --chown=nestjs:nodejs /app/apps/api/package.json ./
-COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
 
 USER nestjs
 
