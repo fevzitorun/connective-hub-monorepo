@@ -1135,3 +1135,22 @@ CREATE INDEX IF NOT EXISTS generated_contents_listing_idx
 COMMENT ON TABLE generated_contents IS
   'M-04 SCRIBE Agent: AI tarafından üretilen tüm içerikler (blog, sosyal, rapor vb.)';
 
+
+-- ─── Public Leads (Landing Page Lead Capture) ─────────────────────────────────
+CREATE TABLE IF NOT EXISTS public_leads (
+  id           UUID        DEFAULT gen_random_uuid() PRIMARY KEY,
+  full_name    VARCHAR(200) NOT NULL,
+  email        VARCHAR(200),
+  phone        VARCHAR(30),
+  lead_type    VARCHAR(30) NOT NULL DEFAULT 'buyer', -- buyer | seller | agency
+  city         VARCHAR(100),
+  notes        TEXT,
+  kvkk_consent BOOLEAN     NOT NULL DEFAULT false,
+  utm_source   VARCHAR(100),
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS public_leads_created_idx ON public_leads(created_at DESC);
+CREATE INDEX IF NOT EXISTS public_leads_type_idx    ON public_leads(lead_type, created_at DESC);
+
+COMMENT ON TABLE public_leads IS 'Landing page lead capture — kimlik doğrulama gerektirmez';

@@ -24,6 +24,7 @@ import { PartnerModule } from './partner/partner.module'
 import { MlsModule }     from './mls/mls.module'
 import { CrmModule }     from './crm/crm.module'
 import { ScribeModule }  from './agents/scribe/scribe.module'
+import { PublicModule }  from './public/public.module'
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { ScribeModule }  from './agents/scribe/scribe.module'
     MlsModule,      // Modül B — Emlakçılar Arası MLS Portföy Paylaşımı
     CrmModule,      // M-01  — CRM & Lead Yönetimi
     ScribeModule,   // M-04  — SCRIBE AI İçerik Ajansı
+    PublicModule,   // Public — Landing page lead capture (auth yok)
   ],
 })
 export class AppModule {}

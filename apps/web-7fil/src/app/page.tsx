@@ -1,263 +1,400 @@
-import type { Metadata } from 'next'
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
-import { Navbar } from '../components/Navbar'
-import { Footer } from '../components/Footer'
-import { SearchBox } from '../components/SearchBox'
-import { ListingCard } from '../components/ListingCard'
-import { api } from '../lib/api'
 
-export const metadata: Metadata = {
-  title: '7fil — Türkiye\'nin Entegre Gayrimenkul Ekosistemi',
-  description: 'Satılık ve kiralık konut, iş yeri ve arazi. AI destekli değerleme, hukuki ön inceleme, finansman karşılaştırması.',
-}
+const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1'
 
-const POPULAR_CITIES = [
-  { name: 'İstanbul', count: '48.000+', img: 'istanbul' },
-  { name: 'Ankara', count: '21.000+', img: 'ankara' },
-  { name: 'İzmir', count: '15.000+', img: 'izmir' },
-  { name: 'Bursa', count: '9.000+', img: 'bursa' },
-  { name: 'Antalya', count: '11.000+', img: 'antalya' },
-  { name: 'Adana', count: '5.000+', img: 'adana' },
-]
+const CITIES = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Gaziantep', 'Konya', 'Adana', 'Mersin', 'Kayseri']
 
-const FEATURES = [
+const WHY_ITEMS = [
   {
     icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
       </svg>
     ),
     title: 'FILTERRA.AI Değerleme',
-    description: 'Yapay zeka destekli piyasa analizi ile ilanın gerçek değerini öğren. Karşılaştırmalı satış verisi ve m² fiyatı.',
+    desc: 'Piyasa verisiyle saniyeler içinde gerçek değer tahmini. Fazla ödeme yok.',
   },
   {
     icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
       </svg>
     ),
-    title: 'Hukuki Ön İnceleme',
-    description: 'Tapu sicili kontrolü, ipotek sorgulaması, imar durumu. Avukat onaylı mülkiyet sertifikası.',
+    title: 'Avukat Onaylı Sertifika',
+    desc: 'Tapu, ipotek, imar. Her ilanda hukuki güvence belgesi.',
   },
   {
     icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
       </svg>
     ),
-    title: 'Finansman Karşılaştırması',
-    description: 'Konvansiyonel ve katılım bankacılığı seçeneklerini karşılaştır. Aylık ödeme hesabı ve banka teklifleri.',
+    title: 'Mortgage Karşılaştırması',
+    desc: '20+ bankadan anlık teklifler. Katılım ve konvansiyonel seçenekler.',
   },
   {
     icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
       </svg>
     ),
-    title: 'WhatsApp ile Doğrudan İletişim',
-    description: 'Aracısız, anlık iletişim. Her ilan için özel WhatsApp linki ile emlakçıya veya ev sahibine ulaş.',
+    title: 'MLS Ağı',
+    desc: '5.000+ onaylı acenta. Portföy paylaşımı ve işbirliği sistemi.',
   },
 ]
 
-async function getFeaturedListings() {
-  try {
-    const res = await api.getFeatured()
-    return res.data ?? []
-  } catch {
-    return []
-  }
-}
+type LeadType = 'buyer' | 'seller' | 'agency'
 
-export default async function HomePage() {
-  const featured = await getFeaturedListings()
+export default function HomePage() {
+  const [query, setQuery] = useState('')
+  const [leadType, setLeadType] = useState<LeadType>('buyer')
+  const [form, setForm] = useState({ fullName: '', email: '', phone: '', city: '', kvkkConsent: false })
+  const [state, setState] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
+
+  const submitLead = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!form.fullName || !form.email) return
+    setState('loading')
+    try {
+      await fetch(`${API}/public/leads`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...form, leadType, utmSource: 'landing_v1' }),
+      })
+      setState('done')
+    } catch {
+      setState('error')
+    }
+  }
 
   return (
-    <>
-      <Navbar />
+    <div className="min-h-screen bg-white font-sans">
 
-      {/* ─── Hero ─────────────────────────────────────────────────────────────── */}
-      <section className="relative bg-ink min-h-[620px] flex items-center overflow-hidden pt-16">
-        {/* Arkaplan dekor */}
-        <div className="absolute inset-0 opacity-5 pointer-events-none">
-          <div className="absolute top-20 left-1/4 w-96 h-96 rounded-full bg-gold blur-3xl" />
-          <div className="absolute bottom-0 right-1/3 w-64 h-64 rounded-full bg-teal blur-3xl" />
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 w-full">
-          <div className="max-w-2xl mb-10">
-            {/* FILTERRA badge */}
-            <div className="inline-flex items-center gap-2 bg-teal/20 text-teal text-xs font-medium px-3 py-1.5 rounded-full mb-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-teal animate-pulse" />
-              FILTERRA.AI Destekli — Türkiye&apos;nin İlk Entegre Gayrimenkul Ekosistemi
-            </div>
-
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
-              Eviniz için
-              <br />
-              <span className="text-gold">doğru karar,</span>
-              <br />
-              doğru adres.
-            </h1>
-
-            <p className="mt-6 text-white/60 text-lg leading-relaxed max-w-xl">
-              Satılık ve kiralık ilanlar, AI destekli değerleme, hukuki güvence ve finansman karşılaştırması — hepsi tek platformda.
-            </p>
+      {/* ─── Nav ─────────────────────────────────────────────────────────────── */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur border-b border-stone-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <span className="text-[22px] font-bold tracking-tight text-[#0d1f3c]">
+            7<span className="text-[#c9a84c]">fil</span>
+          </span>
+          <div className="hidden sm:flex items-center gap-6 text-sm text-stone-500">
+            <Link href="/fiyatlar" className="hover:text-[#0d1f3c] transition-colors">Fiyatlar</Link>
+            <Link href="/panel/mls" className="hover:text-[#0d1f3c] transition-colors">MLS</Link>
+            <Link href="/ara" className="hover:text-[#0d1f3c] transition-colors">İlanlar</Link>
           </div>
-
-          {/* Arama kutusu */}
-          <SearchBox />
-
-          {/* Hızlı istatistikler */}
-          <div className="flex flex-wrap gap-8 mt-10 text-white/50 text-sm">
-            <span><strong className="text-white">120.000+</strong> İlan</span>
-            <span><strong className="text-white">81</strong> İl</span>
-            <span><strong className="text-white">5.400+</strong> Emlakçı</span>
-            <span><strong className="text-white">98%</strong> Memnuniyet</span>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Öne Çıkan İlanlar ────────────────────────────────────────────────── */}
-      {featured.length > 0 && (
-        <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-end justify-between mb-8">
-            <div>
-              <p className="text-teal text-sm font-medium mb-1">Güncel İlanlar</p>
-              <h2 className="section-title">Öne Çıkan İlanlar</h2>
-            </div>
-            <Link href="/ara" className="text-sm text-teal hover:text-gold transition-colors font-medium">
-              Tümünü Gör →
+          <div className="flex items-center gap-3">
+            <Link href="/(auth)/giris" className="text-sm text-stone-600 hover:text-[#0d1f3c] transition-colors">
+              Giriş Yap
+            </Link>
+            <Link
+              href="/(auth)/kayit"
+              className="text-sm bg-[#0d1f3c] text-white px-4 py-2 rounded-lg hover:bg-[#1a3358] transition-colors"
+            >
+              Kayıt Ol
             </Link>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featured.map((listing) => {
-              const coverPhoto = listing.photos?.find((p) => p.isCover) ?? listing.photos?.[0]
-              return (
-                <ListingCard
-                  key={listing.id}
-                  hit={{
-                    id: listing.id,
-                    title: listing.title,
-                    price: listing.price ?? null,
-                    currency: listing.currency,
-                    propertyType: listing.propertyType,
-                    listingType: listing.listingType,
-                    city: listing.city,
-                    district: listing.district,
-                    neighborhood: listing.neighborhood ?? '',
-                    roomCount: listing.roomCount ?? '',
-                    areaM2: listing.areaM2 ?? null,
-                    hasParking: listing.hasParking ?? false,
-                    hasElevator: listing.hasElevator ?? false,
-                    coverPhoto: coverPhoto?.url ?? null,
-                    whatsappLink: listing.whatsappLink ?? null,
-                    publishedAt: null,
-                    pricePerM2: listing.price && listing.areaM2
-                      ? Math.round(listing.price / listing.areaM2)
-                      : null,
-                  }}
-                />
-              )
-            })}
-          </div>
-        </section>
-      )}
-
-      {/* ─── Popüler Şehirler ─────────────────────────────────────────────────── */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <p className="text-teal text-sm font-medium mb-1">Türkiye Genelinde</p>
-            <h2 className="section-title">Popüler Şehirler</h2>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {POPULAR_CITIES.map((city) => (
-              <Link
-                key={city.name}
-                href={`/ara?city=${city.name}`}
-                className="group card p-5 text-center hover:border-gold/30"
-              >
-                <div className="w-12 h-12 rounded-full bg-cream mx-auto mb-3 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <p className="font-semibold text-ink text-sm group-hover:text-teal transition-colors">{city.name}</p>
-                <p className="text-xs text-muted mt-0.5">{city.count} İlan</p>
-              </Link>
-            ))}
-          </div>
         </div>
-      </section>
+      </nav>
 
-      {/* ─── Özellikler ───────────────────────────────────────────────────────── */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-14">
-          <p className="text-teal text-sm font-medium mb-1">Neden 7fil?</p>
-          <h2 className="section-title">Gayrimenkulde Yeni Standart</h2>
-          <p className="mt-4 text-muted max-w-xl mx-auto">
-            Sadece ilan platformu değil — alım-satım sürecinin tamamını güvenli ve şeffaf hale getiren entegre ekosistem.
+      {/* ─── Hero ────────────────────────────────────────────────────────────── */}
+      <section className="pt-16 bg-[#0d1f3c] min-h-[580px] flex items-center relative overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
+          style={{ backgroundImage: 'radial-gradient(circle at 30% 50%, #c9a84c 0%, transparent 60%), radial-gradient(circle at 80% 20%, #2a9d8f 0%, transparent 50%)' }}
+        />
+
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-20 w-full text-center">
+          <div className="inline-flex items-center gap-2 bg-[#c9a84c]/10 border border-[#c9a84c]/20 text-[#c9a84c] text-xs font-semibold px-4 py-2 rounded-full mb-8 tracking-widest uppercase">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#c9a84c] animate-pulse" />
+            Türkiye&apos;nin Rightmove&apos;u — Çok Yakında
+          </div>
+
+          <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight">
+            Doğru ev,{' '}
+            <span className="text-[#c9a84c]" style={{ fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>
+              doğru fiyat,
+            </span>
+            <br />tam güvence.
+          </h1>
+
+          <p className="mt-6 text-white/50 text-lg max-w-xl mx-auto leading-relaxed">
+            AI değerleme · Avukat onaylı sertifika · Mortgage karşılaştırması · MLS ağı —
+            hepsi tek çatı altında.
           </p>
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {FEATURES.map((f) => (
-            <div key={f.title} className="text-center">
-              <div className="w-14 h-14 rounded-2xl bg-teal/10 text-teal flex items-center justify-center mx-auto mb-4">
-                {f.icon}
+          {/* Search bar — Coming Soon mode */}
+          <div className="mt-10 max-w-2xl mx-auto">
+            <div className="flex bg-white rounded-xl shadow-2xl overflow-hidden border border-stone-100">
+              <div className="flex items-center pl-4 text-stone-400">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
               </div>
-              <h3 className="font-semibold text-ink mb-2">{f.title}</h3>
-              <p className="text-sm text-muted leading-relaxed">{f.description}</p>
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Şehir, ilçe veya mahalle arayın…"
+                className="flex-1 px-4 py-4 text-[#0d1f3c] placeholder:text-stone-400 outline-none text-sm"
+              />
+              <button className="bg-[#c9a84c] text-[#0d1f3c] font-semibold px-7 py-4 text-sm hover:bg-[#b8942e] transition-colors shrink-0">
+                Ara
+              </button>
             </div>
-          ))}
-        </div>
-      </section>
 
-      {/* ─── CTA — Emlakçılar ─────────────────────────────────────────────────── */}
-      <section className="bg-ink py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col lg:flex-row items-center gap-12">
-          <div className="flex-1">
-            <span className="badge-gold mb-4 inline-block">Emlakçılar için</span>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold text-white leading-tight">
-              Portföyünüzü dijitale<br />
-              <span className="text-gold">taşıyın, müşterinizi</span><br />
-              büyütün.
-            </h2>
-            <p className="mt-5 text-white/60 leading-relaxed max-w-lg">
-              Sınırsız ilan, CSV toplu yükleme, WhatsApp entegrasyonu, FILTERRA.AI değerleme ve beyaz etiket subdomain.
-              Aylık sabit fiyat, sürpriz yok.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Link href="/emlakci-ol" className="btn-primary">
-                Ücretsiz Başla
-              </Link>
-              <Link href="/fiyatlandirma" className="btn-outline text-white border-white/30 hover:bg-white hover:text-ink">
-                Planları İncele
-              </Link>
+            {/* City chips */}
+            <div className="flex flex-wrap gap-2 justify-center mt-4">
+              {CITIES.slice(0, 6).map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setQuery(c)}
+                  className="text-xs text-white/50 hover:text-white/80 border border-white/10 hover:border-white/30 px-3 py-1.5 rounded-full transition-all"
+                >
+                  {c}
+                </button>
+              ))}
             </div>
           </div>
 
-          <div className="flex-shrink-0 grid grid-cols-2 gap-4 text-center">
+          {/* Stats */}
+          <div className="flex flex-wrap justify-center gap-8 mt-12 text-sm">
             {[
-              { value: '15 gün', label: 'İlan Görünürlüğü' },
-              { value: '500', label: 'CSV Toplu İlan' },
-              { value: 'AI', label: 'FILTERRA Analizi' },
-              { value: 'QR', label: 'WhatsApp Deep Link' },
+              { n: '120.000+', l: 'İlan' },
+              { n: '81 İl', l: 'Türkiye Geneli' },
+              { n: '5.400+', l: 'Onaylı Acenta' },
+              { n: 'AI', l: 'Destekli Değerleme' },
             ].map((s) => (
-              <div key={s.label} className="bg-white/5 rounded-xl p-5 w-36">
-                <p className="font-display text-2xl font-bold text-gold">{s.value}</p>
-                <p className="text-xs text-white/50 mt-1">{s.label}</p>
+              <div key={s.l} className="text-center">
+                <div className="text-white font-bold text-xl">{s.n}</div>
+                <div className="text-white/40 text-xs mt-0.5">{s.l}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <Footer />
-    </>
+      {/* ─── Lead Capture ────────────────────────────────────────────────────── */}
+      <section className="py-16 bg-stone-50">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-8">
+            <p className="text-[#c9a84c] text-xs font-semibold uppercase tracking-widest mb-2">Erken Erişim</p>
+            <h2 className="text-[#0d1f3c] text-3xl font-bold">Platform açılmadan listenize girin.</h2>
+            <p className="mt-2 text-stone-500 text-sm">
+              Lansman günü öncelikli erişim, özel fiyat ve kurulum desteği.
+            </p>
+          </div>
+
+          {/* Type tabs */}
+          <div className="flex bg-white rounded-xl border border-stone-200 p-1 mb-6 max-w-sm mx-auto">
+            {([['buyer', 'Alıcı / Kiracı'], ['seller', 'Satıcı / Kiraya Veren'], ['agency', 'Emlak Ofisi']] as const).map(([type, label]) => (
+              <button
+                key={type}
+                onClick={() => setLeadType(type)}
+                className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${
+                  leadType === type
+                    ? 'bg-[#0d1f3c] text-white shadow-sm'
+                    : 'text-stone-400 hover:text-stone-700'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {state === 'done' ? (
+            <div className="bg-white border border-green-100 rounded-2xl p-10 text-center shadow-sm">
+              <div className="w-14 h-14 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-[#0d1f3c] font-bold text-xl mb-2">Listeye alındınız!</h3>
+              <p className="text-stone-500 text-sm">Lansman günü size özel erken erişim linki göndereceğiz.</p>
+            </div>
+          ) : (
+            <form onSubmit={submitLead} className="bg-white border border-stone-200 rounded-2xl p-8 shadow-sm space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-stone-500 mb-1.5 uppercase tracking-wide">Ad Soyad *</label>
+                  <input
+                    required
+                    value={form.fullName}
+                    onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+                    placeholder="Ahmet Yılmaz"
+                    className="w-full border border-stone-200 rounded-lg px-4 py-3 text-sm text-[#0d1f3c] placeholder:text-stone-300 focus:outline-none focus:border-[#0d1f3c] transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-stone-500 mb-1.5 uppercase tracking-wide">E-posta *</label>
+                  <input
+                    required type="email"
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    placeholder="ahmet@sirket.com"
+                    className="w-full border border-stone-200 rounded-lg px-4 py-3 text-sm text-[#0d1f3c] placeholder:text-stone-300 focus:outline-none focus:border-[#0d1f3c] transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-stone-500 mb-1.5 uppercase tracking-wide">Telefon</label>
+                  <input
+                    type="tel"
+                    value={form.phone}
+                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                    placeholder="05xx xxx xx xx"
+                    className="w-full border border-stone-200 rounded-lg px-4 py-3 text-sm text-[#0d1f3c] placeholder:text-stone-300 focus:outline-none focus:border-[#0d1f3c] transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-stone-500 mb-1.5 uppercase tracking-wide">Şehir</label>
+                  <select
+                    value={form.city}
+                    onChange={(e) => setForm({ ...form, city: e.target.value })}
+                    className="w-full border border-stone-200 rounded-lg px-4 py-3 text-sm text-[#0d1f3c] focus:outline-none focus:border-[#0d1f3c] transition-colors bg-white"
+                  >
+                    <option value="">Seçiniz…</option>
+                    {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <label className="flex items-start gap-3 cursor-pointer pt-1">
+                <input
+                  type="checkbox"
+                  required
+                  checked={form.kvkkConsent}
+                  onChange={(e) => setForm({ ...form, kvkkConsent: e.target.checked })}
+                  className="mt-0.5 w-4 h-4 accent-[#0d1f3c] shrink-0"
+                />
+                <span className="text-xs text-stone-400 leading-relaxed">
+                  KVKK kapsamında iletişim bilgilerimin 7fil tarafından işlenmesine onay veriyorum.
+                </span>
+              </label>
+
+              <button
+                type="submit"
+                disabled={state === 'loading'}
+                className="w-full bg-[#0d1f3c] hover:bg-[#1a3358] disabled:opacity-60 text-white font-semibold py-3.5 rounded-xl transition-colors text-sm"
+              >
+                {state === 'loading' ? 'Kaydediliyor…' : 'Erken Erişim Listesine Katıl'}
+              </button>
+
+              {state === 'error' && (
+                <p className="text-red-500 text-xs text-center">Bir hata oluştu. Lütfen tekrar deneyin.</p>
+              )}
+            </form>
+          )}
+        </div>
+      </section>
+
+      {/* ─── Agency CTA ──────────────────────────────────────────────────────── */}
+      <section className="py-16 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="bg-[#0d1f3c] rounded-3xl overflow-hidden">
+            <div className="grid lg:grid-cols-2 gap-0">
+              <div className="p-10 lg:p-14">
+                <span className="inline-block bg-[#c9a84c]/20 text-[#c9a84c] text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-6">
+                  Emlak Ofisleri için
+                </span>
+                <h2 className="text-white text-3xl sm:text-4xl font-bold leading-tight mb-4">
+                  Sahibinden&apos;den daha fazlası.<br />
+                  <span className="text-[#c9a84c]" style={{ fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>7fil Ortağı olun.</span>
+                </h2>
+                <p className="text-white/50 text-sm leading-relaxed mb-8 max-w-md">
+                  Kendi subdomain&apos;iniz, sınırsız ilan, AI destekli ilan yazarı, MLS ağı ve
+                  WhatsApp entegrasyonu. Aylık sabit ücret, komisyon yok.
+                </p>
+
+                <div className="grid grid-cols-2 gap-3 mb-8">
+                  {[
+                    { icon: '🤖', t: 'AI İlan Yazarı', s: 'Saniyede profesyonel ilan metni' },
+                    { icon: '🏛️', t: 'MLS Ağı', s: '5.400+ acenta ile portföy paylaşımı' },
+                    { icon: '🌐', t: 'Subdomain', s: 'remax-hedef.7fil.com.tr' },
+                    { icon: '📊', t: 'Gelişmiş Analitik', s: 'CRM, lead takibi, dönüşüm' },
+                  ].map((f) => (
+                    <div key={f.t} className="bg-white/5 rounded-xl p-4">
+                      <div className="text-xl mb-1.5">{f.icon}</div>
+                      <div className="text-white text-xs font-semibold mb-0.5">{f.t}</div>
+                      <div className="text-white/40 text-xs">{f.s}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={() => { setLeadType('agency'); document.getElementById('lead-form')?.scrollIntoView({ behavior: 'smooth' }) }}
+                    className="bg-[#c9a84c] hover:bg-[#b8942e] text-[#0d1f3c] font-bold px-6 py-3 rounded-xl text-sm transition-colors"
+                  >
+                    Ön Başvuru Yap
+                  </button>
+                  <Link href="/fiyatlar" className="border border-white/20 text-white/70 hover:text-white hover:border-white/40 font-semibold px-6 py-3 rounded-xl text-sm transition-all">
+                    Planları İncele
+                  </Link>
+                </div>
+              </div>
+
+              {/* Right side stats */}
+              <div className="bg-white/5 p-10 lg:p-14 flex flex-col justify-center gap-6 border-l border-white/10">
+                {[
+                  { n: '%40', l: 'Daha Hızlı İlan Yayını', sub: 'AI ilan yazarı ile' },
+                  { n: '3x', l: 'Daha Fazla Lead', sub: 'Entegre CRM ve takip sistemi' },
+                  { n: '0₺', l: 'Komisyon', sub: 'Aylık sabit ücret, sürpriz yok' },
+                ].map((s) => (
+                  <div key={s.l} className="flex items-center gap-5">
+                    <div className="text-[#c9a84c] text-4xl font-bold w-20 shrink-0">{s.n}</div>
+                    <div>
+                      <div className="text-white font-semibold text-sm">{s.l}</div>
+                      <div className="text-white/40 text-xs mt-0.5">{s.sub}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Why 7fil ─────────────────────────────────────────────────────────── */}
+      <section className="py-16 bg-stone-50" id="lead-form">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <p className="text-[#c9a84c] text-xs font-semibold uppercase tracking-widest mb-2">Neden 7fil?</p>
+            <h2 className="text-[#0d1f3c] text-3xl font-bold">Gayrimenkulde yeni standart.</h2>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {WHY_ITEMS.map((item) => (
+              <div key={item.title} className="bg-white rounded-2xl p-6 border border-stone-100 hover:border-[#c9a84c]/30 hover:shadow-sm transition-all">
+                <div className="w-12 h-12 bg-[#0d1f3c]/5 text-[#0d1f3c] rounded-xl flex items-center justify-center mb-4">
+                  {item.icon}
+                </div>
+                <h3 className="font-bold text-[#0d1f3c] text-sm mb-2">{item.title}</h3>
+                <p className="text-stone-500 text-xs leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Footer ───────────────────────────────────────────────────────────── */}
+      <footer className="bg-[#0d1f3c] py-12">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div>
+              <span className="text-2xl font-bold text-white">
+                7<span className="text-[#c9a84c]">fil</span>
+              </span>
+              <p className="text-white/30 text-xs mt-1">Türkiye&apos;nin Entegre Gayrimenkul Ekosistemi</p>
+            </div>
+            <div className="flex items-center gap-6 text-xs text-white/30">
+              <Link href="/gizlilik" className="hover:text-white/60 transition-colors">Gizlilik</Link>
+              <Link href="/kvkk" className="hover:text-white/60 transition-colors">KVKK</Link>
+              <Link href="/kullanim-kosullari" className="hover:text-white/60 transition-colors">Kullanım Koşulları</Link>
+              <span>© 2026 Connective Hub</span>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+    </div>
   )
 }
