@@ -1,4 +1,4 @@
-import { Injectable, ServiceUnavailableException } from '@nestjs/common'
+import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectDataSource } from '@nestjs/typeorm'
 import { DataSource } from 'typeorm'
@@ -33,7 +33,8 @@ mortgage hesaplama, ticari değerleme, açık artırma ve white-label portföy y
 
 @Injectable()
 export class AtlasService {
-  private readonly anthropic: Anthropic
+  private readonly logger = new Logger(AtlasService.name)
+  private anthropic: Anthropic | null = null
   private readonly model = 'claude-sonnet-4-6'
 
   constructor(
@@ -41,8 +42,16 @@ export class AtlasService {
     @InjectDataSource() private ds: DataSource,
   ) {
     const apiKey = this.config.get<string>('ANTHROPIC_API_KEY')
-    if (!apiKey) throw new ServiceUnavailableException('Atlas yapılandırılmamış.')
+    if (!apiKey) {
+      this.logger.warn('ANTHROPIC_API_KEY tanımlı değil — Atlas AI özellikleri devre dışı.')
+      return
+    }
     this.anthropic = new Anthropic({ apiKey })
+  }
+
+  private get client(): Anthropic {
+    if (!this.anthropic) throw new ServiceUnavailableException('Atlas yapılandırılmamış.')
+    return this.anthropic
   }
 
   // ── Chat ──────────────────────────────────────────────────────────────────
@@ -88,7 +97,7 @@ export class AtlasService {
     // Call Anthropic
     const messages = [...history, { role: 'user' as const, content: userMessage }]
 
-    const response = await this.anthropic.messages.create({
+    const response = await this.client.messages.create({
       model: this.model,
       max_tokens: 1024,
       system: SYSTEM_PROMPT,
@@ -170,7 +179,7 @@ Bu mülk için piyasa değer aralığını hesapla. JSON formatında yanıt ver:
 {"minValue": sayı, "maxValue": sayı, "midValue": sayı, "pricePerM2": sayı, "confidence": "low|medium|high", "reasoning": "kısa açıklama"}
 `
 
-    const response = await this.anthropic.messages.create({
+    const response = await this.client.messages.create({
       model: this.model,
       max_tokens: 512,
       system: 'Sen bir Türkiye gayrimenkul değerleme uzmanısın. Sadece JSON yanıt ver.',
@@ -237,7 +246,7 @@ ${city}, ${district} bölgesi analiz:
 Bu bölge hakkında yatırımcıya 3-4 cümlelik özet analiz yap.
 Bölgenin potansiyeli, avantajları ve dikkat edilmesi gereken noktaları belirt.`
 
-    const response = await this.anthropic.messages.create({
+    const response = await this.client.messages.create({
       model: this.model,
       max_tokens: 512,
       system: SYSTEM_PROMPT,
