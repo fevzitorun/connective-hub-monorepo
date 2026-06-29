@@ -4,9 +4,7 @@
   "outputDirectory": "apps/web-7fil/.next",
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
   "env": {
-    "NEXT_PUBLIC_API_URL": "@7fil_api_url",
-    "NEXT_PUBLIC_MAPBOX_TOKEN": "@mapbox_token",
-    "NEXT_PUBLIC_POSTHOG_KEY": "@posthog_key"
+    "NEXT_PUBLIC_API_URL": "https://connective-hub-monorepo-production.up.railway.app"
   },
   "headers": [
     {
