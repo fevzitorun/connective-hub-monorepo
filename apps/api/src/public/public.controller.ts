@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common'
+import { Controller, Post, Get, Body, HttpCode, HttpStatus } from '@nestjs/common'
 import { ApiTags, ApiOperation } from '@nestjs/swagger'
 import { IsString, IsEmail, IsOptional, IsBoolean, IsIn, MaxLength } from 'class-validator'
 import { InjectDataSource } from '@nestjs/typeorm'
@@ -34,6 +34,14 @@ class PublicLeadDto {
 @Controller('public')
 export class PublicController {
   constructor(@InjectDataSource() private ds: DataSource) {}
+
+  @Get('leads/count')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Toplam lead sayısı — kimlik doğrulama gerektirmez' })
+  async getLeadCount() {
+    const rows = await this.ds.query(`SELECT COUNT(*)::int AS count FROM public_leads`) as [{ count: number }]
+    return { count: rows[0]?.count ?? 0 }
+  }
 
   @Post('leads')
   @HttpCode(HttpStatus.CREATED)

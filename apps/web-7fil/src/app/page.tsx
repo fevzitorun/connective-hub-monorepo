@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1'
@@ -22,6 +22,70 @@ const FEATURES = [
   { icon: '🗺️', title: 'Mahalle Analizi', desc: 'ATLAS AI ile okul, ulaşım, güvenlik ve yaşam kalitesi skoru. Harita üzerinde.', tag: 'Lokasyon' },
   { icon: '✍️', title: 'AI İlan Yazarı', desc: 'SCRIBE AI ile 4 dilde (TR/EN/AR/RU) profesyonel ilan metni. Saniyeler içinde.', tag: 'İçerik' },
 ]
+
+const LAUNCH = new Date('2026-09-01T00:00:00').getTime()
+
+function calcTimeLeft() {
+  const diff = Math.max(0, LAUNCH - Date.now())
+  return {
+    days: Math.floor(diff / 864e5),
+    hours: Math.floor((diff / 36e5) % 24),
+    mins: Math.floor((diff / 6e4) % 60),
+    secs: Math.floor((diff / 1e3) % 60),
+  }
+}
+
+function CountdownTimer() {
+  const [t, setT] = useState(calcTimeLeft)
+  useEffect(() => {
+    const id = setInterval(() => setT(calcTimeLeft()), 1000)
+    return () => clearInterval(id)
+  }, [])
+
+  const units = [
+    { v: t.days, l: 'Gün' },
+    { v: t.hours, l: 'Saat' },
+    { v: t.mins, l: 'Dak' },
+    { v: t.secs, l: 'San' },
+  ]
+
+  return (
+    <div className="flex items-end justify-center gap-2 sm:gap-3">
+      {units.map((u, i) => (
+        <div key={u.l} className="flex items-end gap-2 sm:gap-3">
+          <div className="text-center">
+            <div className="bg-white/5 border border-white/10 rounded-xl px-3 sm:px-5 py-2.5 sm:py-3 min-w-[54px] sm:min-w-[68px]">
+              <span className="text-white font-black text-3xl sm:text-4xl tabular-nums leading-none">
+                {String(u.v).padStart(2, '0')}
+              </span>
+            </div>
+            <p className="text-white/30 text-[10px] mt-2 font-semibold uppercase tracking-widest">{u.l}</p>
+          </div>
+          {i < 3 && <span className="text-[#c9a84c]/40 text-3xl font-black pb-7">:</span>}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function LeadCounter() {
+  const [count, setCount] = useState<number | null>(null)
+  useEffect(() => {
+    fetch(`${API}/public/leads/count`)
+      .then((r) => r.json())
+      .then((d: { count: number }) => setCount(d.count))
+      .catch(() => {})
+  }, [])
+
+  return (
+    <>
+      <div className="text-white font-extrabold text-2xl">
+        {count === null ? '—' : `${count.toLocaleString('tr-TR')}+`}
+      </div>
+      <div className="text-white/25 text-xs mt-1">Ön Kayıt</div>
+    </>
+  )
+}
 
 type LeadType = 'buyer' | 'seller' | 'agency'
 
@@ -252,12 +316,19 @@ export default function HomePage() {
               İlan · AI Değerleme · Hukuk · Mortgage · MLS —<br className="hidden sm:block" />
               Türkiye genelinde tek adres.
             </p>
+
+            <div className="mt-10">
+              <p className="text-center text-white/20 text-[10px] uppercase tracking-[0.2em] font-semibold mb-5">
+                Eylül 2026 Lansmanına
+              </p>
+              <CountdownTimer />
+            </div>
           </div>
 
           {/* Search bar — modal trigger */}
           <form
             onSubmit={(e) => { e.preventDefault(); openModal() }}
-            className="mt-10 max-w-2xl mx-auto w-full"
+            className="mt-8 max-w-2xl mx-auto w-full"
           >
             <div className="flex bg-white rounded-2xl shadow-[0_24px_64px_-12px_rgba(0,0,0,0.6)] overflow-hidden">
               <div className="flex items-center pl-5 text-stone-300">
@@ -297,18 +368,20 @@ export default function HomePage() {
           </form>
 
           {/* Stats */}
-          <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-px bg-white/5 rounded-2xl overflow-hidden border border-white/5 max-w-3xl mx-auto w-full">
+          <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-px bg-white/5 rounded-2xl overflow-hidden border border-white/5 max-w-3xl mx-auto w-full">
             {[
               { n: '120.000+', l: 'Aktif İlan' },
               { n: '81 İl', l: 'Türkiye Geneli' },
               { n: '5.400+', l: 'Onaylı Acenta' },
-              { n: 'AI', l: 'Destekli Değerleme' },
             ].map((s) => (
               <div key={s.l} className="bg-white/[0.025] px-6 py-5 text-center">
                 <div className="text-white font-extrabold text-2xl">{s.n}</div>
                 <div className="text-white/25 text-xs mt-1">{s.l}</div>
               </div>
             ))}
+            <div className="bg-white/[0.025] px-6 py-5 text-center">
+              <LeadCounter />
+            </div>
           </div>
         </div>
 
