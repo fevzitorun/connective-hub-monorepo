@@ -1,20 +1,37 @@
-import * as Sentry from '@sentry/node'
-import { nodeProfilingIntegration } from '@sentry/profiling-node'
+let Sentry: typeof import('@sentry/node') | null = null
 
-export function initSentry() {
+async function loadSentry() {
+  if (Sentry) return Sentry
+  try {
+    Sentry = await import('@sentry/node')
+  } catch {
+    Sentry = null
+  }
+  return Sentry
+}
+
+export async function initSentry() {
   const dsn = process.env.SENTRY_DSN
   if (!dsn) return
 
-  Sentry.init({
+  const sentry = await loadSentry()
+  if (!sentry) return
+
+  let integrations: unknown[] = []
+  try {
+    const { nodeProfilingIntegration } = await import('@sentry/profiling-node')
+    integrations = [nodeProfilingIntegration()]
+  } catch {
+    // profiling not available
+  }
+
+  sentry.init({
     dsn,
     environment: process.env.NODE_ENV ?? 'development',
     release: process.env.npm_package_version,
-    integrations: [
-      nodeProfilingIntegration(),
-    ],
+    integrations: integrations as Parameters<typeof sentry.init>[0]['integrations'],
     tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.2 : 1.0,
     profilesSampleRate: 0.1,
-    // PII verilerini otomatik gizle
     beforeSend(event) {
       if (event.request?.data) {
         const data = event.request.data as Record<string, unknown>
@@ -27,10 +44,12 @@ export function initSentry() {
   })
 }
 
-export function captureException(err: unknown, context?: Record<string, unknown>) {
+export async function captureException(err: unknown, context?: Record<string, unknown>) {
   if (!process.env.SENTRY_DSN) return
-  Sentry.withScope((scope) => {
+  const sentry = await loadSentry()
+  if (!sentry) return
+  sentry.withScope((scope) => {
     if (context) scope.setExtras(context)
-    Sentry.captureException(err)
+    sentry.captureException(err)
   })
 }

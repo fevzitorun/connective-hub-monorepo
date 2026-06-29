@@ -1,6 +1,4 @@
 import { initSentry } from './common/sentry'
-// Sentry en başta init edilmeli — diğer import'lardan önce
-initSentry()
 
 import { NestFactory, Reflector } from '@nestjs/core'
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify'
@@ -13,6 +11,7 @@ import { GlobalExceptionFilter } from './common/filters/http-exception.filter'
 import { ResponseInterceptor } from './common/interceptors/response.interceptor'
 
 async function bootstrap() {
+  await initSentry()
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({ logger: process.env.NODE_ENV !== 'production' })
