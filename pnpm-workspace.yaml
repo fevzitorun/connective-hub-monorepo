@@ -1,9 +1,4 @@
 packages:
   - "apps/*"
   - "packages/*"
-neverBuiltDependencies:
-  - "@nestjs/core"
-  - "@sentry/cli"
-  - "@sentry/profiling-node"
-  - core-js
-  - unrs-resolver
+onlyBuiltDependencies: []
