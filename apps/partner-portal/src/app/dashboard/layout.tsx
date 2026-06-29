@@ -8,6 +8,9 @@ const NAV = [
   { href: '/dashboard', label: 'Özet', icon: '📊' },
   { href: '/dashboard/referrals', label: 'Referanslar', icon: '🔗' },
   { href: '/dashboard/komisyon', label: 'Komisyonlar', icon: '💰' },
+  { href: '/dashboard/mls', label: 'MLS Havuzu', icon: '🤝' },
+  { href: '/dashboard/marka', label: 'Markam', icon: '🌐' },
+  { href: '/dashboard/icerik', label: 'AI İçerik', icon: '✍️' },
   { href: '/dashboard/embed', label: 'Embed / Widget', icon: '🧩' },
   { href: '/dashboard/api-keys', label: 'API Anahtarları', icon: '🔑' },
 ]

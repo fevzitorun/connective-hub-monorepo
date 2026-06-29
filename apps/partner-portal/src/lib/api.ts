@@ -113,4 +113,52 @@ export const partnerApi = {
     if (opts.theme) p.set('theme', opts.theme)
     return req<{ data: { src: string; iframeCode: string; scriptCode: string } }>(`/partner/embed?${p}`, token)
   },
+
+  // MLS
+  getMlsPool: (token: string) =>
+    req<{ data: MlsListing[] }>('/mls/listings/pool', token),
+
+  getMyMls: (token: string) =>
+    req<{ data: MlsListing[] }>('/mls/listings/mine', token),
+
+  joinMls: (token: string, mlsListingId: string, split: number) =>
+    req<void>(`/mls/listings/${mlsListingId}/join`, token, {
+      method: 'POST', body: JSON.stringify({ requestedSplit: split }),
+    }),
+
+  // White-label branding
+  getBranding: (token: string) =>
+    req<{ data: Branding }>('/whitelabel/branding', token),
+
+  updateBranding: (token: string, body: Partial<Branding>) =>
+    req<{ data: Branding }>('/whitelabel/branding', token, {
+      method: 'PUT', body: JSON.stringify(body),
+    }),
+
+  // SCRIBE AI content
+  generateContent: (token: string, body: { type: string; topic: string; context?: string; tone?: string }) =>
+    req<{ data: { content: string; wordCount: number; type: string } }>('/agents/scribe/generate', token, {
+      method: 'POST', body: JSON.stringify(body),
+    }),
+}
+
+export interface MlsListing {
+  id: string
+  status: string
+  commissionSplit: number
+  created_at: string
+  listing: { id: string; title: string; price: number; city: string; propertyType: string }
+  agency: { id: string; name: string }
+}
+
+export interface Branding {
+  subdomain: string | null
+  primaryColor: string | null
+  heroTitle: string | null
+  heroSubtitle: string | null
+  contactEmail: string | null
+  contactPhone: string | null
+  show7filBadge: boolean
+  domainVerified: boolean
+  customDomain: string | null
 }
