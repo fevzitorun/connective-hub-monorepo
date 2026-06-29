@@ -20,7 +20,8 @@ async function bootstrap() {
   const configService = app.get(ConfigService)
 
   // Multipart (fotoğraf upload)
-  await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } }) // 10MB
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await app.register(multipart as any, { limits: { fileSize: 10 * 1024 * 1024 } })
 
   // Global filters & interceptors
   app.useGlobalFilters(new GlobalExceptionFilter())

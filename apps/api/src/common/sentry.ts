@@ -17,21 +17,11 @@ export async function initSentry() {
   const sentry = await loadSentry()
   if (!sentry) return
 
-  let integrations: unknown[] = []
-  try {
-    const { nodeProfilingIntegration } = await import('@sentry/profiling-node')
-    integrations = [nodeProfilingIntegration()]
-  } catch {
-    // profiling not available
-  }
-
   sentry.init({
     dsn,
     environment: process.env.NODE_ENV ?? 'development',
     release: process.env.npm_package_version,
-    integrations: integrations as Parameters<typeof sentry.init>[0]['integrations'],
     tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.2 : 1.0,
-    profilesSampleRate: 0.1,
     beforeSend(event) {
       if (event.request?.data) {
         const data = event.request.data as Record<string, unknown>
