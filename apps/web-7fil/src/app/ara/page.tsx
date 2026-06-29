@@ -2,7 +2,7 @@
 export const dynamic = 'force-dynamic'
 import { useEffect, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import dynamic from 'next/dynamic'
+import nextDynamic from 'next/dynamic'
 import { Navbar } from '../../components/Navbar'
 import { Footer } from '../../components/Footer'
 import { FilterPanel } from '../../components/FilterPanel'
@@ -13,7 +13,7 @@ import { useHistoryStore } from '../../store/history'
 import { api } from '../../lib/api'
 
 // Mapbox sadece client-side yüklenir
-const ListingMap = dynamic(
+const ListingMap = nextDynamic(
   () => import('../../components/ListingMap').then((m) => m.ListingMap),
   { ssr: false, loading: () => <div className="w-full h-full bg-cream rounded-xl animate-pulse" /> }
 )
