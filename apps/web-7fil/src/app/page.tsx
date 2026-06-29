@@ -5,64 +5,39 @@ import Link from 'next/link'
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1'
 
-const CITIES = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Gaziantep', 'Konya', 'Adana', 'Mersin', 'Kayseri']
+const CITIES = [
+  { name: 'İstanbul', count: '48.200', price: '₺18.4M' },
+  { name: 'Ankara', count: '21.500', price: '₺8.2M' },
+  { name: 'İzmir', count: '14.300', price: '₺12.1M' },
+  { name: 'Bursa', count: '8.900', price: '₺6.8M' },
+  { name: 'Antalya', count: '11.200', price: '₺9.5M' },
+  { name: 'Gaziantep', count: '5.400', price: '₺4.2M' },
+]
 
-const WHY_ITEMS = [
-  {
-    icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-      </svg>
-    ),
-    title: 'FILTERRA.AI Değerleme',
-    desc: 'Piyasa verisiyle saniyeler içinde gerçek değer tahmini. Fazla ödeme yok.',
-  },
-  {
-    icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-      </svg>
-    ),
-    title: 'Avukat Onaylı Sertifika',
-    desc: 'Tapu, ipotek, imar. Her ilanda hukuki güvence belgesi.',
-  },
-  {
-    icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-      </svg>
-    ),
-    title: 'Mortgage Karşılaştırması',
-    desc: '20+ bankadan anlık teklifler. Katılım ve konvansiyonel seçenekler.',
-  },
-  {
-    icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    ),
-    title: 'MLS Ağı',
-    desc: '5.000+ onaylı acenta. Portföy paylaşımı ve işbirliği sistemi.',
-  },
+const FEATURES = [
+  { icon: '🧠', title: 'FILTERRA.AI Değerleme', desc: 'Makine öğrenimi ile saniyeler içinde gerçek piyasa değeri. 850.000+ satış verisi.', tag: 'AI Destekli' },
+  { icon: '⚖️', title: 'Avukat Onaylı Sertifika', desc: 'Tapu, ipotek, imar ve hukuki durum analizi. Sürpriz olmadan karar verin.', tag: 'Hukuk Güvencesi' },
+  { icon: '🏦', title: 'Mortgage Karşılaştırması', desc: '20+ bankadan anlık teklifler. Katılım ve konvansiyonel seçenekler yan yana.', tag: 'Finans' },
+  { icon: '🤝', title: 'MLS Ağı', desc: '5.400+ onaylı acentadan oluşan paylaşım ağı. Türkiye\'nin ilk gerçek MLS platformu.', tag: 'Ağ' },
+  { icon: '🗺️', title: 'Mahalle Analizi', desc: 'ATLAS AI ile okul, ulaşım, güvenlik ve yaşam kalitesi skoru. Harita üzerinde.', tag: 'Lokasyon' },
+  { icon: '✍️', title: 'AI İlan Yazarı', desc: 'SCRIBE AI ile 4 dilde (TR/EN/AR/RU) profesyonel ilan metni. Saniyeler içinde.', tag: 'İçerik' },
 ]
 
 type LeadType = 'buyer' | 'seller' | 'agency'
 
-export default function HomePage() {
-  const [query, setQuery] = useState('')
+function SearchLeadModal({ query, onClose }: { query: string; onClose: () => void }) {
   const [leadType, setLeadType] = useState<LeadType>('buyer')
-  const [form, setForm] = useState({ fullName: '', email: '', phone: '', city: '', kvkkConsent: false })
+  const [form, setForm] = useState({ fullName: '', email: '', phone: '', city: query, kvkkConsent: false })
   const [state, setState] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
 
-  const submitLead = async (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!form.fullName || !form.email) return
     setState('loading')
     try {
       await fetch(`${API}/public/leads`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, leadType, utmSource: 'landing_v1' }),
+        body: JSON.stringify({ ...form, leadType, utmSource: 'search_hero' }),
       })
       setState('done')
     } catch {
@@ -71,62 +46,221 @@ export default function HomePage() {
   }
 
   return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        onClick={state === 'done' ? onClose : undefined}
+      />
+      <div className="relative bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden">
+
+        <div className="bg-[#0d1f3c] px-8 pt-8 pb-7 relative">
+          {state !== 'done' && (
+            <button
+              onClick={onClose}
+              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+            >
+              <svg className="w-4 h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+          <div className="flex items-center gap-2 mb-5">
+            <span className="w-2 h-2 rounded-full bg-[#c9a84c] animate-pulse" />
+            <span className="text-[#c9a84c] text-xs font-bold uppercase tracking-[0.15em]">Çok Yakında Açılıyor</span>
+          </div>
+          {state === 'done' ? (
+            <div className="text-center py-6">
+              <div className="w-16 h-16 bg-green-400/15 rounded-full flex items-center justify-center mx-auto mb-5">
+                <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-white text-xl font-bold mb-2">Listedesiniz!</h3>
+              <p className="text-white/40 text-sm mb-6">Lansman günü size özel erken erişim linki göndereceğiz.</p>
+              <button
+                onClick={onClose}
+                className="bg-[#c9a84c] hover:bg-[#b8942e] text-[#0d1f3c] font-bold px-7 py-3 rounded-xl text-sm transition-colors"
+              >
+                Harika, teşekkürler!
+              </button>
+            </div>
+          ) : (
+            <>
+              <h2 className="text-white text-[1.6rem] font-bold leading-snug">
+                Platform açılmadan<br />
+                <em className="not-italic text-[#c9a84c]" style={{ fontFamily: 'Georgia, serif' }}>
+                  ilk siz haberdar olun.
+                </em>
+              </h2>
+              <p className="text-white/35 text-xs mt-2.5 leading-relaxed">
+                Erken erişim listesine katılın — lansman günü öncelikli destek garantili.
+              </p>
+            </>
+          )}
+        </div>
+
+        {state !== 'done' && (
+          <form onSubmit={submit} className="px-8 py-7 space-y-4">
+            <div className="flex bg-stone-50 rounded-xl p-1">
+              {([['buyer', 'Alıcı/Kiracı'], ['seller', 'Satıcı'], ['agency', 'Acenta']] as const).map(([type, label]) => (
+                <button
+                  key={type} type="button"
+                  onClick={() => setLeadType(type)}
+                  className={`flex-1 py-2.5 rounded-lg text-xs font-semibold transition-all ${
+                    leadType === type
+                      ? 'bg-[#0d1f3c] text-white shadow-sm'
+                      : 'text-stone-400 hover:text-stone-600'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            <input
+              required value={form.fullName}
+              onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+              placeholder="Ad Soyad *"
+              className="w-full border border-stone-200 rounded-xl px-4 py-3.5 text-sm text-[#0d1f3c] placeholder:text-stone-300 focus:outline-none focus:border-[#0d1f3c] transition-colors"
+            />
+            <div className="grid grid-cols-2 gap-3">
+              <input
+                required type="email" value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                placeholder="E-posta *"
+                className="border border-stone-200 rounded-xl px-4 py-3.5 text-sm text-[#0d1f3c] placeholder:text-stone-300 focus:outline-none focus:border-[#0d1f3c] transition-colors"
+              />
+              <input
+                type="tel" value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                placeholder="Telefon"
+                className="border border-stone-200 rounded-xl px-4 py-3.5 text-sm text-[#0d1f3c] placeholder:text-stone-300 focus:outline-none focus:border-[#0d1f3c] transition-colors"
+              />
+            </div>
+
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox" required
+                checked={form.kvkkConsent}
+                onChange={(e) => setForm({ ...form, kvkkConsent: e.target.checked })}
+                className="mt-0.5 w-4 h-4 accent-[#0d1f3c] shrink-0"
+              />
+              <span className="text-xs text-stone-400 leading-relaxed">
+                KVKK kapsamında iletişim bilgilerimin 7fil tarafından işlenmesine onay veriyorum.
+              </span>
+            </label>
+
+            <button
+              type="submit" disabled={state === 'loading'}
+              className="w-full bg-[#c9a84c] hover:bg-[#b8942e] disabled:opacity-60 text-[#0d1f3c] font-bold py-4 rounded-xl transition-colors text-sm"
+            >
+              {state === 'loading' ? 'Kaydediliyor…' : 'Erken Erişim Listesine Katıl →'}
+            </button>
+
+            {state === 'error' && (
+              <p className="text-red-500 text-xs text-center">Bir hata oluştu. Lütfen tekrar deneyin.</p>
+            )}
+          </form>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default function HomePage() {
+  const [query, setQuery] = useState('')
+  const [showModal, setShowModal] = useState(false)
+
+  const openModal = (city?: string) => {
+    if (city) setQuery(city)
+    setShowModal(true)
+  }
+
+  return (
     <div className="min-h-screen bg-white font-sans">
+      {showModal && <SearchLeadModal query={query} onClose={() => setShowModal(false)} />}
 
       {/* ─── Nav ─────────────────────────────────────────────────────────────── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur border-b border-stone-100">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-stone-100/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <span className="text-[22px] font-bold tracking-tight text-[#0d1f3c]">
+          <span className="text-[22px] font-extrabold tracking-tight text-[#0d1f3c]">
             7<span className="text-[#c9a84c]">fil</span>
           </span>
-          <div className="hidden sm:flex items-center gap-6 text-sm text-stone-500">
+          <div className="hidden md:flex items-center gap-8 text-sm text-stone-400">
             <Link href="/fiyatlar" className="hover:text-[#0d1f3c] transition-colors">Fiyatlar</Link>
-            <Link href="/panel/mls" className="hover:text-[#0d1f3c] transition-colors">MLS</Link>
-            <Link href="/ara" className="hover:text-[#0d1f3c] transition-colors">İlanlar</Link>
+            <button onClick={() => openModal()} className="hover:text-[#0d1f3c] transition-colors">MLS Ağı</button>
+            <button onClick={() => openModal()} className="hover:text-[#0d1f3c] transition-colors">İlanlar</button>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/(auth)/giris" className="text-sm text-stone-600 hover:text-[#0d1f3c] transition-colors">
-              Giriş Yap
+            <Link href="/(auth)/giris" className="text-sm text-stone-500 hover:text-[#0d1f3c] transition-colors font-medium">
+              Giriş
             </Link>
-            <Link
-              href="/(auth)/kayit"
-              className="text-sm bg-[#0d1f3c] text-white px-4 py-2 rounded-lg hover:bg-[#1a3358] transition-colors"
+            <button
+              onClick={() => openModal()}
+              className="text-sm bg-[#0d1f3c] text-white px-5 py-2 rounded-lg hover:bg-[#1a3358] transition-colors font-semibold"
             >
-              Kayıt Ol
-            </Link>
+              Erken Erişim
+            </button>
           </div>
         </div>
       </nav>
 
       {/* ─── Hero ────────────────────────────────────────────────────────────── */}
-      <section className="pt-16 bg-[#0d1f3c] min-h-[580px] flex items-center relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
-          style={{ backgroundImage: 'radial-gradient(circle at 30% 50%, #c9a84c 0%, transparent 60%), radial-gradient(circle at 80% 20%, #2a9d8f 0%, transparent 50%)' }}
+      <section className="relative pt-16 min-h-screen flex flex-col">
+        <div className="absolute inset-0 bg-[#09111e]" />
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: [
+              'radial-gradient(ellipse 100% 70% at 50% -10%, rgba(201,168,76,0.12) 0%, transparent 65%)',
+              'radial-gradient(ellipse 50% 40% at 85% 75%, rgba(42,157,143,0.06) 0%, transparent 50%)',
+              'radial-gradient(ellipse 60% 40% at 5% 90%, rgba(13,31,60,0.9) 0%, transparent 60%)',
+            ].join(', '),
+          }}
+        />
+        <div
+          className="absolute inset-0 opacity-[0.025]"
+          style={{
+            backgroundImage: [
+              'linear-gradient(rgba(255,255,255,.6) 1px, transparent 1px)',
+              'linear-gradient(90deg, rgba(255,255,255,.6) 1px, transparent 1px)',
+            ].join(', '),
+            backgroundSize: '64px 64px',
+          }}
         />
 
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-20 w-full text-center">
-          <div className="inline-flex items-center gap-2 bg-[#c9a84c]/10 border border-[#c9a84c]/20 text-[#c9a84c] text-xs font-semibold px-4 py-2 rounded-full mb-8 tracking-widest uppercase">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#c9a84c] animate-pulse" />
-            Türkiye&apos;nin Rightmove&apos;u — Çok Yakında
+        <div className="relative flex-1 flex flex-col justify-center max-w-6xl mx-auto px-4 sm:px-6 py-20 w-full">
+
+          <div className="flex justify-center mb-10">
+            <div className="inline-flex items-center gap-2.5 bg-[#c9a84c]/10 border border-[#c9a84c]/20 text-[#c9a84c] text-xs font-bold px-5 py-2.5 rounded-full uppercase tracking-[0.12em]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#c9a84c] animate-pulse" />
+              Türkiye&apos;nin Rightmove&apos;u — Yakında Açılıyor
+            </div>
           </div>
 
-          <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight">
-            Doğru ev,{' '}
-            <span className="text-[#c9a84c]" style={{ fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>
-              doğru fiyat,
-            </span>
-            <br />tam güvence.
-          </h1>
+          <div className="text-center">
+            <h1 className="text-white tracking-tight">
+              <span className="block text-5xl sm:text-6xl lg:text-[4.5rem] font-extrabold leading-[1.05]">
+                Eviniz için doğru
+              </span>
+              <span className="block text-5xl sm:text-6xl lg:text-[4.5rem] font-extrabold leading-[1.05] mt-1">
+                <em className="not-italic text-[#c9a84c]" style={{ fontFamily: 'Georgia, serif' }}>karar,</em>{' '}
+                tam güvence.
+              </span>
+            </h1>
+            <p className="mt-7 text-white/40 text-lg max-w-xl mx-auto leading-relaxed">
+              İlan · AI Değerleme · Hukuk · Mortgage · MLS —<br className="hidden sm:block" />
+              Türkiye genelinde tek adres.
+            </p>
+          </div>
 
-          <p className="mt-6 text-white/50 text-lg max-w-xl mx-auto leading-relaxed">
-            AI değerleme · Avukat onaylı sertifika · Mortgage karşılaştırması · MLS ağı —
-            hepsi tek çatı altında.
-          </p>
-
-          {/* Search bar — Coming Soon mode */}
-          <div className="mt-10 max-w-2xl mx-auto">
-            <div className="flex bg-white rounded-xl shadow-2xl overflow-hidden border border-stone-100">
-              <div className="flex items-center pl-4 text-stone-400">
+          {/* Search bar — modal trigger */}
+          <form
+            onSubmit={(e) => { e.preventDefault(); openModal() }}
+            className="mt-10 max-w-2xl mx-auto w-full"
+          >
+            <div className="flex bg-white rounded-2xl shadow-[0_24px_64px_-12px_rgba(0,0,0,0.6)] overflow-hidden">
+              <div className="flex items-center pl-5 text-stone-300">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
@@ -136,265 +270,256 @@ export default function HomePage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Şehir, ilçe veya mahalle arayın…"
-                className="flex-1 px-4 py-4 text-[#0d1f3c] placeholder:text-stone-400 outline-none text-sm"
+                className="flex-1 px-4 py-4 text-[#0d1f3c] placeholder:text-stone-300 outline-none text-[15px]"
               />
-              <button className="bg-[#c9a84c] text-[#0d1f3c] font-semibold px-7 py-4 text-sm hover:bg-[#b8942e] transition-colors shrink-0">
+              <button
+                type="submit"
+                className="bg-[#c9a84c] hover:bg-[#b8942e] text-[#0d1f3c] font-bold px-8 py-4 text-sm transition-colors shrink-0 flex items-center gap-2"
+              >
                 Ara
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
               </button>
             </div>
 
-            {/* City chips */}
             <div className="flex flex-wrap gap-2 justify-center mt-4">
-              {CITIES.slice(0, 6).map((c) => (
+              {['İstanbul', 'Ankara', 'İzmir', 'Antalya', 'Bursa', 'Konya'].map((c) => (
                 <button
-                  key={c}
-                  onClick={() => setQuery(c)}
-                  className="text-xs text-white/50 hover:text-white/80 border border-white/10 hover:border-white/30 px-3 py-1.5 rounded-full transition-all"
+                  key={c} type="button"
+                  onClick={() => openModal(c)}
+                  className="text-xs text-white/35 hover:text-white/70 border border-white/10 hover:border-white/30 px-3.5 py-1.5 rounded-full transition-all"
                 >
                   {c}
                 </button>
               ))}
             </div>
-          </div>
+          </form>
 
           {/* Stats */}
-          <div className="flex flex-wrap justify-center gap-8 mt-12 text-sm">
+          <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-px bg-white/5 rounded-2xl overflow-hidden border border-white/5 max-w-3xl mx-auto w-full">
             {[
-              { n: '120.000+', l: 'İlan' },
+              { n: '120.000+', l: 'Aktif İlan' },
               { n: '81 İl', l: 'Türkiye Geneli' },
               { n: '5.400+', l: 'Onaylı Acenta' },
               { n: 'AI', l: 'Destekli Değerleme' },
             ].map((s) => (
-              <div key={s.l} className="text-center">
-                <div className="text-white font-bold text-xl">{s.n}</div>
-                <div className="text-white/40 text-xs mt-0.5">{s.l}</div>
+              <div key={s.l} className="bg-white/[0.025] px-6 py-5 text-center">
+                <div className="text-white font-extrabold text-2xl">{s.n}</div>
+                <div className="text-white/25 text-xs mt-1">{s.l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative flex justify-center pb-10">
+          <div className="flex flex-col items-center gap-1.5 text-white/15 text-xs">
+            <span>Keşfet</span>
+            <svg className="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Trust strip ──────────────────────────────────────────────────────── */}
+      <div className="py-4 bg-stone-50 border-y border-stone-100">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-wrap items-center justify-center gap-x-2 gap-y-2 text-xs text-stone-400 font-semibold uppercase tracking-widest">
+          {['BDDK Uyumlu', '·', 'Baro Onaylı Ortaklar', '·', 'KVKK & GDPR', '·', '256-bit SSL', '·', 'İyzico Güvenli Ödeme'].map((t, i) => (
+            <span key={i} className={t === '·' ? 'text-stone-200' : ''}>{t}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* ─── How it works ─────────────────────────────────────────────────────── */}
+      <section className="py-24 bg-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-16">
+            <p className="text-[#c9a84c] text-xs font-bold uppercase tracking-widest mb-3">Nasıl Çalışır?</p>
+            <h2 className="text-[#0d1f3c] text-4xl font-extrabold">Üç adımda mükemmel ev.</h2>
+          </div>
+          <div className="grid sm:grid-cols-3 gap-10">
+            {[
+              { step: '01', title: 'Arayın', desc: 'Şehir, ilçe veya mahalle bazında filtreleyin. Harita ve liste görünümü.' },
+              { step: '02', title: 'Değerlendirin', desc: 'AI değerleme, hukuki sertifika ve mahalle analizi ile bilinçli karar verin.' },
+              { step: '03', title: 'Güvenle Alın', desc: '20+ bankadan mortgage karşılaştırması ve avukat denetimli kapanış süreci.' },
+            ].map((s) => (
+              <div key={s.step} className="relative">
+                <div className="absolute -top-3 -left-1 text-[#0d1f3c]/[0.04] text-9xl font-black select-none leading-none">
+                  {s.step}
+                </div>
+                <div className="relative">
+                  <div className="w-10 h-10 bg-[#c9a84c] text-[#0d1f3c] rounded-xl flex items-center justify-center text-xs font-black mb-5">
+                    {s.step}
+                  </div>
+                  <h3 className="text-[#0d1f3c] font-bold text-xl mb-2">{s.title}</h3>
+                  <p className="text-stone-500 text-sm leading-relaxed">{s.desc}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ─── Lead Capture ────────────────────────────────────────────────────── */}
-      <section className="py-16 bg-stone-50">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-8">
-            <p className="text-[#c9a84c] text-xs font-semibold uppercase tracking-widest mb-2">Erken Erişim</p>
-            <h2 className="text-[#0d1f3c] text-3xl font-bold">Platform açılmadan listenize girin.</h2>
-            <p className="mt-2 text-stone-500 text-sm">
-              Lansman günü öncelikli erişim, özel fiyat ve kurulum desteği.
+      {/* ─── Features ─────────────────────────────────────────────────────────── */}
+      <section className="py-24 bg-stone-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-16">
+            <p className="text-[#c9a84c] text-xs font-bold uppercase tracking-widest mb-3">Platform Özellikleri</p>
+            <h2 className="text-[#0d1f3c] text-4xl font-extrabold">Gayrimenkulde yeni standart.</h2>
+            <p className="mt-3 text-stone-500 text-sm max-w-sm mx-auto">
+              Sahibinden&apos;de bulamayacağınız araçlar. Hepsi tek platformda.
             </p>
           </div>
-
-          {/* Type tabs */}
-          <div className="flex bg-white rounded-xl border border-stone-200 p-1 mb-6 max-w-sm mx-auto">
-            {([['buyer', 'Alıcı / Kiracı'], ['seller', 'Satıcı / Kiraya Veren'], ['agency', 'Emlak Ofisi']] as const).map(([type, label]) => (
-              <button
-                key={type}
-                onClick={() => setLeadType(type)}
-                className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${
-                  leadType === type
-                    ? 'bg-[#0d1f3c] text-white shadow-sm'
-                    : 'text-stone-400 hover:text-stone-700'
-                }`}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {FEATURES.map((f) => (
+              <div
+                key={f.title}
+                className="bg-white rounded-2xl p-7 border border-stone-100 hover:border-[#c9a84c]/40 hover:shadow-lg transition-all"
               >
-                {label}
-              </button>
+                <div className="flex items-start justify-between mb-5">
+                  <div className="text-3xl leading-none">{f.icon}</div>
+                  <span className="text-[11px] font-bold text-[#c9a84c] bg-[#c9a84c]/10 px-2.5 py-1 rounded-full">
+                    {f.tag}
+                  </span>
+                </div>
+                <h3 className="font-bold text-[#0d1f3c] mb-2">{f.title}</h3>
+                <p className="text-stone-500 text-xs leading-relaxed">{f.desc}</p>
+              </div>
             ))}
           </div>
+        </div>
+      </section>
 
-          {state === 'done' ? (
-            <div className="bg-white border border-green-100 rounded-2xl p-10 text-center shadow-sm">
-              <div className="w-14 h-14 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h3 className="text-[#0d1f3c] font-bold text-xl mb-2">Listeye alındınız!</h3>
-              <p className="text-stone-500 text-sm">Lansman günü size özel erken erişim linki göndereceğiz.</p>
+      {/* ─── Cities ───────────────────────────────────────────────────────────── */}
+      <section className="py-24 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="flex items-end justify-between mb-10">
+            <div>
+              <p className="text-[#c9a84c] text-xs font-bold uppercase tracking-widest mb-2">Büyük Şehirler</p>
+              <h2 className="text-[#0d1f3c] text-3xl font-extrabold">Nerede arıyorsunuz?</h2>
             </div>
-          ) : (
-            <form onSubmit={submitLead} className="bg-white border border-stone-200 rounded-2xl p-8 shadow-sm space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-stone-500 mb-1.5 uppercase tracking-wide">Ad Soyad *</label>
-                  <input
-                    required
-                    value={form.fullName}
-                    onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                    placeholder="Ahmet Yılmaz"
-                    className="w-full border border-stone-200 rounded-lg px-4 py-3 text-sm text-[#0d1f3c] placeholder:text-stone-300 focus:outline-none focus:border-[#0d1f3c] transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-stone-500 mb-1.5 uppercase tracking-wide">E-posta *</label>
-                  <input
-                    required type="email"
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="ahmet@sirket.com"
-                    className="w-full border border-stone-200 rounded-lg px-4 py-3 text-sm text-[#0d1f3c] placeholder:text-stone-300 focus:outline-none focus:border-[#0d1f3c] transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-stone-500 mb-1.5 uppercase tracking-wide">Telefon</label>
-                  <input
-                    type="tel"
-                    value={form.phone}
-                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    placeholder="05xx xxx xx xx"
-                    className="w-full border border-stone-200 rounded-lg px-4 py-3 text-sm text-[#0d1f3c] placeholder:text-stone-300 focus:outline-none focus:border-[#0d1f3c] transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-stone-500 mb-1.5 uppercase tracking-wide">Şehir</label>
-                  <select
-                    value={form.city}
-                    onChange={(e) => setForm({ ...form, city: e.target.value })}
-                    className="w-full border border-stone-200 rounded-lg px-4 py-3 text-sm text-[#0d1f3c] focus:outline-none focus:border-[#0d1f3c] transition-colors bg-white"
-                  >
-                    <option value="">Seçiniz…</option>
-                    {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </div>
-              </div>
-
-              <label className="flex items-start gap-3 cursor-pointer pt-1">
-                <input
-                  type="checkbox"
-                  required
-                  checked={form.kvkkConsent}
-                  onChange={(e) => setForm({ ...form, kvkkConsent: e.target.checked })}
-                  className="mt-0.5 w-4 h-4 accent-[#0d1f3c] shrink-0"
+            <button
+              onClick={() => openModal()}
+              className="text-sm text-stone-400 hover:text-[#0d1f3c] transition-colors font-medium hidden sm:block"
+            >
+              Tüm şehirler →
+            </button>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {CITIES.map((city) => (
+              <button
+                key={city.name}
+                onClick={() => openModal(city.name)}
+                className="group relative bg-[#0d1f3c] rounded-2xl p-6 text-left hover:bg-[#152d52] transition-all overflow-hidden"
+              >
+                <div
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  style={{ background: 'radial-gradient(circle at 70% 50%, rgba(201,168,76,0.1) 0%, transparent 65%)' }}
                 />
-                <span className="text-xs text-stone-400 leading-relaxed">
-                  KVKK kapsamında iletişim bilgilerimin 7fil tarafından işlenmesine onay veriyorum.
-                </span>
-              </label>
-
-              <button
-                type="submit"
-                disabled={state === 'loading'}
-                className="w-full bg-[#0d1f3c] hover:bg-[#1a3358] disabled:opacity-60 text-white font-semibold py-3.5 rounded-xl transition-colors text-sm"
-              >
-                {state === 'loading' ? 'Kaydediliyor…' : 'Erken Erişim Listesine Katıl'}
+                <div className="relative">
+                  <h3 className="text-white font-bold text-lg mb-1">{city.name}</h3>
+                  <p className="text-white/30 text-xs mb-4">{city.count} ilan</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#c9a84c] text-sm font-bold">{city.price} ort.</span>
+                    <span className="text-white/20 group-hover:text-white/50 transition-colors text-lg">→</span>
+                  </div>
+                </div>
               </button>
-
-              {state === 'error' && (
-                <p className="text-red-500 text-xs text-center">Bir hata oluştu. Lütfen tekrar deneyin.</p>
-              )}
-            </form>
-          )}
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ─── Agency CTA ──────────────────────────────────────────────────────── */}
-      <section className="py-16 bg-white">
+      {/* ─── Agency CTA ───────────────────────────────────────────────────────── */}
+      <section className="py-24 bg-[#0d1f3c]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="bg-[#0d1f3c] rounded-3xl overflow-hidden">
-            <div className="grid lg:grid-cols-2 gap-0">
-              <div className="p-10 lg:p-14">
-                <span className="inline-block bg-[#c9a84c]/20 text-[#c9a84c] text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-6">
-                  Emlak Ofisleri için
-                </span>
-                <h2 className="text-white text-3xl sm:text-4xl font-bold leading-tight mb-4">
-                  Sahibinden&apos;den daha fazlası.<br />
-                  <span className="text-[#c9a84c]" style={{ fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>7fil Ortağı olun.</span>
-                </h2>
-                <p className="text-white/50 text-sm leading-relaxed mb-8 max-w-md">
-                  Kendi subdomain&apos;iniz, sınırsız ilan, AI destekli ilan yazarı, MLS ağı ve
-                  WhatsApp entegrasyonu. Aylık sabit ücret, komisyon yok.
-                </p>
-
-                <div className="grid grid-cols-2 gap-3 mb-8">
-                  {[
-                    { icon: '🤖', t: 'AI İlan Yazarı', s: 'Saniyede profesyonel ilan metni' },
-                    { icon: '🏛️', t: 'MLS Ağı', s: '5.400+ acenta ile portföy paylaşımı' },
-                    { icon: '🌐', t: 'Subdomain', s: 'remax-hedef.7fil.com.tr' },
-                    { icon: '📊', t: 'Gelişmiş Analitik', s: 'CRM, lead takibi, dönüşüm' },
-                  ].map((f) => (
-                    <div key={f.t} className="bg-white/5 rounded-xl p-4">
-                      <div className="text-xl mb-1.5">{f.icon}</div>
-                      <div className="text-white text-xs font-semibold mb-0.5">{f.t}</div>
-                      <div className="text-white/40 text-xs">{f.s}</div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="flex flex-wrap gap-3">
-                  <button
-                    onClick={() => { setLeadType('agency'); document.getElementById('lead-form')?.scrollIntoView({ behavior: 'smooth' }) }}
-                    className="bg-[#c9a84c] hover:bg-[#b8942e] text-[#0d1f3c] font-bold px-6 py-3 rounded-xl text-sm transition-colors"
-                  >
-                    Ön Başvuru Yap
-                  </button>
-                  <Link href="/fiyatlar" className="border border-white/20 text-white/70 hover:text-white hover:border-white/40 font-semibold px-6 py-3 rounded-xl text-sm transition-all">
-                    Planları İncele
-                  </Link>
-                </div>
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <span className="inline-block bg-[#c9a84c]/15 text-[#c9a84c] text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-7">
+                Emlak Ofisleri İçin
+              </span>
+              <h2 className="text-white text-4xl font-extrabold leading-tight mb-6">
+                Portföyünüzü<br />
+                <em className="not-italic text-[#c9a84c]" style={{ fontFamily: 'Georgia, serif' }}>
+                  Türkiye&apos;nin tamamına
+                </em>
+                <br />taşıyın.
+              </h2>
+              <p className="text-white/45 text-sm leading-relaxed mb-8 max-w-md">
+                Kendi subdomain&apos;iniz, sınırsız ilan, AI ilan yazarı, CRM ve
+                WhatsApp entegrasyonu. Aylık sabit ücret — komisyon yok.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={() => openModal()}
+                  className="bg-[#c9a84c] hover:bg-[#b8942e] text-[#0d1f3c] font-bold px-7 py-3.5 rounded-xl text-sm transition-colors"
+                >
+                  Ortak Olmak İstiyorum
+                </button>
+                <Link
+                  href="/fiyatlar"
+                  className="border border-white/20 text-white/60 hover:text-white hover:border-white/40 font-semibold px-7 py-3.5 rounded-xl text-sm transition-all"
+                >
+                  Planları İncele
+                </Link>
               </div>
+            </div>
 
-              {/* Right side stats */}
-              <div className="bg-white/5 p-10 lg:p-14 flex flex-col justify-center gap-6 border-l border-white/10">
-                {[
-                  { n: '%40', l: 'Daha Hızlı İlan Yayını', sub: 'AI ilan yazarı ile' },
-                  { n: '3x', l: 'Daha Fazla Lead', sub: 'Entegre CRM ve takip sistemi' },
-                  { n: '0₺', l: 'Komisyon', sub: 'Aylık sabit ücret, sürpriz yok' },
-                ].map((s) => (
-                  <div key={s.l} className="flex items-center gap-5">
-                    <div className="text-[#c9a84c] text-4xl font-bold w-20 shrink-0">{s.n}</div>
-                    <div>
-                      <div className="text-white font-semibold text-sm">{s.l}</div>
-                      <div className="text-white/40 text-xs mt-0.5">{s.sub}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { n: '%40', l: 'Daha Hızlı İlan', sub: 'AI ilan yazarı ile' },
+                { n: '3x', l: 'Daha Fazla Lead', sub: 'CRM + WhatsApp ile' },
+                { n: '0₺', l: 'Komisyon Yok', sub: 'Sabit aylık plan' },
+                { n: '4 Dil', l: 'Yabancı Müşteri', sub: 'TR · EN · AR · RU' },
+              ].map((s) => (
+                <div key={s.l} className="bg-white/5 border border-white/5 rounded-2xl p-5">
+                  <div className="text-[#c9a84c] text-3xl font-black mb-1">{s.n}</div>
+                  <div className="text-white text-sm font-semibold">{s.l}</div>
+                  <div className="text-white/30 text-xs mt-0.5">{s.sub}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ─── Why 7fil ─────────────────────────────────────────────────────────── */}
-      <section className="py-16 bg-stone-50" id="lead-form">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <p className="text-[#c9a84c] text-xs font-semibold uppercase tracking-widest mb-2">Neden 7fil?</p>
-            <h2 className="text-[#0d1f3c] text-3xl font-bold">Gayrimenkulde yeni standart.</h2>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {WHY_ITEMS.map((item) => (
-              <div key={item.title} className="bg-white rounded-2xl p-6 border border-stone-100 hover:border-[#c9a84c]/30 hover:shadow-sm transition-all">
-                <div className="w-12 h-12 bg-[#0d1f3c]/5 text-[#0d1f3c] rounded-xl flex items-center justify-center mb-4">
-                  {item.icon}
-                </div>
-                <h3 className="font-bold text-[#0d1f3c] text-sm mb-2">{item.title}</h3>
-                <p className="text-stone-500 text-xs leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
-          </div>
+      {/* ─── Final CTA ────────────────────────────────────────────────────────── */}
+      <section className="py-24 bg-white">
+        <div className="max-w-xl mx-auto px-4 sm:px-6 text-center">
+          <p className="text-[#c9a84c] text-xs font-bold uppercase tracking-widest mb-4">Sınırlı Erken Erişim</p>
+          <h2 className="text-[#0d1f3c] text-4xl font-extrabold mb-4">
+            Listemiz dolmadan<br />yerinizi ayırtın.
+          </h2>
+          <p className="text-stone-500 text-sm mb-9 leading-relaxed">
+            İlk 500 kullanıcı ve acenta için özel lansman fiyatı ve kişisel kurulum desteği.
+          </p>
+          <button
+            onClick={() => openModal()}
+            className="bg-[#0d1f3c] hover:bg-[#1a3358] text-white font-bold px-10 py-4 rounded-2xl text-sm transition-colors shadow-xl shadow-[#0d1f3c]/15"
+          >
+            Erken Erişim Listesine Katıl →
+          </button>
         </div>
       </section>
 
       {/* ─── Footer ───────────────────────────────────────────────────────────── */}
-      <footer className="bg-[#0d1f3c] py-12">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div>
-              <span className="text-2xl font-bold text-white">
-                7<span className="text-[#c9a84c]">fil</span>
-              </span>
-              <p className="text-white/30 text-xs mt-1">Türkiye&apos;nin Entegre Gayrimenkul Ekosistemi</p>
-            </div>
-            <div className="flex items-center gap-6 text-xs text-white/30">
-              <Link href="/gizlilik" className="hover:text-white/60 transition-colors">Gizlilik</Link>
-              <Link href="/kvkk" className="hover:text-white/60 transition-colors">KVKK</Link>
-              <Link href="/kullanim-kosullari" className="hover:text-white/60 transition-colors">Kullanım Koşulları</Link>
-              <span>© 2026 Connective Hub</span>
-            </div>
+      <footer className="bg-[#0d1f3c] py-10 border-t border-white/5">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-5">
+          <div>
+            <span className="text-2xl font-extrabold text-white">
+              7<span className="text-[#c9a84c]">fil</span>
+            </span>
+            <p className="text-white/20 text-xs mt-1">Türkiye&apos;nin Entegre Gayrimenkul Ekosistemi</p>
+          </div>
+          <div className="flex items-center gap-6 text-xs text-white/20">
+            <Link href="/gizlilik" className="hover:text-white/50 transition-colors">Gizlilik</Link>
+            <Link href="/kvkk" className="hover:text-white/50 transition-colors">KVKK</Link>
+            <Link href="/kullanim-kosullari" className="hover:text-white/50 transition-colors">Kullanım Koşulları</Link>
+            <span>© 2026 Connective Hub Dijital Teknolojiler</span>
           </div>
         </div>
       </footer>
-
     </div>
   )
 }
