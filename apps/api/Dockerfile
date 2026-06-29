@@ -11,7 +11,7 @@ RUN pnpm install --frozen-lockfile --ignore-scripts
 FROM deps AS builder
 COPY apps/api ./apps/api
 RUN pnpm --filter @7fil/api build
-RUN pnpm --filter @7fil/api deploy --prod /app/deploy
+RUN pnpm --filter @7fil/api deploy --prod --legacy /app/deploy
 
 FROM node:22-alpine AS runner
 WORKDIR /app
