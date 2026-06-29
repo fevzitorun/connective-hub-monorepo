@@ -36,8 +36,9 @@ function calcTimeLeft() {
 }
 
 function CountdownTimer() {
-  const [t, setT] = useState(calcTimeLeft)
+  const [t, setT] = useState({ days: 0, hours: 0, mins: 0, secs: 0 })
   useEffect(() => {
+    setT(calcTimeLeft())
     const id = setInterval(() => setT(calcTimeLeft()), 1000)
     return () => clearInterval(id)
   }, [])
