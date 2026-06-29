@@ -48,8 +48,8 @@ export class ListingsService {
       expiresAt,
     }
     if (dto.lat && dto.lng) {
-      // PostGIS raw function — TypeORM accepts lambdas for generated columns
-      partial['coordinates'] = () => `ST_SetSRID(ST_MakePoint(${dto.lng}, ${dto.lat}), 4326)`
+      partial['lat'] = dto.lat
+      partial['lng'] = dto.lng
     }
     const listing = this.listingRepo.create(partial as Parameters<typeof this.listingRepo.create>[0])
 
@@ -108,19 +108,18 @@ export class ListingsService {
   }
 
   private async geoSearch(filters: ListingFiltersDto, page: number, perPage: number, offset: number) {
-    const radiusM = (filters.radiusKm ?? 5) * 1000
+    const radiusKm = filters.radiusKm ?? 5
+    const latDelta = radiusKm / 111
+    const lngDelta = radiusKm / (111 * Math.cos((filters.lat! * Math.PI) / 180))
 
-    const result = await this.dataSource.query(
-      `SELECT l.*, ST_Distance(l.coordinates::geography, ST_MakePoint($1,$2)::geography) as distance
-       FROM listings l
-       WHERE l.status = 'active'
-       AND ST_DWithin(l.coordinates::geography, ST_MakePoint($1,$2)::geography, $3)
-       ORDER BY distance ASC
-       LIMIT $4 OFFSET $5`,
-      [filters.lng, filters.lat, radiusM, perPage, offset]
-    )
+    const qb = this.listingRepo.createQueryBuilder('l')
+      .leftJoinAndSelect('l.photos', 'photos')
+      .where('l.status = :status', { status: ListingStatus.ACTIVE })
+      .andWhere('l.lat BETWEEN :latMin AND :latMax', { latMin: filters.lat! - latDelta, latMax: filters.lat! + latDelta })
+      .andWhere('l.lng BETWEEN :lngMin AND :lngMax', { lngMin: filters.lng! - lngDelta, lngMax: filters.lng! + lngDelta })
 
-    return { data: result, total: result.length, page, perPage }
+    const [data, total] = await qb.skip(offset).take(perPage).getManyAndCount()
+    return { data, total, page, perPage, totalPages: Math.ceil(total / perPage) }
   }
 
   // ─── Tekil getir ─────────────────────────────────────────────────────────
@@ -163,10 +162,8 @@ export class ListingsService {
     Object.assign(listing, dto)
 
     if (dto.lat && dto.lng) {
-      await this.dataSource.query(
-        `UPDATE listings SET coordinates = ST_SetSRID(ST_MakePoint($1,$2),4326) WHERE id = $3`,
-        [dto.lng, dto.lat, id]
-      )
+      listing.lat = dto.lat
+      listing.lng = dto.lng
     }
 
     return this.listingRepo.save(listing)

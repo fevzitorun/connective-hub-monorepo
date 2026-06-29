@@ -64,13 +64,9 @@ export class SearchController {
   @ApiOperation({ summary: 'Harita pinleri için hafif koordinat listesi' })
   async mapPins(@Query() query: { city?: string; listingType?: string; propertyType?: string }) {
     const qb = this.listingRepo.createQueryBuilder('l')
-      .select([
-        'l.id', 'l.title', 'l.price', 'l.currency', 'l.listing_type',
-        `ST_X(l.coordinates::geometry) as lng`,
-        `ST_Y(l.coordinates::geometry) as lat`,
-      ])
+      .select(['l.id', 'l.title', 'l.price', 'l.currency', 'l.listing_type', 'l.lat', 'l.lng'])
       .where('l.status = :status', { status: ListingStatus.ACTIVE })
-      .andWhere('l.coordinates IS NOT NULL')
+      .andWhere('l.lat IS NOT NULL')
       .limit(2000)
 
     if (query.city)         qb.andWhere('l.city = :city', { city: query.city })

@@ -2,8 +2,7 @@
 -- Run once on first container start
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS postgis;
-CREATE EXTENSION IF NOT EXISTS pg_trgm;  -- Turkish text search
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 -- ─── Enums ────────────────────────────────────────────────────────────────────
 
@@ -121,7 +120,8 @@ CREATE TABLE listings (
   status          listing_status_enum DEFAULT 'draft',
 
   -- Location (PostGIS)
-  coordinates     GEOGRAPHY(POINT, 4326),
+  lat             DECIMAL(10, 7),
+  lng             DECIMAL(10, 7),
   address_text    TEXT,
   city            VARCHAR(100) NOT NULL,
   district        VARCHAR(100),
@@ -163,7 +163,8 @@ CREATE TABLE listings (
 );
 
 -- Spatial index (critical for map/radius search)
-CREATE INDEX listings_geo_idx       ON listings USING GIST(coordinates);
+CREATE INDEX listings_lat_idx        ON listings (lat);
+CREATE INDEX listings_lng_idx        ON listings (lng);
 CREATE INDEX listings_city_idx      ON listings(city, district, neighborhood);
 CREATE INDEX listings_status_idx    ON listings(status);
 CREATE INDEX listings_type_idx      ON listings(property_type, listing_type);

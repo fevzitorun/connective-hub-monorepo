@@ -97,17 +97,11 @@ export class Listing {
   @Column({ type: 'enum', enum: ListingStatus, default: ListingStatus.DRAFT })
   status: ListingStatus
 
-  // ─── Konum (PostGIS) ────────────────────────────────────────────────────
+  @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
+  lat: number | null
 
-  // geography tipi TypeORM'de string olarak tutulur, raw query ile aranır
-  @Index({ spatial: true })
-  @Column({
-    type: 'geography',
-    spatialFeatureType: 'Point',
-    srid: 4326,
-    nullable: true,
-  })
-  coordinates: string
+  @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
+  lng: number | null
 
   @Column({ name: 'address_text', type: 'text', nullable: true })
   addressText: string
