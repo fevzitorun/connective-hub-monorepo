@@ -24,8 +24,8 @@ async function registerTokenOnServer(token: string, accessToken: string) {
 }
 
 export function usePushNotifications(onToken?: (token: string) => void, accessToken?: string | null) {
-  const notificationListener = useRef<Notifications.EventSubscription>()
-  const responseListener = useRef<Notifications.EventSubscription>()
+  const notificationListener = useRef<Notifications.Subscription>()
+  const responseListener = useRef<Notifications.Subscription>()
 
   useEffect(() => {
     registerForPushNotifications().then((token) => {
@@ -71,8 +71,9 @@ async function registerForPushNotifications(): Promise<string | null> {
     })
   }
 
-  const projectId =
-    (Constants.expoConfig?.extra as Record<string, string> | undefined)?.eas?.projectId
+  const extra = Constants.expoConfig?.extra as Record<string, unknown> | undefined
+  const eas = extra?.eas as Record<string, string> | undefined
+  const projectId = eas?.projectId
 
   const token = await Notifications.getExpoPushTokenAsync(
     projectId ? { projectId } : undefined,
