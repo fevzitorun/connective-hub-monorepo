@@ -4,7 +4,7 @@
   "outputDirectory": ".next",
   "installCommand": "cd ../.. && pnpm install --no-frozen-lockfile",
   "env": {
-    "NEXT_PUBLIC_API_URL": "https://connective-hub-monorepo-production.up.railway.app"
+    "NEXT_PUBLIC_API_URL": "https://connective-hub-monorepo-production.up.railway.app/api/v1"
   },
   "headers": [
     {
