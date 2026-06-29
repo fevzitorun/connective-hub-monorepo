@@ -30,7 +30,7 @@ COPY --chown=nestjs:nodejs .npmrc package.json pnpm-lock.yaml pnpm-workspace.yam
 COPY --chown=nestjs:nodejs apps/api/package.json ./apps/api/
 COPY --chown=nestjs:nodejs packages/ ./packages/
 
-RUN pnpm install --frozen-lockfile --prod --filter @7fil/api...
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts --filter @7fil/api...
 
 COPY --from=builder --chown=nestjs:nodejs /app/apps/api/dist ./dist
 
