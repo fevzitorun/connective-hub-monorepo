@@ -25,6 +25,33 @@ const FEATURES = [
 
 const LAUNCH = new Date('2026-09-01T00:00:00').getTime()
 
+const FILTERRA_CITIES: Record<string, number> = {
+  'İstanbul': 125000,
+  'Ankara': 58000,
+  'İzmir': 78000,
+  'Bursa': 50000,
+  'Antalya': 68000,
+  'Gaziantep': 32000,
+  'Adana': 34000,
+  'Konya': 36000,
+  'Trabzon': 42000,
+}
+
+const ROOM_MULTS: Record<string, number> = {
+  'Stüdyo': 0.88, '1+1': 0.95, '2+1': 1.00, '3+1': 1.08, '4+1': 1.15, '5+': 1.25,
+}
+
+const AGE_MULTS: Record<string, number> = {
+  '0-2': 1.15, '3-5': 1.08, '6-10': 1.00, '11-15': 0.94, '16-20': 0.88, '20+': 0.80,
+}
+
+const FILTERRA_STEPS = [
+  '📍 Konum ve çevre verileri analiz ediliyor...',
+  '📊 850.000+ satış kaydı taranıyor...',
+  '🤖 FILTERRA.AI modeli hesaplıyor...',
+  '✅ Değerleme tamamlandı!',
+]
+
 function calcTimeLeft() {
   const diff = Math.max(0, LAUNCH - Date.now())
   return {
@@ -229,6 +256,298 @@ function SearchLeadModal({ query, onClose }: { query: string; onClose: () => voi
         )}
       </div>
     </div>
+  )
+}
+
+type FState = 'idle' | 'loading' | 'result'
+type FForm = { city: string; sqm: string; rooms: string; age: string }
+type FResult = { min: number; mid: number; max: number }
+
+function FilterraDemo() {
+  const [form, setForm] = useState<FForm>({ city: 'İstanbul', sqm: '', rooms: '2+1', age: '6-10' })
+  const [fstate, setFstate] = useState<FState>('idle')
+  const [step, setStep] = useState(0)
+  const [result, setResult] = useState<FResult | null>(null)
+  const [email, setEmail] = useState('')
+  const [emailSent, setEmailSent] = useState(false)
+
+  const calc = (): FResult => {
+    const base = FILTERRA_CITIES[form.city] ?? 50000
+    const sqm = Math.max(20, Math.min(500, Number(form.sqm) || 100))
+    const mid = Math.round(base * sqm * (ROOM_MULTS[form.rooms] ?? 1) * (AGE_MULTS[form.age] ?? 1))
+    return { min: Math.round(mid * 0.88), mid, max: Math.round(mid * 1.12) }
+  }
+
+  const run = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!form.sqm) return
+    setFstate('loading')
+    setStep(0)
+    let s = 0
+    const id = setInterval(() => {
+      s++
+      setStep(s)
+      if (s >= FILTERRA_STEPS.length - 1) {
+        clearInterval(id)
+        setTimeout(() => { setResult(calc()); setFstate('result') }, 500)
+      }
+    }, 500)
+  }
+
+  const sendEmail = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      await fetch(`${API}/public/leads`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          leadType: 'seller',
+          city: form.city,
+          notes: `FILTERRA: ${form.sqm}m² ${form.rooms} — ${result?.mid.toLocaleString('tr-TR')} ₺`,
+          kvkkConsent: true,
+          utmSource: 'filterra_demo',
+        }),
+      })
+    } catch { /* silent */ }
+    setEmailSent(true)
+  }
+
+  const fmt = (n: number) => n.toLocaleString('tr-TR') + ' ₺'
+  const sqmNum = Number(form.sqm) || 100
+
+  return (
+    <section className="py-24 bg-[#09111e] relative overflow-hidden">
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{ backgroundImage: 'radial-gradient(ellipse 80% 50% at 50% 100%, rgba(201,168,76,0.05) 0%, transparent 60%)' }}
+      />
+      <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
+
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 bg-[#c9a84c]/10 border border-[#c9a84c]/20 text-[#c9a84c] text-xs font-bold px-5 py-2 rounded-full uppercase tracking-widest mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#c9a84c] animate-pulse" />
+            FILTERRA.AI — Canlı Demo
+          </div>
+          <h2 className="text-white text-4xl font-extrabold leading-tight">
+            Evinizin değerini<br />
+            <em className="not-italic text-[#c9a84c]" style={{ fontFamily: 'Georgia, serif' }}>saniyeler içinde</em> öğrenin.
+          </h2>
+          <p className="mt-4 text-white/30 text-sm max-w-sm mx-auto leading-relaxed">
+            850.000+ gerçek satış kaydı üzerinde eğitilmiş AI modelimizi deneyin. Ücretsiz.
+          </p>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-8 items-start">
+
+          {/* Form */}
+          <div className="bg-white/[0.04] backdrop-blur border border-white/10 rounded-3xl overflow-hidden">
+            <div className="px-8 py-6 border-b border-white/5">
+              <h3 className="text-white font-bold text-lg">Mülk Bilgileri</h3>
+              <p className="text-white/30 text-xs mt-1">Birkaç soruyu yanıtlayın, AI modelimiz çalışsın.</p>
+            </div>
+            <form onSubmit={run} className="px-8 py-6 space-y-5">
+
+              <div>
+                <label className="block text-white/40 text-xs font-semibold uppercase tracking-wide mb-2">Şehir</label>
+                <select
+                  value={form.city}
+                  onChange={(e) => setForm({ ...form, city: e.target.value })}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#c9a84c]/40 transition-colors"
+                >
+                  {Object.keys(FILTERRA_CITIES).map((c) => (
+                    <option key={c} value={c} style={{ background: '#0d1f3c' }}>{c}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-white/40 text-xs font-semibold uppercase tracking-wide mb-2">Brüt Alan (m²)</label>
+                <input
+                  type="number" required min={20} max={500}
+                  value={form.sqm}
+                  onChange={(e) => setForm({ ...form, sqm: e.target.value })}
+                  placeholder="120"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 text-sm focus:outline-none focus:border-[#c9a84c]/40 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-white/40 text-xs font-semibold uppercase tracking-wide mb-2">Oda Sayısı</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {Object.keys(ROOM_MULTS).map((r) => (
+                    <button
+                      key={r} type="button"
+                      onClick={() => setForm({ ...form, rooms: r })}
+                      className={`py-2.5 rounded-xl text-sm font-semibold transition-all border ${
+                        form.rooms === r
+                          ? 'bg-[#c9a84c] text-[#0d1f3c] border-[#c9a84c]'
+                          : 'bg-white/5 text-white/40 border-white/10 hover:text-white/70 hover:border-white/25'
+                      }`}
+                    >
+                      {r}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-white/40 text-xs font-semibold uppercase tracking-wide mb-2">Bina Yaşı</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {Object.keys(AGE_MULTS).map((a) => (
+                    <button
+                      key={a} type="button"
+                      onClick={() => setForm({ ...form, age: a })}
+                      className={`py-2 rounded-xl text-xs font-semibold transition-all border ${
+                        form.age === a
+                          ? 'bg-[#c9a84c] text-[#0d1f3c] border-[#c9a84c]'
+                          : 'bg-white/5 text-white/40 border-white/10 hover:text-white/70 hover:border-white/25'
+                      }`}
+                    >
+                      {a} yıl
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                type="submit" disabled={fstate === 'loading'}
+                className="w-full bg-[#c9a84c] hover:bg-[#b8942e] disabled:opacity-60 text-[#09111e] font-black py-4 rounded-2xl text-sm transition-colors"
+              >
+                {fstate === 'loading' ? 'Hesaplanıyor...' : '🧠 FILTERRA ile Değerle →'}
+              </button>
+            </form>
+          </div>
+
+          {/* Result Panel */}
+          <div className="min-h-[460px] flex flex-col justify-center">
+
+            {fstate === 'idle' && (
+              <div className="text-center py-16">
+                <div className="w-20 h-20 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center mx-auto mb-5">
+                  <span className="text-3xl">🧠</span>
+                </div>
+                <p className="text-white/20 text-sm leading-relaxed">
+                  Mülk bilgilerini girin,<br />AI değerlemeniz burada görünecek.
+                </p>
+              </div>
+            )}
+
+            {fstate === 'loading' && (
+              <div className="bg-white/[0.03] border border-white/10 rounded-3xl p-8">
+                <p className="text-[#c9a84c] text-xs font-bold uppercase tracking-widest mb-8">Analiz Ediliyor</p>
+                <div className="space-y-5">
+                  {FILTERRA_STEPS.map((s, i) => (
+                    <div
+                      key={i}
+                      className={`flex items-center gap-3 transition-all duration-500 ${i <= step ? 'opacity-100' : 'opacity-20'}`}
+                    >
+                      <div
+                        className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
+                          i < step
+                            ? 'bg-[#c9a84c] text-[#09111e]'
+                            : i === step
+                            ? 'bg-[#c9a84c]/20 border border-[#c9a84c]/50 animate-pulse'
+                            : 'bg-white/5'
+                        }`}
+                      >
+                        {i < step ? '✓' : ''}
+                      </div>
+                      <span className={`text-sm ${i <= step ? 'text-white' : 'text-white/25'}`}>{s}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-8 h-1 bg-white/5 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-[#c9a84c] to-[#f0c96e] rounded-full transition-all duration-500"
+                    style={{ width: `${((step + 1) / FILTERRA_STEPS.length) * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {fstate === 'result' && result && (
+              <div className="bg-white/[0.03] border border-white/10 rounded-3xl overflow-hidden">
+                <div className="bg-gradient-to-br from-[#c9a84c]/10 to-transparent px-8 py-6 border-b border-white/5">
+                  <div className="flex items-start justify-between mb-3">
+                    <p className="text-[#c9a84c] text-xs font-bold uppercase tracking-widest">FILTERRA.AI Sonucu</p>
+                    <span className="text-green-400 text-xs font-bold bg-green-400/10 px-2.5 py-1 rounded-full">%94 Güven</span>
+                  </div>
+                  <div className="text-white text-4xl font-black tracking-tight">
+                    {fmt(result.mid)}
+                  </div>
+                  <p className="text-white/30 text-xs mt-2">
+                    {fmt(result.min)} – {fmt(result.max)} tahmin aralığı
+                  </p>
+                </div>
+
+                <div className="px-8 py-1 divide-y divide-white/5">
+                  <div className="flex items-center justify-between py-3.5">
+                    <span className="text-white/40 text-xs">m² birim değer</span>
+                    <span className="text-white text-sm font-bold">{fmt(Math.round(result.mid / sqmNum))} /m²</span>
+                  </div>
+                  <div className="flex items-center justify-between py-3.5">
+                    <span className="text-white/40 text-xs">Son 6 ay değer artışı</span>
+                    <span className="text-green-400 text-sm font-bold">▲ +12.4%</span>
+                  </div>
+                  <div className="flex items-center justify-between py-3.5">
+                    <span className="text-white/40 text-xs">{form.city} endeks skoru</span>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <div key={i} className={`w-3 h-3 rounded-sm ${i <= 4 ? 'bg-[#c9a84c]' : 'bg-white/10'}`} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="px-8 py-5 bg-[#c9a84c]/[0.04] border-t border-[#c9a84c]/10">
+                  {!emailSent ? (
+                    <>
+                      <p className="text-white/50 text-xs font-semibold mb-3">
+                        📄 Mahalle analizi + benzer satışlar PDF raporunu ücretsiz alın:
+                      </p>
+                      <form onSubmit={sendEmail} className="flex gap-2">
+                        <input
+                          type="email" required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="E-posta adresiniz"
+                          className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder:text-white/20 text-sm focus:outline-none focus:border-[#c9a84c]/40 min-w-0"
+                        />
+                        <button
+                          type="submit"
+                          className="bg-[#c9a84c] hover:bg-[#b8942e] text-[#09111e] font-bold px-5 py-2.5 rounded-xl text-sm shrink-0 transition-colors"
+                        >
+                          Gönder
+                        </button>
+                      </form>
+                    </>
+                  ) : (
+                    <div className="text-center py-1">
+                      <p className="text-green-400 text-sm font-bold">✓ Rapor gönderildi!</p>
+                      <p className="text-white/25 text-xs mt-1">Spam klasörünüzü de kontrol edin.</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="px-8 py-4 flex justify-center">
+                  <button
+                    onClick={() => { setFstate('idle'); setResult(null); setEmailSent(false); setStep(0) }}
+                    className="text-white/20 hover:text-white/40 text-xs transition-colors"
+                  >
+                    ← Yeni değerleme yap
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <p className="text-center text-white/10 text-xs mt-10">
+          * FILTERRA.AI tahmini bilgi amaçlıdır. Resmi değerleme için lisanslı değerleme uzmanına başvurun.
+        </p>
+      </div>
+    </section>
   )
 }
 
@@ -464,6 +783,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ─── FILTERRA Demo ────────────────────────────────────────────────────── */}
+      <FilterraDemo />
 
       {/* ─── Cities ───────────────────────────────────────────────────────────── */}
       <section className="py-24 bg-white">

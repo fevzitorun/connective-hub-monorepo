@@ -1,8 +1,8 @@
-# 7fil.com.tr — MASTER PLAN v5.3
+# 7fil.com.tr — MASTER PLAN v6.0
 ### Connective Hub Dijital Teknolojiler Ltd. Şti.
-> **Son Güncelleme:** 24 Haziran 2026 · **Versiyon:** 5.3.0  
-> **Tema:** *30 Modül · 11 Mühendis Ajanı · Test Moduna ~4 Hafta*  
-> **Sprint Durumu:** Hafta 3 AI hazırlığı tamamlandı · Staging deploy bekliyor 🚀
+> **Son Güncelleme:** 29 Haziran 2026 · **Versiyon:** 6.0.0  
+> **Tema:** *Phase 1 "Bekleme Odası" Tamamlandı · Eylül 2026 Grand Opening*  
+> **Sprint Durumu:** Staging canlı ✅ · FILTERRA.AI demo live · Beta davetleri sırada 🚀
 
 ---
 
@@ -493,49 +493,62 @@ KPI: 50 kayıtlı kullanıcı · 20 test ilanı · sıfır P0 bug
 ## 6. Güncel Durum — Hangi Modül Nerede?
 
 ```
-GÜNCEL: 15 Haziran 2026 — Sprint Hafta 2 Tamamlandı
+GÜNCEL: 29 Haziran 2026 — Phase 1 "Bekleme Odası" TAMAMLANDI ✅
 
 KOD DURUMU (GitHub'da ✅):
   M01-M25 → Tüm kod tamamlandı ✅
-  Git: 24 commit · GitHub main branch'e push edildi ✅
+  Git: 28+ commit · GitHub main branch'e push edildi ✅
   API: 126 kaynak dosya · 23 modül · 1136 satırlık init.sql
-  Web: 80+ kaynak dosya · 22+ sayfa (yeni: [id] fotoğraf sayfası)
+  Web: 80+ kaynak dosya · 22+ sayfa
   Mobile: 17 kaynak dosya · 8 ekran
 
-SPRINT HAFTA 1 TAMAMLANANLAR (9-14 Haz):
+SPRINT HAFTA 1-2 TAMAMLANANLAR (9-15 Haz):
   ✅ M01 E-posta OTP doğrulama (email_verification_tokens + akış)
   ✅ M03 Meilisearch Türkçe config (30 stopword, 14 synonym)
   ✅ SEO: robots.ts, sitemap.ts, Schema.org JSON-LD, OG/Twitter meta
-  ✅ Sentry: API (PII filtreleme) + Web (Replay)
-  ✅ PostHog: App Router uyumlu sayfa izleme
-  ✅ Design tokens: shadow, gradient, transition, z-index genişletildi
+  ✅ Sentry: API + Web · PostHog: App Router uyumlu
+  ✅ TypeScript 0 hata — API + Web (NestJS 10 + TS 5.9 uyumu)
+  ✅ EmailVerifiedGuard · Listing expire cron · token cleanup cron
+  ✅ panel/ilanlar/[id]: fotoğraf drag&drop + yayına alma akışı
+  ✅ pnpm v11 + Node 22 · Dockerfile + CI/deploy düzeltmeleri
 
-SPRINT HAFTA 2 TAMAMLANANLAR (14-15 Haz):
-  ✅ TypeScript 0 hata — API (NestJS 10 + TS 5.9 uyumu) + Web
-  ✅ EmailVerifiedGuard: ilan & ödeme akışlarında zorunlu e-posta doğrulama
-  ✅ Listing expire cron (03:00) + token cleanup cron (04:00)
-  ✅ ScheduleModule: @nestjs/schedule entegrasyonu
-  ✅ Panel doğrulama banner (amber) → isVerified=false kullanıcılar
-  ✅ dogrula-email: başarılı doğrulama sonrası Zustand store güncelleme
-  ✅ panel/ilanlar/[id]: fotoğraf drag&drop yükleme + yayına alma akışı
-  ✅ pnpm-workspace.yaml: onlyBuiltDependencies (pnpm v11 syntax)
-  ✅ GitHub push: 24 commit → remote/main ✅
-  ✅ Dockerfile + CI/deploy: pnpm@9 → pnpm@11
+SPRINT HAFTA 3 TAMAMLANANLAR (24-29 Haz) — "Bekleme Odası" Phase 1:
+  ✅ Landing page: Navy/Gold Coming Soon (Zoopla kalitesi üzeri)
+     - Ara butonu → Lead Capture Modal (SSR hydration fix)
+     - CountdownTimer: Eylül 2026 geri sayım
+     - LeadCounter: Canlı DB'den ön kayıt sayacı
+     - 6 Türk şehir + 4 uluslararası kart (Londra/Dubai/Kıbrıs/Yunanistan)
+  ✅ Public Leads API: POST + GET /api/v1/public/leads(/count) — auth yok
+  ✅ /beta/giris — VIP Navy/Gold giriş sayfası (Partner Erişimi)
+  ✅ /beta/panel — Kurucu Üye dashboard (taslak ilan + yol haritası)
+  ✅ robots.txt: /panel/, /admin/, /beta/, /ara Google'dan gizli
+  ✅ DB schema canlıya uygulandı (Railway PostgreSQL — 39 tablo):
+     - public_leads tablosu
+     - listings.is_international BOOLEAN
+     - user_role_enum: 'beta_user' eklendi
+     - property_type_enum: 'overseas' eklendi
+  ✅ vercel.json NEXT_PUBLIC_API_URL düzeltildi (/api/v1 prefix)
+  ✅ FILTERRA.AI İnteraktif Demo (landing page'e eklendi):
+     - 9 şehir · m² · oda · bina yaşı girişi
+     - 4 adım AI animasyon (2 sn) + sonuç kartı
+     - Satıcı lead capture: PDF rapor e-posta formu
+     - POST /public/leads → utmSource: 'filterra_demo'
 
-5 KRİTİK AKIM DURUMU (Hafta 2 Hedefi):
-  ✅ Akış 1: Kayıt → E-posta OTP → Giriş → Profil
-  ✅ Akış 2: İlan Oluştur → Fotoğraf Yükle → Yayına Al
-  ✅ Akış 3: Arama → Harita → İlan Detay
-  ✅ Akış 4: Plan Seç → İyzico 3DS → Abonelik Aktif
-  ✅ Akış 5: Admin Girişi → İlan Moderasyonu
-  → KOD TAMAMLANDI — staging deploy sonrası manuel test gerekli
-
-STAGING'DE (henüz):
-  Hiçbir modül staging'e deploy edilmedi
-  → AKTİF GÖREV: Railway + Vercel deploy (bu sprint)
+STAGING DURUMU (29 Haz 2026):
+  ✅ API: https://connective-hub-monorepo-production.up.railway.app (Railway)
+  ✅ Web: https://7fil.com.tr (Vercel, main branch otomatik deploy)
+  ✅ DB: Railway PostgreSQL — 39 tablo, Online
+  ✅ NEXT_PUBLIC_API_URL: .../api/v1 ✅
 
 PRODUCTION:
-  Henüz yok — test modundan sonra
+  Eylül 2026 — grand opening (7fil.com.tr'ye custom domain bağlanacak)
+
+SIRADAY KİLER (Öncelik Sırasıyla):
+  🔴 DB şifre rotasyonu (Railway → PostgreSQL → Settings → Regenerate)
+  🔴 RAILWAY_TOKEN → GitHub Secrets'a ekle
+  ⬜ 50 pilot acenta beta daveti → /beta/giris'e yönlendir
+  ⬜ Mobile EAS Build (Expo → APK + TestFlight)
+  ⬜ Partner Portal Vercel deploy
 
 EKSIK KOD:
   M26: PDF Broşür → Sprint 4
@@ -561,11 +574,15 @@ EKSIK KOD:
   24 commit force-push ile GitHub main'e yazıldı
   GitHub Actions CI/CD aktif (pnpm v11 güncellemesiyle)
 
-🔴 BLOKLAYICI 3 (P1): Staging ortamı deploy — AKTİF
-  Durum: Kod hazır · GitHub'da · CLI yok → web UI üzerinden kurulum
-  Sahip: Fevzi Torun
-  Çözüm: AŞAĞIDA KURULUM REHBERİ → 3 adım
-  ETA: Bu hafta
+✅ BLOKLAYICI 3 (P1): Staging deploy — ÇÖZÜLDÜ (29 Haz)
+  API: Railway canlı · Web: Vercel canlı · DB: 39 tablo online
+  NEXT_PUBLIC_API_URL /api/v1 prefix düzeltildi
+
+🔴 YENİ GÖREV (P0): DB şifresi rotasyonu
+  Railway public URL konuşmada açığa çıktı → Railway → PostgreSQL → Settings → Regenerate
+  
+🔴 YENİ GÖREV (P0): RAILWAY_TOKEN → GitHub Secrets
+  Token: 361dd92... → Repo Settings → Secrets → RAILWAY_TOKEN olarak ekle
 
 ⚠️  RİSK 1 (P2): İyzico test modu
   IYZICO_API_KEY + IYZICO_SECRET_KEY staging'e girilmeli
