@@ -44,36 +44,8 @@ jobs:
           npx vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
         working-directory: apps/web-7fil
 
-  # ─── Deploy Partner Portal to Vercel ─────────────────────────────────────────
-  deploy-partner:
-    name: Deploy Partner Portal (Vercel)
-    runs-on: ubuntu-latest
-    env:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_PARTNER }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
-
-      - name: Deploy Partner Portal to Vercel
-        if: env.VERCEL_TOKEN != ''
-        run: |
-          npx vercel pull --yes --environment=production --token=$VERCEL_TOKEN
-          npx vercel build --prod --token=$VERCEL_TOKEN
-          npx vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
-        working-directory: apps/partner-portal
+  # Partner Portal deploy — proje Vercel'e eklendiğinde aktif edilecek
+  # deploy-partner: disabled
 
   # ─── EAS Build (Mobile) ───────────────────────────────────────────────────────
   eas-build:
